@@ -1,3 +1,4 @@
+#include "..\include\multimodelfitting.hxx"
 /*
  * Copyright (C) 2016  Martin Stumpf
  *
@@ -15,4 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
+std::vector<uint32_t> MultiModelFitter_impl::fit_impl() const
+{
+	throw std::runtime_error("Not implemented yet!");
+}
