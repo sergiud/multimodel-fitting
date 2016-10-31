@@ -13,11 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-set(EXAMPLES
-    hello_world 
-    cross_2d
+set(HEADERS
+	config_ortholines.hxx
 )
 
-foreach(EXAMPLE ${EXAMPLES})
-  add_subdirectory(${EXAMPLE})
-endforeach(EXAMPLE)
+set(SOURCES
+	config_ortholines.cxx
+    main.cxx
+)
+
+add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
+target_link_libraries(${EXAMPLE} multimodelfitting)

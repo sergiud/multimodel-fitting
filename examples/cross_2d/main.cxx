@@ -1,4 +1,3 @@
-#include "..\include\multimodelfitting.hxx"
 /*
  * Copyright (C) 2016  Martin Stumpf
  *
@@ -15,8 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl() const
-{
-	throw std::runtime_error("Not implemented yet!");
+
+#include <iostream>
+#include <multimodelfitting.hxx>
+
+#include "config_ortholines.hxx"
+
+int main(int argc, char *argv[]){
+  
+	try {
+		
+		std::cout << "cross_2d" << std::endl;
+  
+		MultiModelFitter<config_ortholines> fitter;
+		config_ortholines config;
+
+		fitter.fit(config);
+
+	}
+	catch (std::exception const & e) {
+		std::cout << "Exception: " << e.what() << std::endl;
+	}
+
+	return 0;
 }

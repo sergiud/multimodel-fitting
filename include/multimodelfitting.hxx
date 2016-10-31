@@ -20,17 +20,25 @@
 #include <vector>
 #include <cstdint>
 #include <stdexcept>
+#include <memory>
 
-// Superclass needed, because template classes cannot get compiled to a library
+// Template independent implementation of the MultiModelFitter
 class MultiModelFitter_impl {
+public:
+	typedef int32_t label_type;
 protected:
 	// Direct call to run algorithm
-	std::vector<uint32_t> fit_impl() const;
+	std::vector<label_type> fit_impl() const;
 
 	// Virtual callbacks for evaluation steps that require the
 	// knowledge of the templates
 	virtual size_t get_sample_count() = 0;
-	virtual uint32_t get_hypotheses_count() = 0;
+	virtual label_type get_hypotheses_count() = 0;
+	virtual void debug_output(std::vector<label_type> const &) = 0;
+
+private:
+	// other internal algorithm functions, that shouldn't be visible in child
+
 };
 
 /*
@@ -41,35 +49,41 @@ template<class C>
 class MultiModelFitter : private MultiModelFitter_impl {
 
 public:
-	// The actual functionality of this class
-	void set_samples(const &std::vector<C::sample_type> points);
-	void set_hypotheses(const &std::vector<C::hypothesis_type> hypotheses);
-	std::vector<uint32_t> fit() const;
+	// Sets the samples
+	void set_samples(std::vector<typename C::sample_type> const & points);
+	// Sets the hypotheses
+	void set_hypotheses(std::vector<typename C::hypothesis_type> const & hypotheses);
+	std::vector<label_type> fit(C& config);
+	// Removes the samples, frees memory
 	void clear_samples();
+	// Removes the hypotheses, frees memory
 	void clear_hypotheses();
 
 private:
-	// Internal variables
-	std::vector<C::sample_type> samples;
-	std::vector<C::hypothesis_type> hypotheses;
-
+	// Internal variable, holds samples
+	std::vector<typename C::sample_type> samples;
+	// Internal variable, holds hypotheses
+	std::vector<typename C::hypothesis_type> hypotheses;
+	// Handle to the config object
+	C* config;
 private:
 	// Callback functions. This is needed because the
 	// actual implementation is free of templates.
 	size_t get_sample_count();
-	uint32_t get_hypotheses_count();
+	label_type get_hypotheses_count();
+	void debug_output(std::vector<label_type> const &);
 };
 
 template<class C>
-inline void MultiModelFitter<C>::set_samples(const &std::vector<C::sample_type> samples)
+inline void MultiModelFitter<C>::set_samples(std::vector<typename C::sample_type> const & samples)
 {
 	this->samples = samples;
 }
 
 template<class C>
-inline void MultiModelFitter<C>::set_hypotheses(const &std::vector<C::hypothesis_type> hypothesis)
+inline void MultiModelFitter<C>::set_hypotheses(std::vector<typename C::hypothesis_type> const & hypothesis)
 {
-	uint32_t hypothesis_size = static_cast<uint32_t>(hypotheses.size());
+	MultiModelFitter_impl::label_type hypothesis_size = static_cast<MultiModelFitter_impl::label_type>(hypotheses.size());
 	if (hypothesis_size != hypotheses.size()) {
 		throw std::runtime_error("Too many hypotheses!")
 	}
@@ -77,9 +91,12 @@ inline void MultiModelFitter<C>::set_hypotheses(const &std::vector<C::hypothesis
 }
 
 template<class C>
-inline std::vector<uint32_t> MultiModelFitter<C>::fit() const
+inline std::vector<typename MultiModelFitter_impl::label_type> MultiModelFitter<C>::fit(C& config)
 {
-	return MultiModelFitter_impl::fit();
+	this->config = &config;
+	auto result = MultiModelFitter_impl::fit_impl();
+	this->config = NULL;
+	return result;
 }
 
 template<class C>
@@ -101,7 +118,14 @@ inline size_t MultiModelFitter<C>::get_sample_count()
 }
 
 template<class C>
-inline uint32_t MultiModelFitter<C>::get_hypotheses_count()
+inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypotheses_count()
 {
-	return static_cast<uint32_t>(this->hypotheses.size());
+	return static_cast<MultiModelFitter_impl::label_type>(this->hypotheses.size());
 }
+
+template<class C>
+inline void MultiModelFitter<C>::debug_output(std::vector<typename label_type> const &labels)
+{
+	config->debug_output(labels);
+}
+
