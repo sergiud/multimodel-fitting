@@ -15,12 +15,24 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "config_ortholines.hxx"
+#pragma once
 
-#include <iostream>
+#include <Cimg.h>
+#include "shapes_2d.hxx"
 
-
-void config_ortholines::debug_output(std::vector<MultiModelFitter_impl::label_type> const &)
-{
-	std::cout << "debug_output()" << std::endl;
-}
+class drawer_2d {
+private:
+	drawer_2d();
+public:
+	drawer_2d(const char* name, unsigned int width, unsigned int height, float x_min, float x_max, float y_min, float y_max);
+	void clear();
+	void draw_line(line_2d line, unsigned char color[3]);
+	void draw_point(point_2d point, unsigned char color[3]);
+	void display();
+	void wait();
+private:
+	cimg_library::CImg<unsigned char> visu;
+	cimg_library::CImgDisplay disp;
+	const float x_min, x_max, y_min, y_max;
+	const unsigned int width, height;
+};

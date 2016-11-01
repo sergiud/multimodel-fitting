@@ -15,12 +15,21 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "config_ortholines.hxx"
+#include "shapes_2d.hxx"
+#include <cmath>
 
-#include <iostream>
-
-
-void config_ortholines::debug_output(std::vector<MultiModelFitter_impl::label_type> const &)
+point_2d::point_2d(float nx, float ny) : x(nx), y(ny)
 {
-	std::cout << "debug_output()" << std::endl;
+}
+
+line_2d::line_2d(float x0, float y0, float x1, float y1)
+	: x0(x0), y0(y0),
+	dirx((x1 - x0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0))),
+	diry((y1 - y0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0)))
+{
+}
+
+point_2d line_2d::get_point(float dist)
+{
+	return point_2d(x0 + dist * dirx, y0 + dist * diry);
 }

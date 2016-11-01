@@ -18,19 +18,8 @@
 #pragma once
 
 #include<multimodelfitting.hxx>
+#include "shapes_2d.hxx"
 
-struct point_2d {
-public:
-	const float x;
-	const float y;
-	point_2d(float x, float y);
-};
-
-struct line_2d {
-	const float angle;
-	const float dist;
-	line_2d(float angle, float dist);
-};
 
 class config_ortholines {
 public:

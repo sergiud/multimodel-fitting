@@ -29,6 +29,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 # Add main include directory
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
+# Add dependency include directories
+include_directories("${PROJECT_SOURCE_DIR}/ext/CImg")
+
 add_subdirectory(include)
 message("multimodelfitting_HEADERS: ${multimodelfitting_HEADERS}")
 add_subdirectory(src)

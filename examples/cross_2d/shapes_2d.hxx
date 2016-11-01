@@ -15,12 +15,18 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "config_ortholines.hxx"
+#pragma once
 
-#include <iostream>
+struct point_2d {
+public:
+	const float x;
+	const float y;
+	point_2d(float x, float y);
+};
 
-
-void config_ortholines::debug_output(std::vector<MultiModelFitter_impl::label_type> const &)
-{
-	std::cout << "debug_output()" << std::endl;
-}
+struct line_2d {
+	const float x0, y0;
+	const float dirx, diry;
+	line_2d(float x0, float y0, float x1, float y1);
+	point_2d get_point(float dist);
+};

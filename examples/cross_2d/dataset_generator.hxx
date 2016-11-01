@@ -15,12 +15,17 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "config_ortholines.hxx"
+#pragma once
 
-#include <iostream>
+#include <cstddef>
+#include <vector>
+#include <random>
+#include "shapes_2d.hxx"
 
-
-void config_ortholines::debug_output(std::vector<MultiModelFitter_impl::label_type> const &)
-{
-	std::cout << "debug_output()" << std::endl;
-}
+class dataset_generator {
+public:
+	static std::vector<point_2d>generate(size_t num_data, size_t num_outliers);
+private:
+	static std::vector<point_2d>generate_data(size_t num);
+	static std::vector<point_2d>generate_outliers(size_t num);
+};

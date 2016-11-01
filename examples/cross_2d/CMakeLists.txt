@@ -15,11 +15,17 @@
 
 set(HEADERS
 	config_ortholines.hxx
+  shapes_2d.hxx
+  drawer_2d.hxx
+  dataset_generator.hxx
 )
 
 set(SOURCES
 	config_ortholines.cxx
-    main.cxx
+  shapes_2d.cxx
+  drawer_2d.cxx
+  dataset_generator.cxx
+  main.cxx
 )
 
 add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
