@@ -33,3 +33,28 @@ point_2d line_2d::get_point(float dist)
 {
 	return point_2d(x0 + dist * dirx, y0 + dist * diry);
 }
+/*
+point_2d::~point_2d()
+{
+}
+
+point_2d::point_2d(const point_2d& other)
+	: x(other.x), y(other.y)
+{
+}
+
+point_2d::point_2d(point_2d&& other)
+	: x(other.x), y(other.y)
+{
+}
+
+point_2d& point_2d::operator=(const point_2d& other)
+{
+	x = other.x;
+	y = other.y;
+}
+
+point_2d& point_2d::operator=(point_2d&& other) {
+
+}
+*/

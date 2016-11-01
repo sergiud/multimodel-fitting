@@ -20,3 +20,6 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
 {
 	throw std::runtime_error("Not implemented yet!");
 }
+//https://github.com/opengm/opengm
+//cmakepackageconfighelpers
+//siehe glog

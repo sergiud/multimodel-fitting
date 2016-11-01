@@ -17,9 +17,11 @@
 
 #include "drawer_2d.hxx"
 #include <iostream>
+#include <random>
 
 drawer_2d::drawer_2d(const char * name, unsigned int width, unsigned int height, float x_min, float y_min, float x_max, float y_max)
-	: width(width), height(height), x_min(x_min), x_max(x_max), y_min(y_min), y_max(y_max), visu(width, height,1,3,0), disp(visu, name)
+	: width(width), height(height), x_min(x_min), x_max(x_max), y_min(y_min), y_max(y_max), visu(width, height,1,3,0), disp(visu, name),
+	  rnd_gen(0), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
 {
 }
 
@@ -28,7 +30,7 @@ void drawer_2d::clear()
 	visu.fill(0);
 }
 
-void drawer_2d::draw_line(line_2d line, unsigned char color[3])
+void drawer_2d::draw_line(line_2d line, std::array<unsigned char, 3> const & color)
 {
 	point_2d p0 = line.get_point(static_cast<float>(width + height));
 	point_2d p1 = line.get_point(-static_cast<float>(width + height));
@@ -42,16 +44,16 @@ void drawer_2d::draw_line(line_2d line, unsigned char color[3])
 	unsigned int p1_x = static_cast<unsigned int>(p1_x_f * width);
 	unsigned int p1_y = static_cast<unsigned int>(p1_y_f * height);
 
-	visu.draw_line(p0_x, p0_y, p1_x, p1_y, color);
+	visu.draw_line(p0_x, p0_y, p1_x, p1_y, color.data());
 }
 
-void drawer_2d::draw_point(point_2d point, unsigned char color[3])
+void drawer_2d::draw_point(point_2d point, std::array<unsigned char, 3> const & color)
 {
 	float pos_x_f = (point.x - x_min) / (x_max - x_min);
 	float pos_y_f = (point.y - y_min) / (y_max - y_min);
 	unsigned int pos_x = static_cast<unsigned int>(pos_x_f * width);
 	unsigned int pos_y = static_cast<unsigned int>(pos_y_f * height);
-	visu.draw_rectangle(pos_x - 1, pos_y - 1, pos_x + 1, pos_y + 1, color);
+	visu.draw_rectangle(pos_x - 1, pos_y - 1, pos_x + 1, pos_y + 1, color.data());
 }
 
 void drawer_2d::display()
@@ -64,4 +66,83 @@ void drawer_2d::wait()
 	while (!disp.is_closed()) {
 		disp.wait();
 	}
+}
+
+void drawer_2d::set_datapoints(std::vector<point_2d> const & points)
+{
+	this->datapoints = points;
+}
+
+void drawer_2d::set_hypotheses(std::vector<line_2d> const & hypotheses)
+{
+	this->hypotheses = hypotheses;
+	
+	colors_dots.clear();
+	colors_lines.clear();
+	colors_dots.reserve(hypotheses.size());
+	colors_lines.reserve(hypotheses.size());
+
+	unsigned char line_brightness = 180;
+	unsigned char dot_brightness = 255;
+
+	for (size_t i = 0; i < hypotheses.size(); i++) {
+		
+		std::array<float, 3> rnd_col = generate_color();
+
+		std::array<unsigned char, 3> color_dot = {
+			static_cast<unsigned char>(rnd_col[0]*dot_brightness),
+			static_cast<unsigned char>(rnd_col[1]*dot_brightness),
+			static_cast<unsigned char>(rnd_col[2]*dot_brightness),
+		};
+		std::array<unsigned char, 3> color_line = {
+			static_cast<unsigned char>(rnd_col[0] * line_brightness),
+			static_cast<unsigned char>(rnd_col[1] * line_brightness),
+			static_cast<unsigned char>(rnd_col[2] * line_brightness),
+		};
+		colors_dots.push_back(std::move(color_dot));
+		colors_lines.push_back(std::move(color_line));
+	}
+}
+
+void drawer_2d::draw_all()
+{
+	std::array<unsigned char,3> gray = { 180, 180, 180 };
+	for (size_t i = 0; i < hypotheses.size(); i++) {
+		draw_line(hypotheses[i], colors_lines[i]);
+	}
+	for (auto const & datapoint : datapoints) {
+		draw_point(datapoint, gray);
+	}
+	display();
+}
+
+std::array<float, 3> drawer_2d::generate_color()
+{
+	float col_detail = col_hue_detail_gen(rnd_gen);
+	unsigned int col_region = col_hue_raw_gen(rnd_gen);
+	std::array<float, 3> out;
+	switch (col_region) {
+	case 0:
+		out = { 1.0f, col_detail, 0.0f };
+		break;
+	case 1:
+		out = { col_detail, 1.0f, 0.0f };
+		break;
+	case 2:
+		out = { 0.0f, 1.0f, col_detail };
+		break;
+	case 3:
+		out = { 0.0f, col_detail, 1.0f };
+		break;
+	case 4:
+		out = { col_detail, 0.0f, 1.0f };
+		break;
+	case 5:
+		out = { 1.0f, 0.0f, col_detail };
+		break;
+	default:
+		out = { 1.0f, 1.0f, 1.0f };
+		break;
+	}
+	return out;
 }

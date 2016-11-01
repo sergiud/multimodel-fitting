@@ -85,7 +85,7 @@ inline void MultiModelFitter<C>::set_hypotheses(std::vector<typename C::hypothes
 {
 	MultiModelFitter_impl::label_type hypothesis_size = static_cast<MultiModelFitter_impl::label_type>(hypotheses.size());
 	if (hypothesis_size != hypotheses.size()) {
-		throw std::runtime_error("Too many hypotheses!")
+		throw std::runtime_error("Too many hypotheses!");
 	}
 	this->hypotheses = hypotheses;
 }

@@ -23,9 +23,7 @@ std::vector<point_2d> dataset_generator::generate(size_t num_data, size_t num_ou
 	std::vector<point_2d> outliers = generate_outliers(num_outliers);
 	
 	data.reserve(num_data + num_outliers);
-	for (auto const & outlier : outliers) {
-		data.push_back(outlier);
-	}
+	data.insert(data.end(), outliers.begin(), outliers.end());
 	
 	return data;
 }
@@ -54,11 +52,36 @@ std::vector<point_2d> dataset_generator::generate_outliers(size_t num)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	auto real_gen = std::uniform_real_distribution<float>(0.0f, 1.0f);
+	std::uniform_real_distribution<float>real_gen(0.0f, 1.0f);
 	std::vector<point_2d> result;
 	result.reserve(num);
 	for (size_t i = 0; i < num; i++) {
 		result.push_back(point_2d(real_gen(gen), real_gen(gen)));
 	}
 	return result;
+}
+
+std::vector<line_2d> dataset_generator::compute_hypotheses(std::vector<point_2d> const & datapoints, size_t num) {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<size_t> index_gen1(0, num - 1);
+	std::uniform_int_distribution<size_t> index_gen2(0, num - 2);
+
+	std::vector<line_2d> hypotheses;
+	hypotheses.reserve(num);
+	for (size_t i = 0; i < num; i++) {
+		if (i == 0) {
+			hypotheses.push_back(line_2d(0.0f, 0.0f, 1.0f, 1.0f));
+		}
+		else if (i == 1) {
+			hypotheses.push_back(line_2d(0.0f, 1.0f, 1.0f, 0.0f));
+		}
+		else {
+			size_t p0 = index_gen1(gen);
+			size_t p1 = index_gen2(gen);
+			if (p1 >= p0) p1++;
+			hypotheses.push_back(line_2d(datapoints[p0].x, datapoints[p0].y, datapoints[p1].x, datapoints[p1].y));
+		}
+	}
+	return hypotheses;
 }

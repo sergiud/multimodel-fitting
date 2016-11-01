@@ -15,15 +15,16 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "problem_ortholines.hxx"
 
-#include<multimodelfitting.hxx>
-#include "shapes_2d.hxx"
+#include <iostream>
 
+problem_ortholines::problem_ortholines(std::shared_ptr<drawer_2d> drawer)
+{
+	this->drawer = drawer;
+}
 
-class config_ortholines {
-public:
-	typedef point_2d sample_type;
-	typedef line_2d hypothesis_type;
-	void debug_output(std::vector<MultiModelFitter_impl::label_type> const &);
-};
+void problem_ortholines::debug_output(std::vector<MultiModelFitter_impl::label_type> const & labels)
+{
+	drawer->draw_labeled(labels);
+}

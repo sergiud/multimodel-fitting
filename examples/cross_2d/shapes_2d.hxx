@@ -19,14 +19,14 @@
 
 struct point_2d {
 public:
-	const float x;
-	const float y;
+	float x;
+	float y;
 	point_2d(float x, float y);
 };
 
 struct line_2d {
-	const float x0, y0;
-	const float dirx, diry;
+	float x0, y0;
+	float dirx, diry;
 	line_2d(float x0, float y0, float x1, float y1);
 	point_2d get_point(float dist);
 };

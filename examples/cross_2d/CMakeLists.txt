@@ -14,14 +14,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 set(HEADERS
-	config_ortholines.hxx
+  problem_ortholines.hxx
   shapes_2d.hxx
   drawer_2d.hxx
   dataset_generator.hxx
 )
 
 set(SOURCES
-	config_ortholines.cxx
+  problem_ortholines.cxx
   shapes_2d.cxx
   drawer_2d.cxx
   dataset_generator.cxx
