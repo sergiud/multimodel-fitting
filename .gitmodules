@@ -1,3 +1,6 @@
 [submodule "ext/CImg"]
 	path = ext/CImg
 	url = https://github.com/dtschump/CImg.git
+[submodule "ext/opengm"]
+	path = ext/opengm
+	url = https://github.com/opengm/opengm.git
