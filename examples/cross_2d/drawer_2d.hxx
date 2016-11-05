@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Cimg.h>
+#include <CImg.h>
 #include "shapes_2d.hxx"
 #include <vector>
 #include <array>

@@ -1,0 +1,1 @@
+- remove CImg, libX11 dependency from examples/cross_2d

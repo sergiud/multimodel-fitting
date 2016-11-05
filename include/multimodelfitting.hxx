@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <memory>
+#include <cstdlib>
 
 // Template independent implementation of the MultiModelFitter
 class MultiModelFitter_impl {
@@ -124,7 +125,7 @@ inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypotheses_cou
 }
 
 template<class C>
-inline void MultiModelFitter<C>::debug_output(std::vector<typename label_type> const &labels)
+inline void MultiModelFitter<C>::debug_output(std::vector<label_type> const &labels)
 {
 	config->debug_output(labels);
 }

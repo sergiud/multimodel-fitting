@@ -29,4 +29,4 @@ set(SOURCES
 )
 
 add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
-target_link_libraries(${EXAMPLE} multimodelfitting)
+target_link_libraries(${EXAMPLE} pthread X11 multimodelfitting)

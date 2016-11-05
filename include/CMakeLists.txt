@@ -19,4 +19,3 @@ set(multimodelfitting_HEADERS
   
 PARENT_SCOPE)
 
-message("multimodelfitting_HEADERS: ${multimodelfitting_HEADERS}")
