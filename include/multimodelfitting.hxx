@@ -27,15 +27,18 @@
 class MultiModelFitter_impl {
 public:
 	typedef int32_t label_type;
+    typedef size_t sampleid_type;
 protected:
 	// Direct call to run algorithm
 	std::vector<label_type> fit_impl() const;
 
 	// Virtual callbacks for evaluation steps that require the
 	// knowledge of the templates
-	virtual size_t get_sample_count() const = 0;
+	virtual sampleid_type get_sample_count() const = 0;
 	virtual label_type get_hypothesis_count() const = 0;
 	virtual void debug_output(std::vector<label_type> const &) = 0;
+    virtual std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
+        getNeighbourhood() const = 0; 
 
 private:
 	// other internal algorithm functions, that shouldn't be visible in child
@@ -70,8 +73,10 @@ private:
 private:
 	// Callback functions. This is needed because the
 	// actual implementation is free of templates.
-	size_t get_sample_count() const;
+	sampleid_type get_sample_count() const;
 	label_type get_hypothesis_count() const;
+    std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
+        getNeighbourhood() const; 
 	void debug_output(std::vector<label_type> const &);
 };
 
@@ -113,9 +118,9 @@ inline void MultiModelFitter<C>::clear_hypotheses()
 }
 
 template<class C>
-inline size_t MultiModelFitter<C>::get_sample_count() const
+inline MultiModelFitter_impl::sampleid_type MultiModelFitter<C>::get_sample_count() const
 {
-	return this->samples.size();
+	return static_cast<MultiModelFitter_impl::sampleid_type>(this->samples.size());
 }
 
 template<class C>
@@ -130,3 +135,9 @@ inline void MultiModelFitter<C>::debug_output(std::vector<label_type> const &lab
 	config->debug_output(labels);
 }
 
+template<class C>
+inline std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
+MultiModelFitter<C>::getNeighbourhood() const
+{
+    return std::make_shared<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>(); 
+}

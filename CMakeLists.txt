@@ -27,8 +27,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 
 # Add static dependencies
-#find_package(CImg)
-#find_package(opengm
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 
 # Add OpenGM Dependency
 include(ExternalProject)
@@ -36,12 +41,13 @@ ExternalProject_Add( opengm
     PREFIX "${PROJECT_SOURCE_DIR}/external/opengm"
     GIT_REPOSITORY "https://github.com/opengm/opengm.git"
     #GIT_TAG "v2.3.7RC"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install -DBUILD_EXAMPLES=OFF -DBUILD_TUTORIALS=OFF -DBUILD_TESTING=OFF -DWITH_MAXFLOW=ON
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install
+               -DBUILD_EXAMPLES=OFF -DBUILD_TUTORIALS=OFF -DBUILD_TESTING=OFF
+               -DWITH_MAXFLOW=ON
     INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install"
     PATCH_COMMAND eval "(cd ./src/external/patches/MaxFlow/ && ./patchMaxFlow-v3.02.sh)"
 )
 include_directories("${PROJECT_SOURCE_DIR}/external/opengm/src/opengm/src/external/MaxFlow-v3.02.src-patched")
-
 
 # Add C++11
 include(CheckCXXCompilerFlag)
@@ -53,7 +59,8 @@ else()
     if(COMPILER_SUPPORTS_CXX0X)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
     else()
-        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11"
+                            "support. Please use a different C++ compiler.")
     endif()
 endif()
 

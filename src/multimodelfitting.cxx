@@ -17,28 +17,44 @@
  */
 #include <iostream>
 #include <opengm/graphicalmodel/space/simplediscretespace.hxx>
-//#include <opengm/graphicalmodel/graphicalmodel.hxx>
-//#include <opengm/operations/adder.hxx>
-//#include <opengm/operations/minimizer.hxx>
-//#include <opengm/inference/graphcut.hxx>
-//#include <opengm/inference/alphaexpansion.hxx>
-//#include <opengm/inference/auxiliary/minstcutkolmogorov.hxx>
+#include <opengm/graphicalmodel/graphicalmodel.hxx>
+#include <opengm/operations/adder.hxx>
+#include <opengm/operations/minimizer.hxx>
+#include <opengm/inference/graphcut.hxx>
+#include <opengm/inference/alphaexpansion.hxx>
+#include <opengm/inference/auxiliary/minstcutkolmogorov.hxx>
 
 std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl() const
 {
     size_t sample_count = get_sample_count();
     label_type hypothesis_count = get_hypothesis_count(); 
+    
+    // construct space
+    typedef opengm::SimpleDiscreteSpace<size_t, label_type> SpaceType;
+    SpaceType space(sample_count, hypothesis_count);
+    
+    // set function types
+    typedef opengm::meta::TypeListGenerator<
+        opengm::ExplicitFunction<double>
+    >::type FunctionTypeList;
 
-    /*typedef opengm::GraphicalModel<double, opengm::Adder> GraphicalModelType;
+    // construct graphical model
+    typedef opengm::GraphicalModel<
+        double,
+        opengm::Adder,
+        FunctionTypeList,
+        SpaceType
+    > GraphicalModelType;
+    GraphicalModelType gm(space);
+    
+
+    
+    
     typedef opengm::external::MinSTCutKolmogorov<size_t, double> MinStCutType;
     typedef opengm::GraphCut<GraphicalModelType, opengm::Minimizer, MinStCutType> MinGraphCut;
     typedef opengm::AlphaExpansion<GraphicalModelType, MinGraphCut> MinAlphaExpansion;
-    GraphicalModelType gm;
+    /*GraphicalModelType gm;
     */
-    
-    // our space
-    opengm::SimpleDiscreteSpace<> space(sample_count, hypothesis_count);
-
     // ... 13
     /*MinAlphaExpansion ae(gm);
     ae.infer();
