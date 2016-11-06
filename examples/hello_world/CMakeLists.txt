@@ -22,4 +22,4 @@ set(SOURCES
 )
 
 add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
-target_link_libraries(${EXAMPLE} multimodelfitting)
+target_link_libraries(${EXAMPLE} multimodelfitting ${OpenCV_LIBRARIES})

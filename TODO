@@ -1,1 +1,9 @@
-- remove CImg, libX11 dependency from examples/cross_2d
+currently:
+    - remove CImg, libX11 dependency from examples/cross_2d
+    - replace with OpenCV
+
+further
+    - compute neighborhood with opencv delaunay (Subdiv2D)
+    - compute distance from labeled points to hypothesis
+    - create simple inferer without high-level priors
+    - add priors

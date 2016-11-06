@@ -26,16 +26,12 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 
-# Add static dependencies
+
+# Add OpenCV dependency
 find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories("${OpenCV_INCLUDE_DIRS}")
 
-get_cmake_property(_variableNames VARIABLES)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
-# Add OpenGM Dependency
+# Add OpenGM dependency
 include(ExternalProject)
 ExternalProject_Add( opengm
     PREFIX "${PROJECT_SOURCE_DIR}/external/opengm"
@@ -48,6 +44,7 @@ ExternalProject_Add( opengm
     PATCH_COMMAND eval "(cd ./src/external/patches/MaxFlow/ && ./patchMaxFlow-v3.02.sh)"
 )
 include_directories("${PROJECT_SOURCE_DIR}/external/opengm/src/opengm/src/external/MaxFlow-v3.02.src-patched")
+
 
 # Add C++11
 include(CheckCXXCompilerFlag)
@@ -64,14 +61,12 @@ else()
     endif()
 endif()
 
+
 # Add main include directory
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 # Add dependency include directories
 include_directories("${PROJECT_SOURCE_DIR}/external/install/include")
-# TODO remove:
-include_directories("${PROJECT_SOURCE_DIR}/ext/CImg")
-
 
 add_subdirectory(include)
 add_subdirectory(src)

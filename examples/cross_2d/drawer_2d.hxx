@@ -17,58 +17,58 @@
 
 #pragma once
 
-#include <CImg.h>
 #include "shapes_2d.hxx"
 #include <vector>
 #include <array>
 #include <random>
+#include <opencv2/core/core.hpp>
 
 class drawer_2d {
 private:
-	drawer_2d();
+    drawer_2d();
 public:
-	drawer_2d(const char* name, unsigned int width, unsigned int height, float x_min, float x_max, float y_min, float y_max);
-	void clear();
-	void draw_line(line_2d line, std::array<unsigned char,3> const & color);
-	void draw_point(point_2d point, std::array<unsigned char, 3> const & color);
-	void display();
-	void wait();
+    drawer_2d(const char* name, unsigned int width, unsigned int height, float x_min, float x_max, float y_min, float y_max);
+    void clear();
+    void draw_line(line_2d line, std::array<unsigned char,3> const & color);
+    void draw_point(point_2d point, std::array<unsigned char, 3> const & color);
+    void display();
+    void wait();
 public:
-	void set_datapoints(std::vector<point_2d> const & points);
-	void set_hypotheses(std::vector<line_2d> const & hypotheses);
-	void draw_all();
-	template<typename T> void draw_labeled(std::vector<T> const & labels);
+    void set_datapoints(std::vector<point_2d> const & points);
+    void set_hypotheses(std::vector<line_2d> const & hypotheses);
+    void draw_all();
+    template<typename T> void draw_labeled(std::vector<T> const & labels);
 private:
-	std::vector<point_2d> datapoints;
-	std::vector<line_2d> hypotheses;
-	std::vector<std::array<unsigned char, 3>> colors_lines;
-	std::vector<std::array<unsigned char, 3>> colors_dots;
-	cimg_library::CImg<unsigned char> visu;
-	cimg_library::CImgDisplay disp;
-	const float x_min, x_max, y_min, y_max;
-	const unsigned int width, height;
-	std::mt19937 rnd_gen;
-	std::uniform_real_distribution<float> col_hue_detail_gen;
-	std::uniform_int_distribution<unsigned int> col_hue_raw_gen;
+    std::vector<point_2d> datapoints;
+    std::vector<line_2d> hypotheses;
+    std::vector<std::array<unsigned char, 3>> colors_lines;
+    std::vector<std::array<unsigned char, 3>> colors_dots;
+    cv::Mat visu;
+    const char* disp;
+    const float x_min, x_max, y_min, y_max;
+    const unsigned int width, height;
+    std::mt19937 rnd_gen;
+    std::uniform_real_distribution<float> col_hue_detail_gen;
+    std::uniform_int_distribution<unsigned int> col_hue_raw_gen;
 private:
-	std::array<float, 3> generate_color();
+    std::array<float, 3> generate_color();
 
 };
 
 template<typename T>
 inline void drawer_2d::draw_labeled(std::vector<T> const & labels)
 {
-	std::vector<unsigned char> hypothesis_exists(hypotheses.size());
-	std::fill(hypothesis_exists.begin(), hypothesis_exists.end(), false);
-	for (size_t i = 0; i < labels.size(); i++) {
-		hypothesis_exists[labels[i]] = true;
-	}
-	for (size_t i = 0; i < hypotheses.size(); i++) {
-		if (hypothesis_exists[i]) {
-			draw_line(hypotheses[i], colors_lines[i]);
-		}
-	}
-	for (size_t i = 0; i < labels.size(); i++) {
-		draw_point(datapoints[i], colors_dots[labels[i]]);
-	}
+    std::vector<unsigned char> hypothesis_exists(hypotheses.size());
+    std::fill(hypothesis_exists.begin(), hypothesis_exists.end(), false);
+    for (size_t i = 0; i < labels.size(); i++) {
+        hypothesis_exists[labels[i]] = true;
+    }
+    for (size_t i = 0; i < hypotheses.size(); i++) {
+        if (hypothesis_exists[i]) {
+            draw_line(hypotheses[i], colors_lines[i]);
+        }
+    }
+    for (size_t i = 0; i < labels.size(); i++) {
+        draw_point(datapoints[i], colors_dots[labels[i]]);
+    }
 }
