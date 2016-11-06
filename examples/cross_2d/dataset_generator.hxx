@@ -24,9 +24,9 @@
 
 class dataset_generator {
 public:
-	static std::vector<point_2d>generate(size_t num_data, size_t num_outliers);
-	static std::vector<line_2d> compute_hypotheses(std::vector<point_2d> const & datapoints, size_t num);
+    static std::vector<point_2d>generate(size_t num_data, size_t num_outliers);
+    static std::vector<line_2d> compute_hypotheses(std::vector<point_2d> const & datapoints, size_t num);
 private:
-	static std::vector<point_2d>generate_data(size_t num);
-	static std::vector<point_2d>generate_outliers(size_t num);
+    static std::vector<point_2d>generate_data(size_t num);
+    static std::vector<point_2d>generate_outliers(size_t num);
 };

@@ -21,10 +21,10 @@
 
 problem_ortholines::problem_ortholines(std::shared_ptr<drawer_2d> drawer)
 {
-	this->drawer = drawer;
+    this->drawer = drawer;
 }
 
 void problem_ortholines::debug_output(std::vector<MultiModelFitter_impl::label_type> const & labels)
 {
-	drawer->draw_labeled(labels);
+    drawer->draw_labeled(labels);
 }

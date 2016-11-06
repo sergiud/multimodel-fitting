@@ -23,10 +23,10 @@
 
 class problem_ortholines {
 private:
-	std::shared_ptr<drawer_2d> drawer;
+    std::shared_ptr<drawer_2d> drawer;
 public:
-	problem_ortholines(std::shared_ptr<drawer_2d> drawer);
-	typedef point_2d sample_type;
-	typedef line_2d hypothesis_type;
-	void debug_output(std::vector<MultiModelFitter_impl::label_type> const &);
+    problem_ortholines(std::shared_ptr<drawer_2d> drawer);
+    typedef point_2d sample_type;
+    typedef line_2d hypothesis_type;
+    void debug_output(std::vector<MultiModelFitter_impl::label_type> const &);
 };

@@ -23,38 +23,13 @@ point_2d::point_2d(float nx, float ny) : x(nx), y(ny)
 }
 
 line_2d::line_2d(float x0, float y0, float x1, float y1)
-	: x0(x0), y0(y0),
-	dirx((x1 - x0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0))),
-	diry((y1 - y0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0)))
+    : x0(x0), y0(y0),
+    dirx((x1 - x0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0))),
+    diry((y1 - y0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0)))
 {
 }
 
 point_2d line_2d::get_point(float dist)
 {
-	return point_2d(x0 + dist * dirx, y0 + dist * diry);
+    return point_2d(x0 + dist * dirx, y0 + dist * diry);
 }
-/*
-point_2d::~point_2d()
-{
-}
-
-point_2d::point_2d(const point_2d& other)
-	: x(other.x), y(other.y)
-{
-}
-
-point_2d::point_2d(point_2d&& other)
-	: x(other.x), y(other.y)
-{
-}
-
-point_2d& point_2d::operator=(const point_2d& other)
-{
-	x = other.x;
-	y = other.y;
-}
-
-point_2d& point_2d::operator=(point_2d&& other) {
-
-}
-*/

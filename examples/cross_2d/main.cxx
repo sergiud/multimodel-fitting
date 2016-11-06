@@ -25,41 +25,41 @@
 
 int main(int argc, char *argv[]){
   
-	try {
+    try {
 
-		// Initialize the visualization window
-		auto drawer = std::make_shared<drawer_2d>("cross_2d", 500, 500, 0.0f, 0.0f, 1.0f, 1.0f);
+        // Initialize the visualization window
+        auto drawer = std::make_shared<drawer_2d>("cross_2d", 500, 500, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		// Create the datapoints
-		std::vector<point_2d> datapoints = dataset_generator::generate(400,200);
-		std::vector<line_2d> hypotheses = dataset_generator::compute_hypotheses(datapoints, 100);
+        // Create the datapoints
+        std::vector<point_2d> datapoints = dataset_generator::generate(400,200);
+        std::vector<line_2d> hypotheses = dataset_generator::compute_hypotheses(datapoints, 100);
 
-		// Initialization of drawer
-		drawer->set_datapoints(datapoints);
-		drawer->set_hypotheses(hypotheses);
-		drawer->draw_all();
-		
-		// Initialize the algorithm classes
-		problem_ortholines config(drawer);
-		MultiModelFitter<problem_ortholines> fitter;
+        // Initialization of drawer
+        drawer->set_datapoints(datapoints);
+        drawer->set_hypotheses(hypotheses);
+        drawer->draw_all();
+        
+        // Initialize the algorithm classes
+        problem_ortholines config(drawer);
+        MultiModelFitter<problem_ortholines> fitter;
 
-		// set the input data
-		fitter.set_samples(datapoints);
-		fitter.set_hypotheses(hypotheses);
+        // set the input data
+        fitter.set_samples(datapoints);
+        fitter.set_hypotheses(hypotheses);
 
-		// run the algorithm
-		fitter.fit(config);
+        // run the algorithm
+        fitter.fit(config);
 
-		// cleanup
-		fitter.clear_hypotheses();
-		fitter.clear_samples();
+        // cleanup
+        fitter.clear_hypotheses();
+        fitter.clear_samples();
 
-		// wait for the user to close the window
-		drawer->wait();
-	}
-	catch (std::exception const & e) {
-		std::cout << "Exception: " << e.what() << std::endl;
-	}
+        // wait for the user to close the window
+        drawer->wait();
+    }
+    catch (std::exception const & e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+    }
 
-	return 0;
+    return 0;
 }
