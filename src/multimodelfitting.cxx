@@ -1,4 +1,4 @@
-#include "..\include\multimodelfitting.hxx"
+#include "../include/multimodelfitting.hxx"
 /*
  * Copyright (C) 2016  Martin Stumpf
  *
@@ -15,10 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+#include <iostream>
+#include <opengm/graphicalmodel/space/simplediscretespace.hxx>
+//#include <opengm/graphicalmodel/graphicalmodel.hxx>
+//#include <opengm/operations/adder.hxx>
+//#include <opengm/operations/minimizer.hxx>
+//#include <opengm/inference/graphcut.hxx>
+//#include <opengm/inference/alphaexpansion.hxx>
+//#include <opengm/inference/auxiliary/minstcutkolmogorov.hxx>
+
 std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl() const
 {
-	throw std::runtime_error("Not implemented yet!");
+    size_t sample_count = get_sample_count();
+    label_type hypothesis_count = get_hypothesis_count(); 
+
+    /*typedef opengm::GraphicalModel<double, opengm::Adder> GraphicalModelType;
+    typedef opengm::external::MinSTCutKolmogorov<size_t, double> MinStCutType;
+    typedef opengm::GraphCut<GraphicalModelType, opengm::Minimizer, MinStCutType> MinGraphCut;
+    typedef opengm::AlphaExpansion<GraphicalModelType, MinGraphCut> MinAlphaExpansion;
+    GraphicalModelType gm;
+    */
+    
+    // our space
+    opengm::SimpleDiscreteSpace<> space(sample_count, hypothesis_count);
+
+    // ... 13
+    /*MinAlphaExpansion ae(gm);
+    ae.infer();
+    std::cout << "value: " << ae.value() << std::endl;
+    */
+    std::cout << "test" << std::endl;
+    return std::vector<MultiModelFitter_impl::label_type>();
 }
 //https://github.com/opengm/opengm
 //cmakepackageconfighelpers

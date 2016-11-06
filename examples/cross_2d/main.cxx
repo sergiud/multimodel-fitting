@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
 		fitter.set_hypotheses(hypotheses);
 
 		// run the algorithm
-		//fitter.fit(config);
+		fitter.fit(config);
 
 		// cleanup
 		fitter.clear_hypotheses();

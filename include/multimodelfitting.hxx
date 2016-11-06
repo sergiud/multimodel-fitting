@@ -33,8 +33,8 @@ protected:
 
 	// Virtual callbacks for evaluation steps that require the
 	// knowledge of the templates
-	virtual size_t get_sample_count() = 0;
-	virtual label_type get_hypotheses_count() = 0;
+	virtual size_t get_sample_count() const = 0;
+	virtual label_type get_hypothesis_count() const = 0;
 	virtual void debug_output(std::vector<label_type> const &) = 0;
 
 private:
@@ -70,8 +70,8 @@ private:
 private:
 	// Callback functions. This is needed because the
 	// actual implementation is free of templates.
-	size_t get_sample_count();
-	label_type get_hypotheses_count();
+	size_t get_sample_count() const;
+	label_type get_hypothesis_count() const;
 	void debug_output(std::vector<label_type> const &);
 };
 
@@ -113,13 +113,13 @@ inline void MultiModelFitter<C>::clear_hypotheses()
 }
 
 template<class C>
-inline size_t MultiModelFitter<C>::get_sample_count()
+inline size_t MultiModelFitter<C>::get_sample_count() const
 {
 	return this->samples.size();
 }
 
 template<class C>
-inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypotheses_count()
+inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypothesis_count() const
 {
 	return static_cast<MultiModelFitter_impl::label_type>(this->hypotheses.size());
 }

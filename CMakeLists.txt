@@ -35,7 +35,7 @@ include(ExternalProject)
 ExternalProject_Add( opengm
     PREFIX "${PROJECT_SOURCE_DIR}/external/opengm"
     GIT_REPOSITORY "https://github.com/opengm/opengm.git"
-    GIT_TAG "v2.3.7RC"
+    #GIT_TAG "v2.3.7RC"
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install -DBUILD_EXAMPLES=OFF -DBUILD_TUTORIALS=OFF -DBUILD_TESTING=OFF -DWITH_MAXFLOW=ON
     INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install"
     PATCH_COMMAND eval "(cd ./src/external/patches/MaxFlow/ && ./patchMaxFlow-v3.02.sh)"
