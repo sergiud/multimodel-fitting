@@ -51,6 +51,9 @@ private:
  */
 template<class C>
 class MultiModelFitter : private MultiModelFitter_impl {
+public:
+    typedef std::shared_ptr<std::vector<typename C::sample_type>> sample_ptr_type;
+    typedef std::shared_ptr<std::vector<typename C::hypothesis_type>> hypothesis_ptr_type;
 
 public:
     // Sets the samples
@@ -65,9 +68,9 @@ public:
 
 private:
     // Internal variable, holds samples
-    std::vector<typename C::sample_type> samples;
+    sample_ptr_type samples;
     // Internal variable, holds hypotheses
-    std::vector<typename C::hypothesis_type> hypotheses;
+    hypothesis_ptr_type hypotheses;
     // Handle to the config object
     C* config;
 private:
@@ -83,17 +86,19 @@ private:
 template<class C>
 inline void MultiModelFitter<C>::set_samples(std::vector<typename C::sample_type> const & samples)
 {
-    this->samples = samples;
+    this->samples = std::make_shared<std::vector<typename C::sample_type>>();
+    this->samples->assign(samples.begin(), samples.end());
 }
 
 template<class C>
-inline void MultiModelFitter<C>::set_hypotheses(std::vector<typename C::hypothesis_type> const & hypothesis)
+inline void MultiModelFitter<C>::set_hypotheses(std::vector<typename C::hypothesis_type> const & hypotheses)
 {
     MultiModelFitter_impl::label_type hypothesis_size = static_cast<MultiModelFitter_impl::label_type>(hypotheses.size());
     if (hypothesis_size != hypotheses.size()) {
         throw std::runtime_error("Too many hypotheses!");
     }
-    this->hypotheses = hypotheses;
+    this->hypotheses = std::make_shared<std::vector<typename C::hypothesis_type>>();
+    this->hypotheses->assign(hypotheses.begin(), hypotheses.end());
 }
 
 template<class C>
@@ -108,25 +113,25 @@ inline std::vector<typename MultiModelFitter_impl::label_type> MultiModelFitter<
 template<class C>
 inline void MultiModelFitter<C>::clear_samples()
 {
-    this->samples.clear();
+    this->samples = NULL;
 }
 
 template<class C>
 inline void MultiModelFitter<C>::clear_hypotheses()
 {
-    this->hypotheses.clear();
+    this->hypotheses = NULL;
 }
 
 template<class C>
 inline MultiModelFitter_impl::sampleid_type MultiModelFitter<C>::get_sample_count() const
 {
-    return static_cast<MultiModelFitter_impl::sampleid_type>(this->samples.size());
+    return static_cast<MultiModelFitter_impl::sampleid_type>(this->samples->size());
 }
 
 template<class C>
 inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypothesis_count() const
 {
-    return static_cast<MultiModelFitter_impl::label_type>(this->hypotheses.size());
+    return static_cast<MultiModelFitter_impl::label_type>(this->hypotheses->size());
 }
 
 template<class C>
@@ -139,5 +144,5 @@ template<class C>
 inline std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
 MultiModelFitter<C>::getNeighbourhood() const
 {
-    return std::make_shared<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>(); 
+    return this->config->computeNeighbourhood(*samples); 
 }

@@ -41,6 +41,10 @@ void drawer_2d::draw_line(line_2d line, std::array<unsigned char, 3> const & col
     point_2d p0 = line.get_point(static_cast<float>(width + height));
     point_2d p1 = line.get_point(-static_cast<float>(width + height));
 
+    draw_connection(p0 ,p1, color);
+}
+
+void drawer_2d::draw_connection(point_2d p0, point_2d p1, std::array<unsigned char, 3> const & color){
     float p0_x_f = (p0.x - x_min) / (x_max - x_min);
     float p0_y_f = (p0.y - y_min) / (y_max - y_min);
     float p1_x_f = (p1.x - x_min) / (x_max - x_min);
@@ -53,6 +57,7 @@ void drawer_2d::draw_line(line_2d line, std::array<unsigned char, 3> const & col
     cv::line(visu, cv::Point(p0_x, p0_y), cv::Point(p1_x, p1_y),
              CV_RGB(color[0], color[1], color[2]));
 }
+
 
 void drawer_2d::draw_point(point_2d point, std::array<unsigned char, 3> const & color)
 {

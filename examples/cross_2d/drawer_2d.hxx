@@ -31,6 +31,7 @@ public:
     void clear();
     void draw_line(line_2d line, std::array<unsigned char,3> const & color);
     void draw_point(point_2d point, std::array<unsigned char, 3> const & color);
+    void draw_connection(point_2d p0, point_2d p1, std::array<unsigned char, 3> const & color);
     void display();
     void wait();
 public:

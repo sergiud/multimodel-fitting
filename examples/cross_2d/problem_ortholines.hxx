@@ -22,11 +22,17 @@
 #include "drawer_2d.hxx"
 
 class problem_ortholines {
-private:
-    std::shared_ptr<drawer_2d> drawer;
 public:
-    problem_ortholines(std::shared_ptr<drawer_2d> drawer);
     typedef point_2d sample_type;
     typedef line_2d hypothesis_type;
+public:
+    problem_ortholines(std::shared_ptr<drawer_2d> drawer);
+
     void debug_output(std::vector<MultiModelFitter_impl::label_type> const &);
+
+    std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
+        computeNeighbourhood(std::vector<sample_type> const &) const; 
+
+private:
+    std::shared_ptr<drawer_2d> drawer;
 };

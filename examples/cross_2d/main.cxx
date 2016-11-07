@@ -31,8 +31,8 @@ int main(int argc, char *argv[]){
         auto drawer = std::make_shared<drawer_2d>("cross_2d", 500, 500, 0.0f, 0.0f, 1.0f, 1.0f);
 
         // Create the datapoints
-        std::vector<point_2d> datapoints = dataset_generator::generate(400,200);
-        std::vector<line_2d> hypotheses = dataset_generator::compute_hypotheses(datapoints, 100);
+        auto datapoints = dataset_generator::generate(400,200);
+        auto hypotheses = dataset_generator::compute_hypotheses(datapoints, 100);
 
         // Initialization of drawer
         drawer->set_datapoints(datapoints);
@@ -42,6 +42,19 @@ int main(int argc, char *argv[]){
         // Initialize the algorithm classes
         problem_ortholines config(drawer);
         MultiModelFitter<problem_ortholines> fitter;
+
+        { // TODO remove
+            auto connections = config.computeNeighbourhood(datapoints); 
+            std::array<unsigned char, 3> color = {255,255,255};
+            for(auto const & connection : *connections){
+                drawer->draw_connection(
+                    datapoints[connection[0]],
+                    datapoints[connection[1]],
+                    color
+                );
+            }
+            drawer->display();
+        }
 
         // set the input data
         fitter.set_samples(datapoints);
