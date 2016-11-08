@@ -30,8 +30,20 @@ public:
 
     void debug_output(std::vector<MultiModelFitter_impl::label_type> const &);
 
+    // Compute neighbourhood connections between samples.
+    // In this case: delaunay triangulation
     std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
         computeNeighbourhood(std::vector<sample_type> const &) const; 
+
+    // Compute the residual (Distance from point to hypothesis)
+    // In this case : cross product between line direction and point direction
+    // NOTE: A positive distance and a negative distance is both valid.
+    double computeResidual(sample_type const &, hypothesis_type const &) const;
+
+    // Returns the noise level.
+    // If the residual of a point is larger than the noise level, it is
+    // considered an outlier.
+    double getNoiseLevel(); 
 
 private:
     std::shared_ptr<drawer_2d> drawer;

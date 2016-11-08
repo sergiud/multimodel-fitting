@@ -47,7 +47,10 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
     > GraphicalModelType;
     GraphicalModelType gm(space);
     
-    getNeighbourhood(); 
+    // compute neighbourhood
+    auto neighbourhood = getNeighbourhood(); 
+
+     
     
     
     typedef opengm::external::MinSTCutKolmogorov<size_t, double> MinStCutType;

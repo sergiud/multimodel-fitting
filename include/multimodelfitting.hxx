@@ -39,6 +39,8 @@ protected:
     virtual void debug_output(std::vector<label_type> const &) = 0;
     virtual std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
         getNeighbourhood() const = 0; 
+    virtual double getResidual(sampleid_type sample, label_type label) const = 0;
+    virtual double getNoiseLevel() const = 0;
 
 private:
     // other internal algorithm functions, that shouldn't be visible in child
@@ -80,6 +82,8 @@ private:
     label_type get_hypothesis_count() const;
     std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
         getNeighbourhood() const; 
+    double getResidual(sampleid_type sample, label_type label) const;
+    double getNoiseLevel() const;
     void debug_output(std::vector<label_type> const &);
 };
 
@@ -145,4 +149,20 @@ inline std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_ty
 MultiModelFitter<C>::getNeighbourhood() const
 {
     return this->config->computeNeighbourhood(*samples); 
+}
+
+template<class C>
+inline double
+MultiModelFitter<C>::getResidual(MultiModelFitter_impl::sampleid_type sample,
+                                 MultiModelFitter_impl::label_type label) const
+{
+    return this->config->computeResidual( samples->at(sample),
+                                          hypotheses->at(label) );
+}
+
+template<class C>
+inline double
+MultiModelFitter<C>::getNoiseLevel() const
+{
+    return this->config->getNoiseLevel();
 }
