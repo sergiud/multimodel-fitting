@@ -24,3 +24,4 @@ set(SOURCES
 )
 
 add_library(multimodelfitting ${SOURCES} ${HEADERS})
+target_link_libraries(multimodelfitting ${OPENGM_LIBRARIES})

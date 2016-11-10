@@ -33,8 +33,9 @@ include_directories("${OpenCV_INCLUDE_DIRS}")
 
 # Add OpenGM dependency
 include(ExternalProject)
+SET(OPENGM_DIR "${PROJECT_SOURCE_DIR}/external/opengm")
 ExternalProject_Add( opengm
-    PREFIX "${PROJECT_SOURCE_DIR}/external/opengm"
+    PREFIX "${OPENGM_DIR}"
     GIT_REPOSITORY "https://github.com/opengm/opengm.git"
     #GIT_TAG "v2.3.7RC"
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install
@@ -43,8 +44,9 @@ ExternalProject_Add( opengm
     INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install"
     PATCH_COMMAND eval "(cd ./src/external/patches/MaxFlow/ && ./patchMaxFlow-v3.02.sh)"
 )
-include_directories("${PROJECT_SOURCE_DIR}/external/opengm/src/opengm/src/external/MaxFlow-v3.02.src-patched")
-
+include_directories("${OPENGM_DIR}/src/opengm/src/external/MaxFlow-v3.02.src-patched")
+link_directories("${OPENGM_DIR}/src/opengm-build/src/external")
+SET(OPENGM_LIBRARIES "external-library-maxflow")
 
 # Add C++11
 include(CheckCXXCompilerFlag)
@@ -71,3 +73,4 @@ include_directories("${PROJECT_SOURCE_DIR}/external/install/include")
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(examples)
+
