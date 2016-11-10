@@ -97,3 +97,8 @@ double
 problem_ortholines::getNoiseLevel(){
     return 0.05;
 }
+
+double
+problem_ortholines::getNeighbourhoodWeight(){
+    return 0.3;
+}

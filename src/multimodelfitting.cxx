@@ -20,6 +20,8 @@
 #include <opengm/graphicalmodel/graphicalmodel.hxx>
 #include <opengm/operations/adder.hxx>
 #include <opengm/operations/minimizer.hxx>
+#include <opengm/functions/potts.hxx>
+#include <opengm/functions/explicit_function.hxx>
 #include <opengm/inference/graphcut.hxx>
 #include <opengm/inference/alphaexpansion.hxx>
 #include <opengm/inference/auxiliary/minstcutkolmogorov.hxx>
@@ -48,7 +50,8 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
     
     // set function types
     typedef opengm::meta::TypeListGenerator<
-        opengm::ExplicitFunction<double>
+        opengm::ExplicitFunction<double>,
+        opengm::PottsFunction<double>
     >::type FunctionTypeList;
 
     // construct graphical model
@@ -71,7 +74,7 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
 
         for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
             // Create one explicit 1d-funcion for every sample
-            size_t shape[] = {static_cast<size_t>(hypothesis_count) + 1};
+            label_type shape[] = {hypothesis_count + 1};
             opengm::ExplicitFunction<double> f(shape, shape+1, 1.0f); 
 
             // outlier
@@ -92,6 +95,18 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
             gm.addFactor(fid, fc, fc+1);  
         }
          
+    }
+
+    // Create smoothing errors
+    {
+        opengm::PottsFunction<double> f(hypothesis_count + 1, hypothesis_count + 1,
+                                        0.0f, getNeighbourhoodWeight());  
+        GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
+
+        for(auto const & neighbour : *neighbourhood){
+            auto datap = neighbour.data();
+            gm.addFactor(fid, datap, datap+2);
+        }
     }
          
     

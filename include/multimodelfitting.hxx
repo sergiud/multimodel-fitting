@@ -41,6 +41,7 @@ protected:
         getNeighbourhood() const = 0; 
     virtual double getResidual(sampleid_type sample, label_type label) const = 0;
     virtual double getNoiseLevel() const = 0;
+    virtual double getNeighbourhoodWeight() const = 0;
 
 private:
     // other internal algorithm functions, that shouldn't be visible in child
@@ -84,6 +85,7 @@ private:
         getNeighbourhood() const; 
     double getResidual(sampleid_type sample, label_type label) const;
     double getNoiseLevel() const;
+    double getNeighbourhoodWeight() const;
     void debug_output(std::vector<label_type> const &) const;
 };
 
@@ -165,4 +167,11 @@ inline double
 MultiModelFitter<C>::getNoiseLevel() const
 {
     return this->config->getNoiseLevel();
+}
+
+template<class C>
+inline double
+MultiModelFitter<C>::getNeighbourhoodWeight() const
+{
+    return this->config->getNeighbourhoodWeight();
 }

@@ -31,8 +31,8 @@ int main(int argc, char *argv[]){
         auto drawer = std::make_shared<drawer_2d>("cross_2d", 900, 900, 0.0f, 0.0f, 1.0f, 1.0f);
 
         // Create the datapoints
-        auto datapoints = dataset_generator::generate(0,2000);
-        auto hypotheses = dataset_generator::compute_hypotheses(datapoints, 3);
+        auto datapoints = dataset_generator::generate(800,400);
+        auto hypotheses = dataset_generator::compute_hypotheses(datapoints, 50);
 
         // Initialization of drawer
         drawer->set_datapoints(datapoints);

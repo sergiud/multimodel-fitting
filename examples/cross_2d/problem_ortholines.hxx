@@ -45,6 +45,10 @@ public:
     // considered an outlier.
     double getNoiseLevel(); 
 
+    // Returns the weight of the neighbourhood grouping.
+    // Seems to work best in the Range of 0.1 to 0.5.
+    double getNeighbourhoodWeight();
+
 private:
     std::shared_ptr<drawer_2d> drawer;
 };
