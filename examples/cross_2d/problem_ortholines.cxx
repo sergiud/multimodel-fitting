@@ -90,9 +90,7 @@ double
 problem_ortholines::computeResidual(
     sample_type const & point, hypothesis_type const & line
 ) const {
-    float dist_x = point.x - line.x0;
-    float dist_y = point.y - line.y0;
-    return dist_x * line.diry - dist_y * line.dirx;
+    return line.dist(point);
 }
 
 double

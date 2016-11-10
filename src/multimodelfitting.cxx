@@ -26,12 +26,25 @@
 
 std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl() const
 {
-    size_t sample_count = get_sample_count();
+    // IMPORTANT
+    // The return type of this function is a vector of label ids.
+    // The label can be 0 to hypothesis_count-1 for points that got mapped to
+    // hypothesis, and -1 for outliers.
+    // INTERNALLY though, all label ids are shifted by one, ranging from 1 
+    // to hypothesis_count, and 0 for outliers. This is because labels in
+    // opengm cannot be negative.
+
+
+    sampleid_type sample_count = get_sample_count();
     label_type hypothesis_count = get_hypothesis_count(); 
     
+    std::cout << "Samples: " << sample_count << std::endl;
+    std::cout << "Hypotheses: " << hypothesis_count << std::endl;
+
+
     // construct space
-    typedef opengm::SimpleDiscreteSpace<size_t, label_type> SpaceType;
-    SpaceType space(sample_count, hypothesis_count);
+    typedef opengm::SimpleDiscreteSpace<sampleid_type, label_type> SpaceType;
+    SpaceType space(sample_count, hypothesis_count+1);
     
     // set function types
     typedef opengm::meta::TypeListGenerator<
@@ -50,21 +63,56 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
     // compute neighbourhood
     auto neighbourhood = getNeighbourhood(); 
 
-     
+    // Create fitting errors
+    {
+        // fetch noise level
+        double noiseLevel = getNoiseLevel();
+        double noiseLevelSquare = noiseLevel*noiseLevel;
+
+        for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
+            // Create one explicit 1d-funcion for every sample
+            size_t shape[] = {static_cast<size_t>(hypothesis_count) + 1};
+            opengm::ExplicitFunction<double> f(shape, shape+1, 1.0f); 
+
+            // outlier
+            f(0) = 1.0;
+
+            for(label_type j = 0; j < hypothesis_count; j++){
+                // compute the residual between sample and hypothesis
+                double residual = getResidual(sample_id, j);
+                double penalty = (residual*residual)/noiseLevelSquare;
+                f(j+1) = penalty;
+            }
+
+            // Register function
+            GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
+            
+            // Connect function
+            sampleid_type fc[] = {sample_id};
+            gm.addFactor(fid, fc, fc+1);  
+        }
+         
+    }
+         
     
     
-    typedef opengm::external::MinSTCutKolmogorov<size_t, double> MinStCutType;
+    typedef opengm::external::MinSTCutKolmogorov<label_type, double> MinStCutType;
     typedef opengm::GraphCut<GraphicalModelType, opengm::Minimizer, MinStCutType> MinGraphCut;
     typedef opengm::AlphaExpansion<GraphicalModelType, MinGraphCut> MinAlphaExpansion;
-    /*GraphicalModelType gm;
-    */
-    // ... 13
-    /*MinAlphaExpansion ae(gm);
+    
+    MinAlphaExpansion ae(gm);
+    std::cout << "Infering... " << std::endl;
     ae.infer();
     std::cout << "value: " << ae.value() << std::endl;
-    */
+
     std::cout << "test" << std::endl;
-    return std::vector<MultiModelFitter_impl::label_type>();
+    std::vector<label_type> result;
+    ae.arg(result);
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](label_type x){return x-1;});
+
+    debug_output(result);
+    return result;
 }
 //https://github.com/opengm/opengm
 //cmakepackageconfighelpers

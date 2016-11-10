@@ -22,14 +22,21 @@ point_2d::point_2d(float nx, float ny) : x(nx), y(ny)
 {
 }
 
-line_2d::line_2d(float x0, float y0, float x1, float y1)
-    : x0(x0), y0(y0),
-    dirx((x1 - x0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0))),
-    diry((y1 - y0) / sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0)))
+line_2d::line_2d(point_2d const & p0, point_2d const & p1)
+    : x0(p0.x), y0(p0.y),
+    dirx((p1.x - p0.x) / sqrt((p1.x - p0.x)*(p1.x - p0.x) + (p1.y - p0.y)*(p1.y - p0.y))),
+    diry((p1.y - p0.y) / sqrt((p1.x - p0.x)*(p1.x - p0.x) + (p1.y - p0.y)*(p1.y - p0.y)))
 {
 }
 
-point_2d line_2d::get_point(float dist)
+point_2d line_2d::get_point(float dist) const
 {
     return point_2d(x0 + dist * dirx, y0 + dist * diry);
+}
+
+float line_2d::dist(point_2d const & p) const
+{
+    float dx = p.x - x0;
+    float dy = p.y - y0;
+    return dx * diry - dy * dirx;
 }

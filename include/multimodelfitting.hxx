@@ -36,7 +36,7 @@ protected:
     // knowledge of the templates
     virtual sampleid_type get_sample_count() const = 0;
     virtual label_type get_hypothesis_count() const = 0;
-    virtual void debug_output(std::vector<label_type> const &) = 0;
+    virtual void debug_output(std::vector<label_type> const &) const = 0;
     virtual std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
         getNeighbourhood() const = 0; 
     virtual double getResidual(sampleid_type sample, label_type label) const = 0;
@@ -84,7 +84,7 @@ private:
         getNeighbourhood() const; 
     double getResidual(sampleid_type sample, label_type label) const;
     double getNoiseLevel() const;
-    void debug_output(std::vector<label_type> const &);
+    void debug_output(std::vector<label_type> const &) const;
 };
 
 template<class C>
@@ -139,7 +139,7 @@ inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypothesis_cou
 }
 
 template<class C>
-inline void MultiModelFitter<C>::debug_output(std::vector<label_type> const &labels)
+inline void MultiModelFitter<C>::debug_output(std::vector<label_type> const &labels) const
 {
     config->debug_output(labels);
 }

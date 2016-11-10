@@ -25,8 +25,10 @@ public:
 };
 
 struct line_2d {
+public:
     float x0, y0;
     float dirx, diry;
-    line_2d(float x0, float y0, float x1, float y1);
-    point_2d get_point(float dist);
+    line_2d(point_2d const & p0, point_2d const & p1);
+    point_2d get_point(float dist) const;
+    float dist(point_2d const & p) const;
 };

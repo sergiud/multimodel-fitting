@@ -59,17 +59,26 @@ private:
 template<typename T>
 inline void drawer_2d::draw_labeled(std::vector<T> const & labels)
 {
+    clear();
     std::vector<unsigned char> hypothesis_exists(hypotheses.size());
     std::fill(hypothesis_exists.begin(), hypothesis_exists.end(), false);
     for (size_t i = 0; i < labels.size(); i++) {
-        hypothesis_exists[labels[i]] = true;
+        if(labels[i] >= 0){
+            hypothesis_exists[labels[i]] = true;
+        }
     }
     for (size_t i = 0; i < hypotheses.size(); i++) {
         if (hypothesis_exists[i]) {
             draw_line(hypotheses[i], colors_lines[i]);
         }
     }
+    std::array<unsigned char, 3> outlier_color = {128, 128, 128};
     for (size_t i = 0; i < labels.size(); i++) {
-        draw_point(datapoints[i], colors_dots[labels[i]]);
+        if(labels[i] >= 0){
+            draw_point(datapoints[i], colors_dots[labels[i]]);
+        } else {
+            draw_point(datapoints[i], outlier_color);
+        }
     }
+    display();
 }

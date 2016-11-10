@@ -38,10 +38,10 @@ void drawer_2d::clear()
 
 void drawer_2d::draw_line(line_2d line, std::array<unsigned char, 3> const & color)
 {
-    point_2d p0 = line.get_point(static_cast<float>(width + height));
-    point_2d p1 = line.get_point(-static_cast<float>(width + height));
-
-    draw_connection(p0 ,p1, color);
+    point_2d p0 = line.get_point(x_max - x_min + y_max - y_min);
+    point_2d p1 = line.get_point(x_min - x_max + y_min - y_max);
+    
+    draw_connection(p0, p1, color);
 }
 
 void drawer_2d::draw_connection(point_2d p0, point_2d p1, std::array<unsigned char, 3> const & color){
@@ -79,7 +79,7 @@ void drawer_2d::display()
 void drawer_2d::wait()
 {
     int res = 0;
-    while(res != -1 && res != 'q'){
+    while(res != -1 && res != 'q' && res != 27){
         res = cv::waitKey(0);
         std::cout << "waitKey(0) : " << res << std::endl;
     }
@@ -123,6 +123,7 @@ void drawer_2d::set_hypotheses(std::vector<line_2d> const & hypotheses)
 
 void drawer_2d::draw_all()
 {
+    clear();
     std::array<unsigned char,3> gray = { 180, 180, 180 };
     for (size_t i = 0; i < hypotheses.size(); i++) {
         draw_line(hypotheses[i], colors_lines[i]);

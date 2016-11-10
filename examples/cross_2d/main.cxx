@@ -28,11 +28,11 @@ int main(int argc, char *argv[]){
     try {
 
         // Initialize the visualization window
-        auto drawer = std::make_shared<drawer_2d>("cross_2d", 500, 500, 0.0f, 0.0f, 1.0f, 1.0f);
+        auto drawer = std::make_shared<drawer_2d>("cross_2d", 900, 900, 0.0f, 0.0f, 1.0f, 1.0f);
 
         // Create the datapoints
-        auto datapoints = dataset_generator::generate(400,200);
-        auto hypotheses = dataset_generator::compute_hypotheses(datapoints, 100);
+        auto datapoints = dataset_generator::generate(0,2000);
+        auto hypotheses = dataset_generator::compute_hypotheses(datapoints, 3);
 
         // Initialization of drawer
         drawer->set_datapoints(datapoints);
