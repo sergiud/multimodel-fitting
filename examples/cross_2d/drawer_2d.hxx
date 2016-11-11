@@ -31,9 +31,11 @@ public:
     void clear();
     void draw_line(line_2d line, std::array<unsigned char,3> const & color);
     void draw_point(point_2d point, std::array<unsigned char, 3> const & color);
+    void draw_cross(point_2d point, std::array<unsigned char, 3> const & color);
     void draw_connection(point_2d p0, point_2d p1, std::array<unsigned char, 3> const & color);
     void display();
     void wait();
+    void sleep(int milliseconds);
 public:
     void set_datapoints(std::vector<point_2d> const & points);
     void set_hypotheses(std::vector<line_2d> const & hypotheses);
@@ -77,7 +79,7 @@ inline void drawer_2d::draw_labeled(std::vector<T> const & labels)
         if(labels[i] >= 0){
             draw_point(datapoints[i], colors_dots[labels[i]]);
         } else {
-            draw_point(datapoints[i], outlier_color);
+            draw_cross(datapoints[i], outlier_color);
         }
     }
     display();

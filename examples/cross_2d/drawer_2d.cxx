@@ -66,14 +66,35 @@ void drawer_2d::draw_point(point_2d point, std::array<unsigned char, 3> const & 
     unsigned int pos_x = static_cast<unsigned int>(pos_x_f * width);
     unsigned int pos_y = static_cast<unsigned int>(pos_y_f * height);
     
-    cv::rectangle(visu, cv::Point(pos_x - 1, pos_y - 1),
-                        cv::Point(pos_x + 1, pos_y + 1),
+    cv::rectangle(visu, cv::Point(pos_x - 2, pos_y - 2),
+                        cv::Point(pos_x + 2, pos_y + 2),
                         CV_RGB(color[0], color[1], color[2]));
+}
+
+void drawer_2d::draw_cross(point_2d point, std::array<unsigned char, 3> const & color)
+{
+    float pos_x_f = (point.x - x_min) / (x_max - x_min);
+    float pos_y_f = (point.y - y_min) / (y_max - y_min);
+    unsigned int pos_x = static_cast<unsigned int>(pos_x_f * width);
+    unsigned int pos_y = static_cast<unsigned int>(pos_y_f * height);
+    
+    cv::line(visu, cv::Point(pos_x - 2, pos_y - 2),
+                   cv::Point(pos_x + 2, pos_y + 2),
+                   CV_RGB(color[0], color[1], color[2]));
+    cv::line(visu, cv::Point(pos_x - 2, pos_y + 2),
+                   cv::Point(pos_x + 2, pos_y - 2),
+                   CV_RGB(color[0], color[1], color[2]));
+    
 }
 
 void drawer_2d::display()
 {
     cv::imshow( disp, visu );;
+}
+
+void drawer_2d::sleep(int milliseconds)
+{
+    cv::waitKey(milliseconds);
 }
 
 void drawer_2d::wait()

@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <memory>
 #include <cstdlib>
+#include <algorithm>
 
 // Template independent implementation of the MultiModelFitter
 class MultiModelFitter_impl {
@@ -36,7 +37,7 @@ protected:
     // knowledge of the templates
     virtual sampleid_type get_sample_count() const = 0;
     virtual label_type get_hypothesis_count() const = 0;
-    virtual void debug_output(std::vector<label_type> const &) const = 0;
+    virtual void debug_output(std::vector<label_type> const &, double) const = 0;
     virtual std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
         getNeighbourhood() const = 0; 
     virtual double getResidual(sampleid_type sample, label_type label) const = 0;
@@ -46,6 +47,14 @@ protected:
 private:
     // other internal algorithm functions, that shouldn't be visible in child
 
+    // The actual graph cut step
+    std::vector<unsigned char> graph_cut(
+        label_type alpha_label,
+        std::vector<label_type> const & current_labeling,
+        std::shared_ptr<std::vector<std::array<sampleid_type, 2>>>
+            const & neighbourhood,
+        std::vector<std::vector<double>> const & fitting_errors
+    ) const;
 };
 
 /*
@@ -86,7 +95,7 @@ private:
     double getResidual(sampleid_type sample, label_type label) const;
     double getNoiseLevel() const;
     double getNeighbourhoodWeight() const;
-    void debug_output(std::vector<label_type> const &) const;
+    void debug_output(std::vector<label_type> const &, double) const;
 };
 
 template<class C>
@@ -141,9 +150,12 @@ inline MultiModelFitter_impl::label_type MultiModelFitter<C>::get_hypothesis_cou
 }
 
 template<class C>
-inline void MultiModelFitter<C>::debug_output(std::vector<label_type> const &labels) const
+inline void MultiModelFitter<C>::debug_output(std::vector<label_type> const &labels, double value) const
 {
-    config->debug_output(labels);
+    std::vector<label_type> transformed_labels(labels.size());
+    std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
+                   [](label_type x){return x-1;});
+    config->debug_output(transformed_labels, value);
 }
 
 template<class C>

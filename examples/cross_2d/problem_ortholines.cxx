@@ -27,10 +27,13 @@ problem_ortholines::problem_ortholines(std::shared_ptr<drawer_2d> drawer)
 }
 
 void problem_ortholines::debug_output(
-    std::vector<MultiModelFitter_impl::label_type> const & labels
+    std::vector<MultiModelFitter_impl::label_type> const & labels,
+    double value
 )
 {
+    std::cout << "Value: " << value << std::endl;
     drawer->draw_labeled(labels);
+    drawer->sleep(1);
 }
 
 std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>

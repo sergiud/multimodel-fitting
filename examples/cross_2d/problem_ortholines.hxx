@@ -28,7 +28,7 @@ public:
 public:
     problem_ortholines(std::shared_ptr<drawer_2d> drawer);
 
-    void debug_output(std::vector<MultiModelFitter_impl::label_type> const &);
+    void debug_output(std::vector<MultiModelFitter_impl::label_type> const &, double);
 
     // Compute neighbourhood connections between samples.
     // In this case: delaunay triangulation

@@ -38,12 +38,13 @@ int main(int argc, char *argv[]){
         drawer->set_datapoints(datapoints);
         drawer->set_hypotheses(hypotheses);
         drawer->draw_all();
+        drawer->sleep(1000);
         
         // Initialize the algorithm classes
         problem_ortholines config(drawer);
         MultiModelFitter<problem_ortholines> fitter;
 
-        { // TODO remove
+        {
             auto connections = config.computeNeighbourhood(datapoints); 
             std::array<unsigned char, 3> color = {255,255,255};
             for(auto const & connection : *connections){
@@ -54,6 +55,7 @@ int main(int argc, char *argv[]){
                 );
             }
             drawer->display();
+            drawer->sleep(1000);
         }
 
         // set the input data
@@ -61,7 +63,10 @@ int main(int argc, char *argv[]){
         fitter.set_hypotheses(hypotheses);
 
         // run the algorithm
+        std::cout << "Samples: " << datapoints.size() << std::endl;
+        std::cout << "Hypotheses: " << hypotheses.size() << std::endl;
         fitter.fit(config);
+        std::cout << "Converged." << std::endl;
 
         // cleanup
         fitter.clear_hypotheses();

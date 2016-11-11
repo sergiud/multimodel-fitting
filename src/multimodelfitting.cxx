@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include <iostream>
 #include <opengm/graphicalmodel/space/simplediscretespace.hxx>
 #include <opengm/graphicalmodel/graphicalmodel.hxx>
 #include <opengm/operations/adder.hxx>
@@ -26,7 +25,97 @@
 #include <opengm/inference/alphaexpansion.hxx>
 #include <opengm/inference/auxiliary/minstcutkolmogorov.hxx>
 
-std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl() const
+std::vector<unsigned char>
+MultiModelFitter_impl::graph_cut(
+    MultiModelFitter_impl::label_type alpha_label,
+    std::vector<MultiModelFitter_impl::label_type> const & current_labeling,
+    std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type, 2>>>
+        const & neighbourhood,
+    std::vector<std::vector<double>> const & fitting_errors
+) const {
+
+    sampleid_type sample_count = static_cast<sampleid_type>(current_labeling.size());
+
+    // construct space
+    typedef opengm::SimpleDiscreteSpace<sampleid_type, unsigned char> SpaceType;
+    SpaceType space(sample_count, 2);
+    
+    // construct gm
+    typedef opengm::GraphicalModel<
+        double,
+        opengm::Adder,
+        opengm::ExplicitFunction<double>,
+        SpaceType
+    > GraphicalModelType;
+    GraphicalModelType gm(space);
+
+    // Fitting errors
+    for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
+        // Create one explicit 1d-funcion for every sample
+        label_type shape[] = {2};
+        opengm::ExplicitFunction<double> f(shape, shape+1); 
+        f(0) = fitting_errors[sample_id][current_labeling[sample_id]];
+        f(1) = fitting_errors[sample_id][alpha_label];
+
+        // Register function
+        GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
+        
+        // Connect function
+        sampleid_type fc[] = {sample_id};
+        gm.addFactor(fid, fc, fc+1);  
+    }
+
+    // Create smoothing errors
+    double smoothing_penalty = getNeighbourhoodWeight();
+    for(auto const & neighbour : *neighbourhood){
+
+        label_type shape[] = {2,2};
+        opengm::ExplicitFunction<double> f(shape, shape+2);
+
+        // If no change, take diff of current labeling
+        if(current_labeling[neighbour[0]] == current_labeling[neighbour[1]])
+            f(0,0) = 0;
+        else
+            f(0,0) = smoothing_penalty;
+
+        // If both change, no penalty as both are alpha.
+        f(1,1) = 0;
+
+        // If label 1 is already alpha, no penalty for label 2 change
+        if(current_labeling[neighbour[0]] == alpha_label)
+            f(0,1) = 0;
+        else
+            f(0,1) = smoothing_penalty;
+
+        // If label 2 is already alpha, no penalty for label 1 change
+        if(current_labeling[neighbour[1]] == alpha_label)
+            f(1,0) = 0;
+        else
+            f(1,0) = smoothing_penalty;
+
+        GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
+
+        auto datap = neighbour.data();
+        gm.addFactor(fid, datap, datap+2);
+    } 
+
+    // TODO other errors
+
+    // Solve
+    typedef opengm::external::MinSTCutKolmogorov<label_type, double> MinStCutType;
+    typedef opengm::GraphCut<GraphicalModelType, opengm::Minimizer, MinStCutType> MinGraphCut;
+ 
+    MinGraphCut mincut(gm);
+    mincut.infer();
+
+    std::vector<unsigned char> result;
+    mincut.arg(result);
+
+    return result;
+}
+
+std::vector<MultiModelFitter_impl::label_type>
+MultiModelFitter_impl::fit_impl() const
 {
     // IMPORTANT
     // The return type of this function is a vector of label ids.
@@ -40,9 +129,36 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
     sampleid_type sample_count = get_sample_count();
     label_type hypothesis_count = get_hypothesis_count(); 
     
-    std::cout << "Samples: " << sample_count << std::endl;
-    std::cout << "Hypotheses: " << hypothesis_count << std::endl;
+    //////////////////////////////////////////
+    // Fetch parameters
 
+    // compute neighbourhood
+    auto neighbourhood = getNeighbourhood(); 
+
+    // compute fitting errors
+    std::vector<std::vector<double>> fitting_errors(sample_count);
+    {
+        // fetch noise level
+        double noiseLevel = getNoiseLevel();
+        double noiseLevelSquare = noiseLevel*noiseLevel;
+
+        for(sampleid_type i = 0; i < sample_count; i++){
+            std::vector<double> current_fitting_errors(hypothesis_count + 1);
+            
+            current_fitting_errors[0] = 1.0f;
+
+            for(label_type j = 0; j < hypothesis_count; j++){
+                double residual = getResidual(i, j);
+                double penalty = (residual*residual)/noiseLevelSquare;
+                current_fitting_errors[j+1] = penalty;
+            }
+             
+            fitting_errors[i] = current_fitting_errors; 
+        }
+    }
+
+    ////////////////////////////////////////
+    // Create verification gm
 
     // construct space
     typedef opengm::SimpleDiscreteSpace<sampleid_type, label_type> SpaceType;
@@ -63,71 +179,79 @@ std::vector<MultiModelFitter_impl::label_type> MultiModelFitter_impl::fit_impl()
     > GraphicalModelType;
     GraphicalModelType gm(space);
     
-    // compute neighbourhood
-    auto neighbourhood = getNeighbourhood(); 
-
     // Create fitting errors
-    {
-        // fetch noise level
-        double noiseLevel = getNoiseLevel();
-        double noiseLevelSquare = noiseLevel*noiseLevel;
+    for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
+        // Create one explicit 1d-funcion for every sample
+        label_type shape[] = {hypothesis_count + 1};
+        opengm::ExplicitFunction<double> f(shape, shape+1); 
 
-        for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
-            // Create one explicit 1d-funcion for every sample
-            label_type shape[] = {hypothesis_count + 1};
-            opengm::ExplicitFunction<double> f(shape, shape+1, 1.0f); 
+        // Set weights
+        for(label_type j = 0; j < hypothesis_count+1; j++){
+            f(j) = fitting_errors[sample_id][j];
+        }
 
-            // outlier
-            f(0) = 1.0;
+        // Register function
+        GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
+        
+        // Connect function
+        sampleid_type fc[] = {sample_id};
+        gm.addFactor(fid, fc, fc+1);  
+    }
+         
 
-            for(label_type j = 0; j < hypothesis_count; j++){
-                // compute the residual between sample and hypothesis
-                double residual = getResidual(sample_id, j);
-                double penalty = (residual*residual)/noiseLevelSquare;
-                f(j+1) = penalty;
+    ////////////////////////////////////////
+    // Solve
+
+    // Alpha Expansion algorithm
+    std::vector<label_type> labeling(sample_count);
+    std::fill(labeling.begin(), labeling.end(), 0);
+    
+    bool changed = false;
+    double current_value = gm.evaluate(labeling);
+    debug_output(labeling, current_value);
+    do {
+        changed = false;
+        
+        for(label_type alpha_label = 0; alpha_label < hypothesis_count + 1; alpha_label++)
+        {
+            // Run graph cut
+            auto alpha_expansion_suggestion = graph_cut( alpha_label,
+                                                         labeling,
+                                                         neighbourhood,
+                                                         fitting_errors );
+            
+            // Create potential new labeling
+            std::vector<label_type> new_labeling;
+            new_labeling.reserve(sample_count); 
+            for(sampleid_type i = 0; i < sample_count; i++){
+                if(alpha_expansion_suggestion[i] == 0){
+                    new_labeling.push_back(labeling[i]);
+                } else {
+                    new_labeling.push_back(alpha_label);
+                }
             }
 
-            // Register function
-            GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
-            
-            // Connect function
-            sampleid_type fc[] = {sample_id};
-            gm.addFactor(fid, fc, fc+1);  
+            // Swap depending on wether or not the new labeling is actually better
+            double new_value = gm.evaluate(new_labeling);
+            if(new_value < current_value){
+                labeling = std::move(new_labeling);
+                current_value = new_value;
+                debug_output(labeling, current_value);
+                changed = true;
+            }
+
         }
-         
-    }
+        
+        // Repeat until convergence
+    } while(changed);
 
-    // Create smoothing errors
-    {
-        opengm::PottsFunction<double> f(hypothesis_count + 1, hypothesis_count + 1,
-                                        0.0f, getNeighbourhoodWeight());  
-        GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
-
-        for(auto const & neighbour : *neighbourhood){
-            auto datap = neighbour.data();
-            gm.addFactor(fid, datap, datap+2);
-        }
-    }
-         
-    
-    
-    typedef opengm::external::MinSTCutKolmogorov<label_type, double> MinStCutType;
-    typedef opengm::GraphCut<GraphicalModelType, opengm::Minimizer, MinStCutType> MinGraphCut;
-    typedef opengm::AlphaExpansion<GraphicalModelType, MinGraphCut> MinAlphaExpansion;
-    
-    MinAlphaExpansion ae(gm);
-    std::cout << "Infering... " << std::endl;
-    ae.infer();
-    std::cout << "value: " << ae.value() << std::endl;
-
-    std::cout << "test" << std::endl;
-    std::vector<label_type> result;
-    ae.arg(result);
-    std::transform(result.begin(), result.end(), result.begin(),
+    // subtract 1 from every label.
+    // output format is: -1 for outlier, label ids starting with 0
+    // computation format is: 0 for outlier, label ids starting with 1
+    std::transform(labeling.begin(), labeling.end(), labeling.begin(),
                    [](label_type x){return x-1;});
+    return labeling;
 
-    debug_output(result);
-    return result;
 }
 //https://github.com/opengm/opengm
 //cmakepackageconfighelpers
