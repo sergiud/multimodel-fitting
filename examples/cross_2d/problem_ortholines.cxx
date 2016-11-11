@@ -98,10 +98,10 @@ problem_ortholines::computeResidual(
 
 double
 problem_ortholines::getNoiseLevel(){
-    return 0.05;
+    return 0.1;
 }
 
 double
 problem_ortholines::getNeighbourhoodWeight(){
-    return 0.3;
+    return 0.1;
 }

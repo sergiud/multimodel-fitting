@@ -102,7 +102,7 @@ void drawer_2d::wait()
     int res = 0;
     while(res != -1 && res != 'q' && res != 27){
         res = cv::waitKey(0);
-        std::cout << "waitKey(0) : " << res << std::endl;
+        //std::cout << "waitKey(0) : " << res << std::endl;
     }
 }
 
