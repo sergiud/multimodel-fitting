@@ -31,7 +31,9 @@ MultiModelFitter_impl::graph_cut(
     std::vector<MultiModelFitter_impl::label_type> const & current_labeling,
     std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type, 2>>>
         const & neighbourhood,
-    std::vector<std::vector<double>> const & fitting_errors
+    std::vector<std::vector<double>> const & fitting_penalties,
+    std::vector<double> const & hypothesis_penalties,
+    std::vector<std::vector<double>> const & hypothesis_interaction_penalties
 ) const {
 
     sampleid_type sample_count = static_cast<sampleid_type>(current_labeling.size());
@@ -54,8 +56,8 @@ MultiModelFitter_impl::graph_cut(
         // Create one explicit 1d-funcion for every sample
         label_type shape[] = {2};
         opengm::ExplicitFunction<double> f(shape, shape+1); 
-        f(0) = fitting_errors[sample_id][current_labeling[sample_id]];
-        f(1) = fitting_errors[sample_id][alpha_label];
+        f(0) = fitting_penalties[sample_id][current_labeling[sample_id]];
+        f(1) = fitting_penalties[sample_id][alpha_label];
 
         // Register function
         GraphicalModelType::FunctionIdentifier fid = gm.addFunction(f);
@@ -65,7 +67,7 @@ MultiModelFitter_impl::graph_cut(
         gm.addFactor(fid, fc, fc+1);  
     }
 
-    // Create smoothing errors
+    // Smoothing errors
     double smoothing_penalty = getNeighbourhoodWeight();
     for(auto const & neighbour : *neighbourhood){
 
@@ -135,26 +137,43 @@ MultiModelFitter_impl::fit_impl() const
     // compute neighbourhood
     auto neighbourhood = getNeighbourhood(); 
 
-    // compute fitting errors
-    std::vector<std::vector<double>> fitting_errors(sample_count);
+    // compute fitting penalties
+    std::vector<std::vector<double>> fitting_penalties(sample_count);
     {
         // fetch noise level
         double noiseLevel = getNoiseLevel();
         double noiseLevelSquare = noiseLevel*noiseLevel;
 
         for(sampleid_type i = 0; i < sample_count; i++){
-            std::vector<double> current_fitting_errors(hypothesis_count + 1);
+            std::vector<double> current_fitting_penalties(hypothesis_count + 1);
             
-            current_fitting_errors[0] = 1.0f;
+            current_fitting_penalties[0] = 1.0f;
 
             for(label_type j = 0; j < hypothesis_count; j++){
                 double residual = getResidual(i, j);
                 double penalty = (residual*residual)/noiseLevelSquare;
-                current_fitting_errors[j+1] = penalty;
+                current_fitting_penalties[j+1] = penalty;
             }
              
-            fitting_errors[i] = current_fitting_errors; 
+            fitting_penalties[i] = std::move(current_fitting_penalties); 
         }
+    }
+
+    // compute hypothesis penalties
+    std::vector<double> hypothesis_penalties(hypothesis_count + 1);
+    for(label_type i = 0; i < hypothesis_count + 1; i++){
+        hypothesis_penalties[i] = getHypothesisCost(i);
+    }
+
+    // compute hypothesis interaction penalties
+    std::vector<std::vector<double>> hypothesis_interaction_penalties(hypothesis_count + 1);
+    for(label_type i = 0; i < hypothesis_count + 1; i++){
+        std::vector<double> current_hypothesis_interaction_penalties(hypothesis_count + 1);
+        for(label_type j = 0; j < hypothesis_count + 1; j++){
+            current_hypothesis_interaction_penalties[j] =
+                getHypothesisInteractionCost(i,j);
+        }
+        hypothesis_interaction_penalties[i] = std::move(current_hypothesis_interaction_penalties);
     }
 
     ////////////////////////////////////////
@@ -187,7 +206,7 @@ MultiModelFitter_impl::fit_impl() const
 
         // Set weights
         for(label_type j = 0; j < hypothesis_count+1; j++){
-            f(j) = fitting_errors[sample_id][j];
+            f(j) = fitting_penalties[sample_id][j];
         }
 
         // Register function
@@ -218,7 +237,9 @@ MultiModelFitter_impl::fit_impl() const
             auto alpha_expansion_suggestion = graph_cut( alpha_label,
                                                          labeling,
                                                          neighbourhood,
-                                                         fitting_errors );
+                                                         fitting_penalties,
+                                                         hypothesis_penalties,
+                                                         hypothesis_interaction_penalties );
             
             // Create potential new labeling
             std::vector<label_type> new_labeling;

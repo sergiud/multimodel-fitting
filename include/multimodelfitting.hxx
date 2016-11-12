@@ -55,7 +55,9 @@ private:
         std::vector<label_type> const & current_labeling,
         std::shared_ptr<std::vector<std::array<sampleid_type, 2>>>
             const & neighbourhood,
-        std::vector<std::vector<double>> const & fitting_errors
+        std::vector<std::vector<double>> const & fitting_penalties,
+        std::vector<double> const & hypothesis_penalties,
+        std::vector<std::vector<double>> const & hypothesis_interaction_penalties
     ) const;
 };
 
@@ -200,7 +202,7 @@ MultiModelFitter<C>::getHypothesisCost(label_type label) const
     if(label == 0)
         return 0;
     else
-        return this->config->getHypothesisCost( hypotheses->at(label) );
+        return this->config->getHypothesisCost( hypotheses->at(label-1) );
 }
 
 template<class C>
@@ -211,7 +213,7 @@ MultiModelFitter<C>::getHypothesisInteractionCost(label_type label1, label_type 
         return 0;
     if(label2 == 0)
         return 0;
-    return this->config->getHypothesisInteractionCost( hypotheses->at(label1),
-                                                       hypotheses->at(label2) ); 
+    return this->config->getHypothesisInteractionCost( hypotheses->at(label1-1),
+                                                       hypotheses->at(label2-1) ); 
 }
 
