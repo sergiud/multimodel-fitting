@@ -49,6 +49,13 @@ public:
     // Seems to work best in the Range of 0.1 to 0.5.
     double getNeighbourhoodWeight();
 
+    // Returns the cost of the hypothesis
+    double getHypothesisCost(hypothesis_type const &);
+
+    // Returns the cost of the interaction between two hypotheses
+    double getHypothesisInteractionCost( hypothesis_type const &,
+                                         hypothesis_type const & );
+
 private:
     std::shared_ptr<drawer_2d> drawer;
 };

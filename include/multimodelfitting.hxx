@@ -43,6 +43,8 @@ protected:
     virtual double getResidual(sampleid_type sample, label_type label) const = 0;
     virtual double getNoiseLevel() const = 0;
     virtual double getNeighbourhoodWeight() const = 0;
+    virtual double getHypothesisCost(label_type label) const = 0;
+    virtual double getHypothesisInteractionCost(label_type label1, label_type label2) const = 0;
 
 private:
     // other internal algorithm functions, that shouldn't be visible in child
@@ -72,6 +74,7 @@ public:
     void set_samples(std::vector<typename C::sample_type> const & points);
     // Sets the hypotheses
     void set_hypotheses(std::vector<typename C::hypothesis_type> const & hypotheses);
+    // Runs the algorithm
     std::vector<label_type> fit(C& config);
     // Removes the samples, frees memory
     void clear_samples();
@@ -95,6 +98,8 @@ private:
     double getResidual(sampleid_type sample, label_type label) const;
     double getNoiseLevel() const;
     double getNeighbourhoodWeight() const;
+    double getHypothesisCost(label_type label) const;
+    double getHypothesisInteractionCost(label_type label1, label_type label2) const;
     void debug_output(std::vector<label_type> const &, double) const;
 };
 
@@ -187,3 +192,26 @@ MultiModelFitter<C>::getNeighbourhoodWeight() const
 {
     return this->config->getNeighbourhoodWeight();
 }
+
+template<class C>
+inline double
+MultiModelFitter<C>::getHypothesisCost(label_type label) const
+{
+    if(label == 0)
+        return 0;
+    else
+        return this->config->getHypothesisCost( hypotheses->at(label) );
+}
+
+template<class C>
+inline double
+MultiModelFitter<C>::getHypothesisInteractionCost(label_type label1, label_type label2) const
+{
+    if(label1 == 0)
+        return 0;
+    if(label2 == 0)
+        return 0;
+    return this->config->getHypothesisInteractionCost( hypotheses->at(label1),
+                                                       hypotheses->at(label2) ); 
+}
+

@@ -97,11 +97,43 @@ problem_ortholines::computeResidual(
 }
 
 double
-problem_ortholines::getNoiseLevel(){
+problem_ortholines::getNoiseLevel()
+{
     return 0.1;
 }
 
 double
-problem_ortholines::getNeighbourhoodWeight(){
+problem_ortholines::getNeighbourhoodWeight()
+{
     return 0.1;
 }
+
+// Returns the cost of the hypothesis
+double
+problem_ortholines::getHypothesisCost(hypothesis_type const &)
+{
+    return 1.0;
+}
+
+// Returns the cost of the interaction between two hypotheses
+double
+problem_ortholines::getHypothesisInteractionCost( hypothesis_type const & line1,
+                                                  hypothesis_type const & line2 )
+{
+    double dotproduct = line1.dirx * line2.dirx + line1.diry * line2.diry;
+    if(dotproduct > 1.0f) dotproduct = 1.0f;
+    if(dotproduct < -1.0f) dotproduct = -1.0f;
+    
+    std::cout << dotproduct << std::endl; 
+    double angle = acos(dotproduct);
+    std::cout << angle << std::endl; 
+    
+    // cast to degrees
+    angle = 90.0 - (180.0 * angle / 3.14159265358979323846);
+
+    return exp(angle);
+}
+
+
+
+
