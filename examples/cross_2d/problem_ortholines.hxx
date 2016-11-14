@@ -21,6 +21,8 @@
 #include "shapes_2d.hxx"
 #include "drawer_2d.hxx"
 
+#include <memory>
+
 class problem_ortholines {
 public:
     typedef point_2d sample_type;
