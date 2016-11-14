@@ -33,7 +33,7 @@ void problem_ortholines::debug_output(
 {
     std::cout << "Value: " << value << std::endl;
     drawer->draw_labeled(labels);
-    drawer->sleep(1);
+    drawer->sleep(0);
 }
 
 std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
@@ -99,13 +99,13 @@ problem_ortholines::computeResidual(
 double
 problem_ortholines::getNoiseLevel()
 {
-    return 0.1;
+    return 0.05;
 }
 
 double
 problem_ortholines::getNeighbourhoodWeight()
 {
-    return 0.1;
+    return 0.05;
 }
 
 // Returns the cost of the hypothesis
@@ -120,18 +120,21 @@ double
 problem_ortholines::getHypothesisInteractionCost( hypothesis_type const & line1,
                                                   hypothesis_type const & line2 )
 {
+    // compute dotproduct of direction normal vectors
     double dotproduct = line1.dirx * line2.dirx + line1.diry * line2.diry;
-    if(dotproduct > 1.0f) dotproduct = 1.0f;
-    if(dotproduct < -1.0f) dotproduct = -1.0f;
-    
-    std::cout << dotproduct << std::endl; 
-    double angle = acos(dotproduct);
-    std::cout << angle << std::endl; 
-    
-    // cast to degrees
-    angle = 90.0 - (180.0 * angle / 3.14159265358979323846);
 
-    return exp(angle);
+    // abs
+    if(dotproduct < 0)
+        dotproduct = -dotproduct;
+
+    double angle = 180.0 * dotproduct / 3.14159265358979323846;
+
+    double cost = exp(angle) - 1;
+
+    if (cost > 10000)
+        return 10000;
+
+    return cost;
 }
 
 

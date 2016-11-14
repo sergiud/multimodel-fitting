@@ -31,6 +31,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 find_package(OpenCV REQUIRED)
 include_directories("${OpenCV_INCLUDE_DIRS}")
 
+# Set path for external project installs
+SET(EXTERNAL_PROJECT_INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install")
+
 # Add OpenGM dependency
 include(ExternalProject)
 SET(OPENGM_DIR "${PROJECT_SOURCE_DIR}/external/opengm")
@@ -47,6 +50,19 @@ ExternalProject_Add( opengm
 include_directories("${OPENGM_DIR}/src/opengm/src/external/MaxFlow-v3.02.src-patched")
 link_directories("${OPENGM_DIR}/src/opengm-build/src/external")
 SET(OPENGM_LIBRARIES "external-library-maxflow")
+
+# Add MaxFlow dependency
+#include(ExternalProject)
+#SET(MAXFLOW_DIR "${PROJECT_SOURCE_DIR}/external/maxflow")
+#ExternalProject_Add( maxflow
+#    PREFIX "${MAXFLOW_DIR}"
+#    GIT_REPOSITORY "https://github.com/gerddie/maxflow.git"
+#    GIT_TAG "3.0.4"
+#    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install
+#    INSTALL_DIR "${EXTERNAL_PROJECT_INSTALL_DIR}"
+#)
+#include_directories("${EXTERNAL_PROJECT_INSTALL_DIR}/include/maxflow-3.0")
+#SET(MAXFLOW_LIBRARIES "maxflow")
 
 # Add C++11
 include(CheckCXXCompilerFlag)
@@ -68,7 +84,8 @@ endif()
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 # Add dependency include directories
-include_directories("${PROJECT_SOURCE_DIR}/external/install/include")
+include_directories("${EXTERNAL_PROJECT_INSTALL_DIR}/include")
+link_directories("${EXTERNAL_PROJECT_INSTALL_DIR}/lib")
 
 add_subdirectory(include)
 add_subdirectory(src)

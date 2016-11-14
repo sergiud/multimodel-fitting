@@ -26,7 +26,7 @@ drawer_2d::drawer_2d(const char * name, unsigned int width, unsigned int height,
     x_min(x_min), x_max(x_max), y_min(y_min), y_max(y_max),
     visu(cv::Mat::zeros(width, height, CV_8UC3)),
     disp(name),
-    rnd_gen(0), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
+    rnd_gen(2), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
 {
     namedWindow( disp, cv::WINDOW_AUTOSIZE );
 }

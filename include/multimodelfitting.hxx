@@ -23,6 +23,7 @@
 #include <memory>
 #include <cstdlib>
 #include <algorithm>
+#include <iostream>
 
 // Template independent implementation of the MultiModelFitter
 class MultiModelFitter_impl {
@@ -43,6 +44,7 @@ protected:
     virtual double getResidual(sampleid_type sample, label_type label) const = 0;
     virtual double getNoiseLevel() const = 0;
     virtual double getNeighbourhoodWeight() const = 0;
+    virtual double getHighlevelConstraintWeight() const = 0;
     virtual double getHypothesisCost(label_type label) const = 0;
     virtual double getHypothesisInteractionCost(label_type label1, label_type label2) const = 0;
 
@@ -59,6 +61,18 @@ private:
         std::vector<double> const & hypothesis_penalties,
         std::vector<std::vector<double>> const & hypothesis_interaction_penalties
     ) const;
+
+    double compute_value(
+        std::vector<MultiModelFitter_impl::label_type> labeling,
+        double,
+        std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type, 2>>>
+            const & neighbourhood,
+        std::vector<std::vector<double>> const & fitting_penalties,
+        std::vector<double> const & hypothesis_penalties,
+        std::vector<std::vector<double>> const & hypothesis_interaction_penalties,
+        double highlevel_constraint_weight
+    ) const;
+ 
 };
 
 /*
@@ -100,6 +114,7 @@ private:
     double getResidual(sampleid_type sample, label_type label) const;
     double getNoiseLevel() const;
     double getNeighbourhoodWeight() const;
+    double getHighlevelConstraintWeight() const;
     double getHypothesisCost(label_type label) const;
     double getHypothesisInteractionCost(label_type label1, label_type label2) const;
     void debug_output(std::vector<label_type> const &, double) const;
@@ -197,6 +212,13 @@ MultiModelFitter<C>::getNeighbourhoodWeight() const
 
 template<class C>
 inline double
+MultiModelFitter<C>::getHighlevelConstraintWeight() const
+{
+    return 1;//1*3.0*log(1.0*samples->size())/2.0;
+}
+
+template<class C>
+inline double
 MultiModelFitter<C>::getHypothesisCost(label_type label) const
 {
     if(label == 0)
@@ -212,6 +234,8 @@ MultiModelFitter<C>::getHypothesisInteractionCost(label_type label1, label_type 
     if(label1 == 0)
         return 0;
     if(label2 == 0)
+        return 0;
+    if(label1 == label2)
         return 0;
     return this->config->getHypothesisInteractionCost( hypotheses->at(label1-1),
                                                        hypotheses->at(label2-1) ); 
