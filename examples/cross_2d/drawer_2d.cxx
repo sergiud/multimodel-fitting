@@ -20,6 +20,7 @@
 #include <random>
 
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 drawer_2d::drawer_2d(const char * name, unsigned int width, unsigned int height, float x_min, float y_min, float x_max, float y_max)
     : width(width), height(height),

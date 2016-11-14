@@ -15,9 +15,11 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <multimodelfitting.hxx>
 #include "problem_ortholines.hxx"
 
 #include <iostream>
+#include <map>
 
 #include <opencv2/imgproc/imgproc.hpp>
 
