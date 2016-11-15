@@ -24,14 +24,14 @@
 #include "dataset_generator.hxx"
 
 int main(int argc, char *argv[]){
-  
+
     try {
 
         // Initialize the visualization window
         auto drawer = std::make_shared<drawer_2d>("cross_2d", 900, 900, 0.0f, 0.0f, 1.0f, 1.0f);
 
         // Create the datapoints
-        auto datapoints = dataset_generator::generate(800,100);
+        auto datapoints = dataset_generator::generate(800,400);
         auto hypotheses = dataset_generator::compute_hypotheses(datapoints, 50);
 
         // Initialization of drawer
@@ -39,14 +39,14 @@ int main(int argc, char *argv[]){
         drawer->set_hypotheses(hypotheses);
         drawer->draw_all();
         drawer->sleep(1000);
-        
+
         // Initialize the algorithm classes
         problem_ortholines config(drawer);
         MultiModelFitter<problem_ortholines> fitter;
 
         // Print the Neighbourhood connections (TODO: remove)
         {
-            auto connections = config.computeNeighbourhood(datapoints); 
+            auto connections = config.computeNeighbourhood(datapoints);
             std::array<unsigned char, 3> color = {255,255,255};
             for(auto const & connection : *connections){
                 drawer->draw_connection(

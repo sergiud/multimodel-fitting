@@ -35,7 +35,7 @@ void problem_ortholines::debug_output(
 {
     std::cout << "Value: " << value << std::endl;
     drawer->draw_labeled(labels);
-    drawer->sleep(0);
+    drawer->sleep(1);
 }
 
 std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
@@ -101,13 +101,13 @@ problem_ortholines::computeResidual(
 double
 problem_ortholines::getNoiseLevel()
 {
-    return 0.05;
+    return 0.1;
 }
 
 double
 problem_ortholines::getNeighbourhoodWeight()
 {
-    return 0.05;
+    return 0.25;
 }
 
 // Returns the cost of the hypothesis

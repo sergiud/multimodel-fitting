@@ -20,6 +20,8 @@
 #include <lemon/list_graph.h>
 #include <lemon/preflow.h>
 
+#define LARGE_DOUBLE 10000000000.0
+
 double MultiModelFitter_impl::compute_value(
     std::vector<MultiModelFitter_impl::label_type> labeling,
     std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type, 2>>>
@@ -75,54 +77,147 @@ MultiModelFitter_impl::graph_cut(
     std::vector<MultiModelFitter_impl::label_type> const & current_labeling,
     std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type, 2>>>
         const & neighbourhood,
+    double smoothing_penalty,
     std::vector<std::vector<double>> const & fitting_penalties,
     std::vector<double> const & hypothesis_penalties,
     std::vector<std::vector<double>> const & hypothesis_interaction_penalties
 ) const {
 
     typedef lemon::ListGraph GraphType;
+    typedef GraphType::Node NodeType;
+    typedef GraphType::EdgeMap<double> CostMapType;
 
     size_t num_nodes = sample_count;
 
-
-    //  5--S--10
-    //  |     |
-    //  A--5--B
-    //  |     |
-    //  20-D--5
-
+    ////////////////////////////////////////////////////
+    // Initialization. TODO move out of this function, use snapshotting
+    // Create graph
     GraphType g;
-    GraphType::EdgeMap<double> cost(g);
 
-    auto nodeA = g.addNode();
-    auto nodeB = g.addNode();
-    auto nodeS = g.addNode();
-    auto nodeD = g.addNode();
+    // Create node list.
+    std::vector<NodeType> nodes;
+    nodes.reserve(sample_count);
 
-    auto eAB = g.addEdge(nodeA, nodeB);
-    cost[eAB] = 0.003;
-    auto eAS = g.addEdge(nodeA, nodeS);
-    cost[eAS] = 0.005;
-    auto eAD = g.addEdge(nodeA, nodeD);
-    cost[eAD] = 0.020;
-    auto eBS = g.addEdge(nodeB, nodeS);
-    cost[eBS] = 0.010;
-    auto eBD = g.addEdge(nodeB, nodeD);
-    cost[eBD] = 0.005;
+    // Create ID nodes
+    NodeType nodeAlpha = g.addNode();
+    NodeType nodeNotAlpha = g.addNode();
+
+    // create sample nodes
+    for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+        nodes.push_back(g.addNode());
+    }
 
 
-    lemon::Preflow<GraphType, GraphType::EdgeMap<double>> flow(g, cost, nodeS, nodeD);
+
+    ////////////////////////////////////////////////////
+    // Build problem specific part of the graph
+
+    // Create lists for auxiliary nodes. just for debugging.
+    std::vector<GraphType::Edge> edgesAlpha(sample_count);
+    std::vector<GraphType::Edge> edgesNotAlpha(sample_count);
+
+    // TODO remove
+    std::vector<NodeType> smoothingAuxNodes;
+    std::vector<NodeType> hypothesisAuxNodes;
+
+    // Initialize costmap
+    CostMapType cost(g);
+
+    // Set direct connections from sample to node0 and node1
+    for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+        NodeType & node = nodes[sampleid];
+
+        auto const & currentLabel = current_labeling[sampleid];
+
+        // ignore labels that are already alpha
+        if(currentLabel == alpha_label){
+            auto e0 = g.addEdge(node, nodeAlpha);
+            cost[e0] = 1;
+            edgesAlpha[sampleid] = e0;
+            continue;
+        }
+
+        auto const & alphaCost = fitting_penalties[sampleid][alpha_label];
+        auto const & currentCost = fitting_penalties[sampleid][currentLabel];
+
+        auto e0 = g.addEdge(node, nodeAlpha);
+        auto e1 = g.addEdge(node, nodeNotAlpha);
+        cost[e0] = alphaCost;
+        cost[e1] = currentCost;
+        edgesAlpha[sampleid] = e0;
+        edgesNotAlpha[sampleid] = e1;
+    }
+
+    // Set connections between nodes
+    for(auto const & neighbourPair : *neighbourhood){
+        sampleid_type sample0 = neighbourPair[0];
+        sampleid_type sample1 = neighbourPair[1];
+
+        label_type label0 = current_labeling[sample0];
+        label_type label1 = current_labeling[sample1];
+
+        NodeType & node0 = nodes[sample0];
+        NodeType & node1 = nodes[sample1];
+
+        if(label0 == alpha_label){
+            if(label1 == alpha_label){
+                continue;
+            } else {
+                // swap. now if an alpha label is present, it is always label1.
+                label_type tmp = label0;
+                label0 = label1;
+                label1 = tmp;
+                sampleid_type tmp2 = sample0;
+                sample0 = sample1;
+                sample1 = tmp2;
+            }
+        }
+
+        if(label1 == alpha_label){
+            // specialized algorithm for alpha labels
+            cost[edgesNotAlpha[sample0]] += smoothing_penalty;
+            continue;
+        }
+
+
+        // normal algorithm, none of the two samples have an alpha label
+        if(label0 == label1){
+            auto e0 = g.addEdge(node0, node1);
+            cost[e0] = smoothing_penalty;
+            continue;
+        }
+
+        NodeType auxNode = g.addNode();
+        smoothingAuxNodes.push_back(auxNode);
+
+        auto e0a = g.addEdge(node0, auxNode);
+        auto e1a = g.addEdge(node1, auxNode);
+        auto eax = g.addEdge(nodeNotAlpha, auxNode);
+
+        cost[eax] = smoothing_penalty;
+        cost[e0a] = smoothing_penalty;
+        cost[e1a] = smoothing_penalty;
+
+    }
+
+    ////////////////////////////////////////////////////
+    // Run MinCut
+    lemon::Preflow<GraphType, CostMapType> flow(g, cost, nodeNotAlpha, nodeAlpha);
     flow.runMinCut();
 
-    std::cout << "A: " << (flow.minCut(nodeA)?"S":"D") << std::endl;
-    std::cout << "B: " << (flow.minCut(nodeB)?"S":"D") << std::endl;
-
-    std::vector<unsigned char> labeling(current_labeling.size()+5);
-    for(sampleid_type i = 0; i < labeling.size(); i++){
-        labeling[i] = 0;
-        if(i > labeling.size() - 3) labeling[i] = 1;
+    ////////////////////////////////////////////////////
+    // Read MinCut result
+    std::vector<unsigned char> result;
+    result.reserve(sample_count);
+    for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+        if(flow.minCut(nodes[sampleid])){
+            result.push_back(1);
+        } else {
+            result.push_back(0);
+        }
     }
-    return labeling;
+
+    return result;
 
 }
 
@@ -226,6 +321,7 @@ MultiModelFitter_impl::fit_impl() const
                                                          hypothesis_count,
                                                          labeling,
                                                          neighbourhood,
+                                                         smoothing_penalty,
                                                          fitting_penalties,
                                                          hypothesis_penalties,
                                                          hypothesis_interaction_penalties );
@@ -258,12 +354,12 @@ MultiModelFitter_impl::fit_impl() const
 
             std::cout << "new_value: " << new_value << " - old_value: "
                       << current_value << std::endl;
-            //if(new_value < current_value || current_value < 0){
+            if(new_value < current_value || current_value < 0){
                 labeling = std::move(new_labeling);
                 current_value = new_value;
                 debug_output(labeling, current_value);
                 changed = true;
-            //}
+            }
 
         }
 

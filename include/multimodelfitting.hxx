@@ -59,6 +59,7 @@ private:
         std::vector<label_type> const & current_labeling,
         std::shared_ptr<std::vector<std::array<sampleid_type, 2>>>
             const & neighbourhood,
+        double smoothing_penalty,
         std::vector<std::vector<double>> const & fitting_penalties,
         std::vector<double> const & hypothesis_penalties,
         std::vector<std::vector<double>> const & hypothesis_interaction_penalties
