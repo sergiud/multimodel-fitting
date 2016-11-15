@@ -85,13 +85,14 @@ MultiModelFitter_impl::graph_cut(
     size_t num_nodes = sample_count;
 
 
-    //  1--S--2
+    //  5--S--10
     //  |     |
-    //  A--3--B
+    //  A--5--B
     //  |     |
-    //  4--D--5
+    //  20-D--5
 
     GraphType g;
+    GraphType::EdgeMap<double> cost(g);
 
     auto nodeA = g.addNode();
     auto nodeB = g.addNode();
@@ -99,23 +100,22 @@ MultiModelFitter_impl::graph_cut(
     auto nodeD = g.addNode();
 
     auto eAB = g.addEdge(nodeA, nodeB);
+    cost[eAB] = 0.003;
     auto eAS = g.addEdge(nodeA, nodeS);
+    cost[eAS] = 0.005;
     auto eAD = g.addEdge(nodeA, nodeD);
+    cost[eAD] = 0.020;
     auto eBS = g.addEdge(nodeB, nodeS);
+    cost[eBS] = 0.010;
     auto eBD = g.addEdge(nodeB, nodeD);
-    GraphType::EdgeMap<double> cost(g);
+    cost[eBD] = 0.005;
 
-    cost[eAS] = 1;
-    cost[eBS] = 2;
-    cost[eAB] = 3;
-    cost[eAD] = 4;
-    cost[eBD] = 5;
 
     lemon::Preflow<GraphType, GraphType::EdgeMap<double>> flow(g, cost, nodeS, nodeD);
     flow.runMinCut();
 
-    std::cout << "A: " << flow.minCut(nodeA) << std::endl;
-    std::cout << "B: " << flow.minCut(nodeB) << std::endl;
+    std::cout << "A: " << (flow.minCut(nodeA)?"S":"D") << std::endl;
+    std::cout << "B: " << (flow.minCut(nodeB)?"S":"D") << std::endl;
 
     std::vector<unsigned char> labeling(current_labeling.size()+5);
     for(sampleid_type i = 0; i < labeling.size(); i++){

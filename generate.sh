@@ -9,4 +9,4 @@ mkdir ${BUILD_PATH}
 
 cd ${BUILD_PATH}
 
-cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" ${SCRIPTPATH}
+CXX=clang++ CC=clang cmake -DLEMON_DIR="/usr/lib/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" ${SCRIPTPATH}

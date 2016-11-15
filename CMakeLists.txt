@@ -20,31 +20,18 @@ project(multimodel_fitting)
 set(multimodel_fitting_VERSION_MAJOR 0)
 set(multimodel_fitting_VERSION_MINOR 1)
 
-
 # Set output directories
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 
-
 # Add OpenCV dependency
 find_package(OpenCV REQUIRED)
 include_directories("${OpenCV_INCLUDE_DIRS}")
 
-# Set path for external project installs
-SET(EXTERNAL_PROJECT_INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install")
-
 # Add Lemon dependency
-include(ExternalProject)
-SET(LEMON_DIR "${PROJECT_SOURCE_DIR}/external/lemon")
-ExternalProject_Add( lemon
-    PREFIX "${LEMON_DIR}"
-    HG_REPOSITORY "http://lemon.cs.elte.hu/hg/lemon"
-    HG_TAG "r1.3.1"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_PROJECT_INSTALL_DIR}
-    INSTALL_DIR "${EXTERNAL_PROJECT_INSTALL_DIR}"
-)
-SET(LEMON_LIBRARIES "emon")
+find_package(LEMON REQUIRED)
+include_directories("${LEMON_INCLUDE_DIRS}")
 
 # Add C++11
 include(CheckCXXCompilerFlag)
@@ -64,10 +51,6 @@ endif()
 
 # Add main include directory
 include_directories("${PROJECT_SOURCE_DIR}/include")
-
-# Add dependency include directories
-include_directories("${EXTERNAL_PROJECT_INSTALL_DIR}/include")
-link_directories("${EXTERNAL_PROJECT_INSTALL_DIR}/lib")
 
 add_subdirectory(include)
 add_subdirectory(src)
