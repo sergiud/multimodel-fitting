@@ -352,13 +352,22 @@ MultiModelFitter_impl::fit_impl() const
                                               hypothesis_penalties,
                                               hypothesis_interaction_penalties );
 
+            size_t num_alphalabel = 0;
+            for(auto const & sug : alpha_expansion_suggestion){
+                if(sug != 0) num_alphalabel ++;
+            }
+
+            // TODO remove debug output
             std::cout << "new_value: " << new_value << " - old_value: "
                       << current_value << std::endl;
+            std::cout << "num_alphalabel: " << num_alphalabel << std::endl;
             if(new_value < current_value || current_value < 0){
                 labeling = std::move(new_labeling);
                 current_value = new_value;
                 debug_output(labeling, current_value);
                 changed = true;
+            } else if (num_alphalabel != 0){
+                std::cout << "_____________________WARNING______________"<< std::endl;
             }
 
         }
