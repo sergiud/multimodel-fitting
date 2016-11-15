@@ -1,6 +1,5 @@
 currently:
-    - remove opengm
-    - implement directly on top of libmaxflow
+    - implement directly on top of liblemon
 
 further:
     - add ycm
