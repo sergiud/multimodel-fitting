@@ -40,7 +40,7 @@ protected:
     virtual label_type get_hypothesis_count() const = 0;
     virtual void debug_output(std::vector<label_type> const &, double) const = 0;
     virtual std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
-        getNeighbourhood() const = 0; 
+        getNeighbourhood() const = 0;
     virtual double getResidual(sampleid_type sample, label_type label) const = 0;
     virtual double getNoiseLevel() const = 0;
     virtual double getNeighbourhoodWeight() const = 0;
@@ -54,6 +54,8 @@ private:
     // The actual graph cut step
     std::vector<unsigned char> graph_cut(
         label_type alpha_label,
+        sampleid_type sample_count,
+        label_type hypothesis_count,
         std::vector<label_type> const & current_labeling,
         std::shared_ptr<std::vector<std::array<sampleid_type, 2>>>
             const & neighbourhood,
@@ -64,15 +66,14 @@ private:
 
     double compute_value(
         std::vector<MultiModelFitter_impl::label_type> labeling,
-        double,
         std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type, 2>>>
             const & neighbourhood,
+        double smoothing_penalty,
         std::vector<std::vector<double>> const & fitting_penalties,
         std::vector<double> const & hypothesis_penalties,
-        std::vector<std::vector<double>> const & hypothesis_interaction_penalties,
-        double highlevel_constraint_weight
+        std::vector<std::vector<double>> const & hypothesis_interaction_penalties
     ) const;
- 
+
 };
 
 /*
@@ -110,7 +111,7 @@ private:
     sampleid_type get_sample_count() const;
     label_type get_hypothesis_count() const;
     std::shared_ptr<std::vector<std::array<sampleid_type,2>>>
-        getNeighbourhood() const; 
+        getNeighbourhood() const;
     double getResidual(sampleid_type sample, label_type label) const;
     double getNoiseLevel() const;
     double getNeighbourhoodWeight() const;
@@ -184,7 +185,7 @@ template<class C>
 inline std::shared_ptr<std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>>
 MultiModelFitter<C>::getNeighbourhood() const
 {
-    return this->config->computeNeighbourhood(*samples); 
+    return this->config->computeNeighbourhood(*samples);
 }
 
 template<class C>
@@ -238,6 +239,6 @@ MultiModelFitter<C>::getHypothesisInteractionCost(label_type label1, label_type 
     if(label1 == label2)
         return 0;
     return this->config->getHypothesisInteractionCost( hypotheses->at(label1-1),
-                                                       hypotheses->at(label2-1) ); 
+                                                       hypotheses->at(label2-1) );
 }
 

@@ -34,35 +34,17 @@ include_directories("${OpenCV_INCLUDE_DIRS}")
 # Set path for external project installs
 SET(EXTERNAL_PROJECT_INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install")
 
-# Add OpenGM dependency
+# Add Lemon dependency
 include(ExternalProject)
-SET(OPENGM_DIR "${PROJECT_SOURCE_DIR}/external/opengm")
-ExternalProject_Add( opengm
-    PREFIX "${OPENGM_DIR}"
-    GIT_REPOSITORY "https://github.com/opengm/opengm.git"
-    #GIT_TAG "v2.3.7RC"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install
-               -DBUILD_EXAMPLES=OFF -DBUILD_TUTORIALS=OFF -DBUILD_TESTING=OFF
-               -DWITH_MAXFLOW=ON
-    INSTALL_DIR "${PROJECT_SOURCE_DIR}/external/install"
-    PATCH_COMMAND eval "(cd ./src/external/patches/MaxFlow/ && ./patchMaxFlow-v3.02.sh)"
+SET(LEMON_DIR "${PROJECT_SOURCE_DIR}/external/lemon")
+ExternalProject_Add( lemon
+    PREFIX "${LEMON_DIR}"
+    HG_REPOSITORY "http://lemon.cs.elte.hu/hg/lemon"
+    HG_TAG "r1.3.1"
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_PROJECT_INSTALL_DIR}
+    INSTALL_DIR "${EXTERNAL_PROJECT_INSTALL_DIR}"
 )
-include_directories("${OPENGM_DIR}/src/opengm/src/external/MaxFlow-v3.02.src-patched")
-link_directories("${OPENGM_DIR}/src/opengm-build/src/external")
-SET(OPENGM_LIBRARIES "external-library-maxflow")
-
-# Add MaxFlow dependency
-#include(ExternalProject)
-#SET(MAXFLOW_DIR "${PROJECT_SOURCE_DIR}/external/maxflow")
-#ExternalProject_Add( maxflow
-#    PREFIX "${MAXFLOW_DIR}"
-#    GIT_REPOSITORY "https://github.com/gerddie/maxflow.git"
-#    GIT_TAG "3.0.4"
-#    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external/install
-#    INSTALL_DIR "${EXTERNAL_PROJECT_INSTALL_DIR}"
-#)
-#include_directories("${EXTERNAL_PROJECT_INSTALL_DIR}/include/maxflow-3.0")
-#SET(MAXFLOW_LIBRARIES "maxflow")
+SET(LEMON_LIBRARIES "emon")
 
 # Add C++11
 include(CheckCXXCompilerFlag)
