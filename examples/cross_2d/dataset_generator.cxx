@@ -69,15 +69,15 @@ std::vector<line_2d> dataset_generator::compute_hypotheses(std::vector<point_2d>
 
     std::vector<line_2d> hypotheses;
     hypotheses.reserve(num);
-    hypotheses.push_back(line_2d(point_2d(0.0f, 1.0f), point_2d(1.0f, 0.0f)));
-    hypotheses.push_back(line_2d(point_2d(0.0f, 0.0f), point_2d(1.0f, 1.0f)));
-    hypotheses.push_back(line_2d(point_2d(0.0f, 1.0f), point_2d(0.9f, 0.0f)));
-    for (size_t i = 0; i < num-2; i++) {
+    /*for (size_t i = 0; i < num-2; i++) {
         size_t p0 = index_gen1(gen);
         size_t p1 = index_gen2(gen);
         if (p1 >= p0) p1++;
         hypotheses.push_back(line_2d(datapoints[p0], datapoints[p1]));
-    }
+    }*/
+    hypotheses.push_back(line_2d(point_2d(0.0f, 1.0f), point_2d(0.9f, 0.0f)));
+    hypotheses.push_back(line_2d(point_2d(0.0f, 0.0f), point_2d(1.0f, 1.0f)));
+    hypotheses.push_back(line_2d(point_2d(0.0f, 1.0f), point_2d(1.0f, 0.0f)));
 
     return hypotheses;
 }

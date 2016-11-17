@@ -48,7 +48,6 @@ double MultiModelFitter_impl::compute_value(
             result += smoothing_penalty;
     }
 
-/*
     // Hypothesis Penalties
     std::set<label_type> active_labels( labeling.begin(),
                                         labeling.end() );
@@ -64,7 +63,6 @@ double MultiModelFitter_impl::compute_value(
             result += hypothesis_interaction_penalties[label1][label2];
         }
     }
-*/
 
     return result;
 }
@@ -106,7 +104,6 @@ MultiModelFitter_impl::graph_cut(
     for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
         nodes.push_back(g.addNode());
     }
-
 
 
     ////////////////////////////////////////////////////
@@ -163,6 +160,7 @@ MultiModelFitter_impl::graph_cut(
             if(label1 == alpha_label){
                 continue;
             } else {
+                // TODO beautify
                 // swap. now if an alpha label is present, it is always label1.
                 label_type tmp = label0;
                 label0 = label1;
@@ -197,6 +195,63 @@ MultiModelFitter_impl::graph_cut(
         cost[eax] = smoothing_penalty;
         cost[e0a] = smoothing_penalty;
         cost[e1a] = smoothing_penalty;
+
+    }
+
+    {
+        std::set<label_type> active_labels( current_labeling.begin(),
+                                            current_labeling.end() );
+
+        // Penalty for switch to alpha label
+        if(active_labels.count(alpha_label) == 0){
+            double c_a = hypothesis_penalties[alpha_label];
+            for(auto const & label : active_labels){
+                c_a += hypothesis_interaction_penalties[alpha_label][label];
+            }
+            std::cout << "c_a: " << c_a << std::endl;
+
+            NodeType auxNode = g.addNode();
+            hypothesisAuxNodes.push_back(auxNode);
+            auto e0 = g.addEdge(nodeAlpha, auxNode);
+            cost[e0] = c_a;
+
+            for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+                auto e1 = g.addEdge(nodes[sampleid], auxNode);
+                cost[e1] = c_a;
+            }
+        }
+
+        // Penalty for abandoning other labels
+        for(auto const & beta_label : active_labels){
+            if(beta_label == alpha_label) continue;
+
+            double c_b = hypothesis_penalties[beta_label]
+                         + hypothesis_interaction_penalties[beta_label][alpha_label];
+
+            for(auto const & label : active_labels){
+                // TODO check in paper how to deal with existing alpha labels
+                if(label == beta_label || label == alpha_label){
+                    continue;
+                }
+                c_b += hypothesis_interaction_penalties[beta_label][label];
+            }
+
+            std::cout << "c_" << beta_label << ": " << c_b << std::endl;
+
+            NodeType auxNode = g.addNode();
+            hypothesisAuxNodes.push_back(auxNode);
+            auto e0 = g.addEdge(nodeNotAlpha, auxNode);
+            cost[e0] = c_b;
+
+            for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+                if(current_labeling[sampleid] == beta_label){
+                    auto e1 = g.addEdge(nodes[sampleid], auxNode);
+                    cost[e1] = c_b;
+                }
+            }
+        }
+
+
 
     }
 
