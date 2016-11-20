@@ -9,4 +9,5 @@ mkdir ${BUILD_PATH}
 
 cd ${BUILD_PATH}
 
-CXX=clang++ CC=clang cmake -DLEMON_DIR="$SCRIPTPATH/../liblemon/install/share/lemon/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" ${SCRIPTPATH}
+#CXX=clang++ CC=clang cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" ${SCRIPTPATH}
+CXX=clang++ CC=clang cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" ${SCRIPTPATH}

@@ -1,14 +1,7 @@
 currently:
-    - implement directly on top of liblemon
+    - implement vanishing points algorithm
 
 further:
     - add ycm
-    - add priors
-    - add priors to feedback graph
-    - rework config class.
-      create virtual parent class for config classes.
-      enable virtual typedefs my making the config superclass a template class.
-    - implement vanishing points algorithm
-    - optimize (look at alphaexpansion implementation of opengm)
     - far future: opencl implementation? look at nvidia's paper
 

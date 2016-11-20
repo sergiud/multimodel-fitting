@@ -89,7 +89,7 @@ problem_lines::debug_output(
                    [](label_type x){return x-1;});
 
     drawer.draw_labeled(transformed_labels);
-    drawer.sleep(0);//100);
+    drawer.sleep(100);
 }
 
 std::vector<std::array<problem_lines::sampleid_type,2>>

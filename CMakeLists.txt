@@ -29,10 +29,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 find_package(OpenCV REQUIRED)
 include_directories("${OpenCV_INCLUDE_DIRS}")
 
-# Add Lemon dependency
-find_package(LEMON REQUIRED)
-include_directories("${LEMON_INCLUDE_DIRS}")
-
 # Add C++11
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
