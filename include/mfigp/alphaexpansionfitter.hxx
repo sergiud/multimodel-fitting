@@ -95,7 +95,7 @@ AlphaExpansionFitter<C>::compute_value(
         if(label0 != label1)
             result += smoothing_penalty;
     }
-/*
+
     // Hypothesis Penalties
     std::set<label_type> active_labels( labeling.begin(),
                                         labeling.end() );
@@ -111,7 +111,7 @@ AlphaExpansionFitter<C>::compute_value(
             result += hypothesis_interaction_penalties[label1* label_stride + label2];
         }
     }
-*/
+
     return result;
 }
 

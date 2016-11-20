@@ -136,6 +136,58 @@ inline void MinCut_MaxFlow<C>::run(
 
     }
 
+    // set up hypothesis cost
+    {
+        // Penalty for switch to alpha label
+        if(active_labels.count(alpha_label) == 0){
+            double c_a = hypothesis_penalties[alpha_label];
+            for(auto const & label : active_labels){
+                c_a += hypothesis_interaction_penalties[alpha_label*label_stride+label];
+            }
+
+            if(c_a != 0){
+                auto n0 = g.add_node();
+                g.add_tweights(n0, c_a, 0);
+
+                for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+                    g.add_edge(n0, sampleid, c_a, 0);
+                }
+            }
+        }
+
+        // Penalty for abandoning other labels
+        for(auto const & beta_label : active_labels){
+            if(beta_label == alpha_label) continue;
+
+            double c_b = hypothesis_penalties[beta_label]
+                + hypothesis_interaction_penalties[ beta_label*label_stride +
+                                                    alpha_label ];
+
+            for(auto const & label : active_labels){
+                // TODO check in paper how to deal with existing alpha labels
+                if(label == beta_label || label == alpha_label){
+                    continue;
+                }
+                c_b += hypothesis_interaction_penalties[beta_label * label_stride + label] * 0.5f;
+            }
+
+            if(c_b != 0){
+                auto n1 = g.add_node();
+                g.add_tweights(n1, 0, c_b);
+
+                for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+                    if(labeling[sampleid] == beta_label){
+                        g.add_edge(n1, sampleid, 0, c_b);
+                    }
+                }
+            }
+        }
+
+
+
+    }
+
+
 
     g.maxflow();
 
