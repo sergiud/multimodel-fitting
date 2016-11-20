@@ -95,7 +95,7 @@ AlphaExpansionFitter<C>::compute_value(
         if(label0 != label1)
             result += smoothing_penalty;
     }
-
+/*
     // Hypothesis Penalties
     std::set<label_type> active_labels( labeling.begin(),
                                         labeling.end() );
@@ -111,7 +111,7 @@ AlphaExpansionFitter<C>::compute_value(
             result += hypothesis_interaction_penalties[label1* label_stride + label2];
         }
     }
-
+*/
     return result;
 }
 
@@ -187,12 +187,13 @@ AlphaExpansionFitter<C>::fit(
             );
 
             // Swap if new optimum found
-            config.debug_output(*new_labeling, new_value);
             if(new_value < current_value){
                 std::swap(labeling, new_labeling);
                 current_value = new_value;
                 config.debug_output(*labeling, current_value);
                 changed = true;
+            } else if (new_value > current_value){
+                std::cout << "----WARNING~~~~" << std::endl;
             }
 
         }

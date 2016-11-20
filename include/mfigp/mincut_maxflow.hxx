@@ -23,6 +23,10 @@
 #include <functional>
 #include <cassert>
 
+#include "ext/block.h"
+#include "ext/graph.h"
+#include "ext/graph.tpp"
+
 namespace mfigp {
 
 template<typename C>
@@ -66,8 +70,44 @@ inline void MinCut_MaxFlow<C>::run(
     std::vector<computation_type> const & hypothesis_penalties,
     std::vector<computation_type> const & hypothesis_interaction_penalties
 ){
+    typedef ext::maxflow::Graph< computation_type,
+                                 computation_type,
+                                 computation_type > GraphType;
 
-    new_labeling[1] = alpha_label;
+    // Create graph
+    GraphType g(2*sample_count, 4*sample_count);
+
+    // compute active labels
+    std::set<label_type> active_labels(labeling.begin(), labeling.end());
+
+    // add all sample nodes
+    g.add_node(sample_count);
+
+    // set up data cost
+    for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
+
+        auto const & currentLabel = labeling[sampleid];
+
+        if(currentLabel == alpha_label){
+            g.add_tweights( sampleid, 1, 0 );
+        } else {
+            g.add_tweights( sampleid,
+                fitting_penalties[ sampleid*label_stride + alpha_label ],
+                fitting_penalties[ sampleid*label_stride + currentLabel ] );
+        }
+
+    }
+
+
+    g.maxflow();
+
+    for(sampleid_type i = 0; i < sample_count; i++){
+        if(g.what_segment(i) == GraphType::SOURCE){
+            new_labeling[i] = labeling[i];
+        } else {
+            new_labeling[i] = alpha_label;
+        }
+    }
 
 }
 
