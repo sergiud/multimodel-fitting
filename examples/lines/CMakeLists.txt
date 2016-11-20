@@ -13,11 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-set(EXAMPLES
-    hello_world
-    lines
+set(HEADERS
+  shapes_2d.hxx
+  drawer_2d.hxx
+  datapoints.hxx
+  problem_lines.hxx
 )
 
-foreach(EXAMPLE ${EXAMPLES})
-  add_subdirectory(${EXAMPLE})
-endforeach(EXAMPLE)
+set(SOURCES
+  main.cxx
+  shapes_2d.cxx
+  drawer_2d.cxx
+  datapoints.cxx
+  problem_lines.cxx
+)
+
+add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
+target_link_libraries(${EXAMPLE} multimodelfitting ${OpenCV_LIBRARIES})
