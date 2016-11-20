@@ -83,6 +83,43 @@ inline void MinCut_MaxFlow<C>::run(
     // add all sample nodes
     g.add_node(sample_count);
 
+    // add smooting costs
+    std::vector<computation_type> extra_smoothing_costs(sample_count);
+    for(sampleid_type i = 0; i<extra_smoothing_costs.size(); i++){
+        extra_smoothing_costs[i] = 0;
+    }
+    for(auto const & neighbourPair : neighbourhood){
+        sampleid_type sample0 = neighbourPair[0];
+        sampleid_type sample1 = neighbourPair[1];
+
+        label_type label0 = labeling[sample0];
+        label_type label1 = labeling[sample1];
+
+        if(label0 == alpha_label){
+            if(label1 == alpha_label){
+                continue;
+            }
+            extra_smoothing_costs[sample1] += smoothing_penalty;
+            continue;
+        }
+
+        if(label1 == alpha_label){
+            extra_smoothing_costs[sample0] += smoothing_penalty;
+            continue;
+        }
+
+        if(label0 == label1){
+            g.add_edge(sample0, sample1, smoothing_penalty, smoothing_penalty);
+            continue;
+        }
+
+        auto n0 = g.add_node();
+
+        g.add_tweights(n0, 0, smoothing_penalty);
+        g.add_edge(sample0, n0, 0, smoothing_penalty);
+        g.add_edge(sample1, n0, 0, smoothing_penalty);
+    }
+
     // set up data cost
     for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
 
@@ -93,7 +130,8 @@ inline void MinCut_MaxFlow<C>::run(
         } else {
             g.add_tweights( sampleid,
                 fitting_penalties[ sampleid*label_stride + alpha_label ],
-                fitting_penalties[ sampleid*label_stride + currentLabel ] );
+                fitting_penalties[ sampleid*label_stride + currentLabel ] +
+                    extra_smoothing_costs[sampleid] );
         }
 
     }
