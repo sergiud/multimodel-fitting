@@ -150,6 +150,7 @@ AlphaExpansionFitter<C>::fit(
                                           fitting_penalties,
                                           hypothesis_penalties,
                                           hypothesis_interaction_penalties );
+    config.debug_output(*labeling, current_value);
     do {
         changed = false;
 
