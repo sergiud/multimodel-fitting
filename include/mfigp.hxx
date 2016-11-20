@@ -21,6 +21,10 @@
 #include <array>
 #include <algorithm>
 
+#include "mfigp/alphaexpansionfitter.hxx"
+
+namespace mfigp {
+
 /*
  * Template parameters:
  * - C: the config class
@@ -67,9 +71,10 @@ private:
     computation_type getNeighbourhoodWeight(C& config) const;
     computation_type getHighlevelConstraintWeight(C& config) const;
     computation_type getHypothesisCost(C& config, label_type label) const;
-    computation_type getHypothesisInteractionCost( C& config,
-                                                      label_type label1, label_type label2) const;
-    void debug_output(C& config, std::vector<label_type> const &, computation_type) const;
+    computation_type getHypothesisInteractionCost( C& config, label_type label1,
+                                                   label_type label2) const;
+    void debug_output( C& config, std::vector<label_type> const &,
+                       computation_type) const;
 };
 
 template<class C>
@@ -172,7 +177,9 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
         getNeighbourhood( config );
 
     // run the actual algorithm
-    std::vector<label_type> labels = AlphaExpansionFitter::fit(
+    std::vector<label_type> labels =
+        AlphaExpansionFitter<C>::fit(
+            hypothesis_count, sample_count, label_stride, sample_stride,
             neighbourhood, smoothing_penalty, fitting_penalties,
             hypothesis_penalties, hypothesis_interaction_penalties
         );
@@ -282,3 +289,4 @@ MultiModelFitter<C>::getHypothesisInteractionCost( C & config,
                                                 hypotheses[label2] );
 }
 
+}

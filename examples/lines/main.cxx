@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
         drawer.sleep(1000);
 
         // Initialize the algorithm classes
-        MultiModelFitter<problem_lines> fitter;
+        mfigp::MultiModelFitter<problem_lines> fitter;
 
         // Print the Neighbourhood connections (TODO: remove)
         {
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
         // run the algorithm
         std::cout << "Samples: " << datapoints.size() << std::endl;
         std::cout << "Hypotheses: " << hypotheses.size() << std::endl;
-        fitter.fit(config);
+        auto labeling = fitter.fit(config);
         std::cout << "Converged." << std::endl;
 
         // cleanup
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]){
         fitter.clear_samples();
 
         // wait for the user to close the window
+        drawer.draw_labeled(labeling);
         drawer.wait();
     }
     catch (std::exception const & e) {

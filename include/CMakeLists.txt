@@ -14,8 +14,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 set(multimodelfitting_HEADERS
-  
-  "${CMAKE_CURRENT_SOURCE_DIR}/multimodelfitting.hxx"
-  
+
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp.hxx"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/alphaexpansionfitter.hxx"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/config.hxx"
+
 PARENT_SCOPE)
 

@@ -18,6 +18,8 @@
 #include "problem_lines.hxx"
 
 #include <random>
+#include <iostream>
+#include "drawer_2d.hxx"
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -55,7 +57,7 @@ problem_lines::getNumberOfParametersPerHypothesis()
 double
 problem_lines::computeResidual(
     sample_type const & point, hypothesis_type const & line
-) const {
+) {
     return line.dist(point);
 }
 
@@ -76,7 +78,7 @@ problem_lines::getHypothesisInteractionCost( hypothesis_type const & l0,
 
 void
 problem_lines::debug_output(
-    std::vector<MultiModelFitter_impl::label_type> const & labels,
+    std::vector<label_type> const & labels,
     double value
 )
 {
@@ -85,10 +87,10 @@ problem_lines::debug_output(
     drawer.sleep(0);//100);
 }
 
-std::vector<std::array<MultiModelFitter_impl::sampleid_type,2>>
+std::vector<std::array<problem_lines::sampleid_type,2>>
 problem_lines::computeNeighbourhood(
     std::vector<sample_type> const & samples
-) const
+)
 {
     float x_max = samples[0].x;
     float y_max = samples[0].y;
@@ -120,7 +122,7 @@ problem_lines::computeNeighbourhood(
     }
 
     // Retrieve data
-    typedef std::array<MultiModelFitter_impl::sampleid_type,2> conn_type;
+    typedef std::array<sampleid_type,2> conn_type;
     auto connections = std::vector<conn_type>();
     for(size_t i = 0; i < samples.size(); i++){
         auto const & vertexID = vertexIDs[i];
