@@ -159,7 +159,8 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
 
                 // Equal labels or labels and outliers do not cost anything
                 if(label1 >= 0 && label2 >= 0 && label1 != label2){
-                    cost = getHypothesisInteractionCost(config, label1, label2);
+                    cost = getHypothesisInteractionCost(config, label1, label2)
+                           * highlevel_constraint_weight;
                 }
 
                 hypothesis_interaction_penalties[
