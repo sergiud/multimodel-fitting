@@ -73,8 +73,6 @@ private:
     computation_type getHypothesisCost(C& config, label_type label) const;
     computation_type getHypothesisInteractionCost( C& config, label_type label1,
                                                    label_type label2) const;
-    void debug_output( C& config, std::vector<label_type> const &,
-                       computation_type) const;
 };
 
 template<class C>
@@ -179,7 +177,8 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
     // run the actual algorithm
     std::vector<label_type> labels =
         AlphaExpansionFitter<C>::fit(
-            hypothesis_count, sample_count, label_stride, sample_stride,
+            config,
+            sample_count, hypothesis_count+1, sample_stride, label_stride,
             neighbourhood, smoothing_penalty, fitting_penalties,
             hypothesis_penalties, hypothesis_interaction_penalties
         );
@@ -217,18 +216,6 @@ inline typename C::label_type
 MultiModelFitter<C>::get_hypothesis_count() const
 {
     return static_cast<label_type>(hypotheses.size());
-}
-
-template<class C>
-inline void
-MultiModelFitter<C>::debug_output( C & config,
-                                   std::vector<typename C::label_type> const &labels,
-                                   typename C::computation_type value ) const
-{
-    std::vector<label_type> transformed_labels(labels.size());
-    std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
-                   [](label_type x){return x-1;});
-    config.debug_output(transformed_labels, value);
 }
 
 template<class C>

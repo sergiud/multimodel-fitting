@@ -47,10 +47,10 @@ private:
     std::vector<line_2d> hypotheses;
     std::vector<std::array<unsigned char, 3>> colors_lines;
     std::vector<std::array<unsigned char, 3>> colors_dots;
+    const unsigned int width, height;
+    const float x_min, x_max, y_min, y_max;
     cv::Mat visu;
     const char* disp;
-    const float x_min, x_max, y_min, y_max;
-    const unsigned int width, height;
     std::mt19937 rnd_gen;
     std::uniform_real_distribution<float> col_hue_detail_gen;
     std::uniform_int_distribution<unsigned int> col_hue_raw_gen;
@@ -75,7 +75,7 @@ inline void drawer_2d::draw_labeled(std::vector<T> const & labels)
             draw_line(hypotheses[i], colors_lines[i]);
         }
     }
-    std::array<unsigned char, 3> outlier_color = {128, 128, 128};
+    std::array<unsigned char, 3> outlier_color = {{128, 128, 128}};
     for (size_t i = 0; i < labels.size(); i++) {
         if(labels[i] >= 0){
             draw_point(datapoints[i], colors_dots[labels[i]]);

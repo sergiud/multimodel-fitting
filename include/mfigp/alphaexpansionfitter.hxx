@@ -17,6 +17,14 @@
 
 #pragma once
 
+#include <vector>
+#include <array>
+#include <set>
+#include <functional>
+#include <cassert>
+
+#include "mincut_maxflow.hxx"
+
 namespace mfigp {
 
 template<typename C>
@@ -30,33 +38,173 @@ class AlphaExpansionFitter {
     public:
 
         static std::vector<label_type> fit(
-            label_type hypothesis_count,
+            C & config,
             sampleid_type sample_count,
-            label_type label_stride,
+            label_type hypothesis_count,
             sampleid_type sample_stride,
-            std::vector< std::array<sampleid_type,2> > neighbourhood,
+            label_type label_stride,
+            std::vector< std::array<sampleid_type,2> > const & neighbourhood,
             computation_type smoothing_penalty,
-            std::vector<computation_type> fitting_penalties,
-            std::vector<computation_type> hypothesis_penalties,
-            std::vector<computation_type> hypothesis_interaction_penalties
+            std::vector<computation_type> const & fitting_penalties,
+            std::vector<computation_type> const & hypothesis_penalties,
+            std::vector<computation_type> const & hypothesis_interaction_penalties
+        );
+
+    private:
+        static computation_type compute_value(
+            sampleid_type sample_count,
+            label_type hypothesis_count,
+            sampleid_type sample_stride,
+            label_type label_stride,
+            std::vector<label_type> const & labeling,
+            std::vector<std::array<sampleid_type, 2>> const & neighbourhood,
+            computation_type smoothing_penalty,
+            std::vector<computation_type> const & fitting_penalties,
+            std::vector<computation_type> const & hypothesis_penalties,
+            std::vector<computation_type> const & hypothesis_interaction_penalties
         );
 
 };
 
 template<typename C>
-inline std::vector<typename C::label_type>
-AlphaExpansionFitter<C>::fit(
-    typename C::label_type hypothesis_count,
-    typename C::sampleid_type sample_count,
-    typename C::label_type label_stride,
-    typename C::sampleid_type sample_stride,
-    std::vector< std::array<typename C::sampleid_type,2> > neighbourhood,
-    typename C::computation_type smoothing_penalty,
-    std::vector<typename C::computation_type> fitting_penalties,
-    std::vector<typename C::computation_type> hypothesis_penalties,
-    std::vector<typename C::computation_type> hypothesis_interaction_penalties )
+inline typename C::computation_type
+AlphaExpansionFitter<C>::compute_value(
+    sampleid_type sample_count,
+    label_type hypothesis_count,
+    sampleid_type sample_stride,
+    label_type label_stride,
+    std::vector<label_type> const & labeling,
+    std::vector< std::array<sampleid_type,2> > const & neighbourhood,
+    computation_type smoothing_penalty,
+    std::vector<computation_type> const & fitting_penalties,
+    std::vector<computation_type> const & hypothesis_penalties,
+    std::vector<computation_type> const & hypothesis_interaction_penalties )
 {
-    return std::vector<label_type>(sample_count);
+    double result = 0.0;
+
+    // Fitting penalty
+    for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
+        label_type label = labeling[sample_id];
+        result += fitting_penalties[sample_id * label_stride + label];
+    }
+
+    // Smoothing penalty
+    for(auto const & neighbour_pair : neighbourhood){
+        label_type label0 = labeling[neighbour_pair[0]];
+        label_type label1 = labeling[neighbour_pair[1]];
+        if(label0 != label1)
+            result += smoothing_penalty;
+    }
+
+    // Hypothesis Penalties
+    std::set<label_type> active_labels( labeling.begin(),
+                                        labeling.end() );
+
+    for(auto const & label : active_labels){
+        result += hypothesis_penalties[label];
+    }
+
+    // Hypothesis Interaction Penalties
+    for(auto const & label1 : active_labels){
+        for(auto const & label2 : active_labels){
+            if(label1 >= label2) continue;
+            result += hypothesis_interaction_penalties[label1* label_stride + label2];
+        }
+    }
+
+    return result;
 }
 
+template<typename C>
+inline std::vector<typename C::label_type>
+AlphaExpansionFitter<C>::fit(
+    C & config,
+    sampleid_type sample_count,
+    label_type hypothesis_count,
+    sampleid_type sample_stride,
+    label_type label_stride,
+    std::vector< std::array<sampleid_type,2> > const & neighbourhood,
+    computation_type smoothing_penalty,
+    std::vector<computation_type> const & fitting_penalties,
+    std::vector<computation_type> const & hypothesis_penalties,
+    std::vector<computation_type> const & hypothesis_interaction_penalties )
+{
+    // Create initial labeling
+    std::vector<label_type> labeling_array_1(sample_count);
+    std::vector<label_type> labeling_array_2(sample_count);
+
+    std::vector<label_type> *labeling = &labeling_array_1;
+    std::vector<label_type> *new_labeling = &labeling_array_2;
+    for(sampleid_type i = 0; i < labeling->size(); i++){
+        (*labeling)[i] = 0;
+    }
+
+    bool changed;
+    double current_value = compute_value( hypothesis_count,
+                                          sample_count,
+                                          label_stride,
+                                          sample_stride,
+                                          *labeling,
+                                          neighbourhood,
+                                          smoothing_penalty,
+                                          fitting_penalties,
+                                          hypothesis_penalties,
+                                          hypothesis_interaction_penalties );
+    do {
+        changed = false;
+
+        for(label_type alpha_label = 0; alpha_label < hypothesis_count + 1; alpha_label++)
+        {
+
+            // Do the actual graph cut
+            MinCut_MaxFlow<C>::run(
+                sample_count,
+                hypothesis_count,
+                sample_stride,
+                label_stride,
+                alpha_label,
+                *labeling,
+                *new_labeling,
+                neighbourhood,
+                smoothing_penalty,
+                fitting_penalties,
+                hypothesis_penalties,
+                hypothesis_interaction_penalties
+            );
+
+            // Compute new value
+            computation_type new_value = compute_value(
+                sample_count,
+                hypothesis_count,
+                sample_stride,
+                label_stride,
+                *new_labeling,
+                neighbourhood,
+                smoothing_penalty,
+                fitting_penalties,
+                hypothesis_penalties,
+                hypothesis_interaction_penalties
+            );
+
+            // Swap if new optimum found
+            config.debug_output(*new_labeling, new_value);
+            if(new_value < current_value){
+                std::swap(labeling, new_labeling);
+                current_value = new_value;
+                config.debug_output(*labeling, current_value);
+                changed = true;
+            }
+
+        }
+
+    } while (changed);
+
+    assert(labeling == &labeling_array_1 || labeling == &labeling_array_2);
+    if(labeling == &labeling_array_1){
+        return labeling_array_1;
+    } else {
+        return labeling_array_2;
+    }
 }
+
+}//namespace mfigp

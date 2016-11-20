@@ -48,11 +48,12 @@ else()
     endif()
 endif()
 
+# Set global compiler flags
+add_definitions( "-Wall" )
 
 # Add main include directory
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 add_subdirectory(include)
-add_subdirectory(src)
 add_subdirectory(examples)
 

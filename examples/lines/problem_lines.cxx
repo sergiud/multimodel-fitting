@@ -83,7 +83,12 @@ problem_lines::debug_output(
 )
 {
     std::cout << "Value: " << value << std::endl;
-    drawer.draw_labeled(labels);
+
+    std::vector<label_type> transformed_labels(labels.size());
+    std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
+                   [](label_type x){return x-1;});
+
+    drawer.draw_labeled(transformed_labels);
     drawer.sleep(0);//100);
 }
 
@@ -103,20 +108,13 @@ problem_lines::computeNeighbourhood(
         if(sample.y < y_min) y_min = sample.y;
     }
 
-    std::cout << "x: " << x_min << " to " << x_max << std::endl;
-    std::cout << "y: " << y_min << " to " << y_max << std::endl;
-
     // Feed data to Subdiv2D
-    std::cout << "Still alive." << std::endl;
     cv::Rect rect(floor(x_min - 0.1f), floor(y_min - 0.1f), ceil(x_max + 0.1f) - floor(x_min - 0.1f), ceil(y_max + 0.1f) - floor(y_min - 0.1f));
-    std::cout << "Rect: (" << rect.tl().x << "," << rect.tl().y << ") - ("
-                           << rect.br().x << "," << rect.br().y << ") " << std::endl;
     cv::Subdiv2D subdiv(rect);
     std::vector<int> vertexIDs(samples.size());
     std::map<int, size_t> reverseVertexIDs;
     for(size_t i = 0; i < samples.size(); i++){
         auto const & sample = samples[i];
-        std::cout << "s: " << sample.x << "-" << sample.y << std::endl;
         vertexIDs[i] = subdiv.insert(cv::Point2f(sample.x, sample.y));
         reverseVertexIDs[vertexIDs[i]] = i;
     }
@@ -132,10 +130,10 @@ problem_lines::computeNeighbourhood(
         do{
             int targetID = subdiv.edgeDst(nextEdgeID);
             if(targetID > vertexID){
-                conn_type connection = {
+                conn_type connection = {{
                     reverseVertexIDs[vertexID],
                     reverseVertexIDs[targetID]
-                };
+                }};
                 // Only allow neighbours with a distance of at most 0.1
                 if(samples[connection[0]].dist(samples[connection[1]]) <= 0.1f){
                     connections.push_back(connection);

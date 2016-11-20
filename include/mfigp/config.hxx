@@ -41,6 +41,11 @@ class Config {
 
         // This callback will get called whenever the labeling changed
         // during the fitting process.
+        // !! IMPORTANT !!
+        // The labels that get passed through are shifted by one, namely:
+        // 0 - outlier
+        // 1 - label 0
+        // 2 - label 1
         virtual void
             debug_output( std::vector<label_type> const &, computation_type ) = 0;
 

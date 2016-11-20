@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
         // Print the Neighbourhood connections (TODO: remove)
         {
             auto connections = config.computeNeighbourhood(datapoints);
-            std::array<unsigned char, 3> color = {255,255,255};
+            std::array<unsigned char, 3> color = {{255,255,255}};
             for(auto const & connection : connections){
                 drawer.draw_connection(
                     datapoints[connection[0]],

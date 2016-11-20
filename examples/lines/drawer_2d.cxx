@@ -130,16 +130,16 @@ void drawer_2d::set_hypotheses(std::vector<line_2d> const & hypotheses)
 
         std::array<float, 3> rnd_col = generate_color();
 
-        std::array<unsigned char, 3> color_dot = {
+        std::array<unsigned char, 3> color_dot = {{
             static_cast<unsigned char>(rnd_col[0]*dot_brightness),
             static_cast<unsigned char>(rnd_col[1]*dot_brightness),
             static_cast<unsigned char>(rnd_col[2]*dot_brightness),
-        };
-        std::array<unsigned char, 3> color_line = {
+        }};
+        std::array<unsigned char, 3> color_line = {{
             static_cast<unsigned char>(rnd_col[0] * line_brightness),
             static_cast<unsigned char>(rnd_col[1] * line_brightness),
             static_cast<unsigned char>(rnd_col[2] * line_brightness),
-        };
+        }};
         colors_dots.push_back(std::move(color_dot));
         colors_lines.push_back(std::move(color_line));
     }
@@ -148,7 +148,7 @@ void drawer_2d::set_hypotheses(std::vector<line_2d> const & hypotheses)
 void drawer_2d::draw_all()
 {
     clear();
-    std::array<unsigned char,3> gray = { 180, 180, 180 };
+    std::array<unsigned char,3> gray = {{ 180, 180, 180 }};
     for (size_t i = 0; i < hypotheses.size(); i++) {
         draw_line(hypotheses[i], colors_lines[i]);
     }
@@ -165,25 +165,25 @@ std::array<float, 3> drawer_2d::generate_color()
     std::array<float, 3> out;
     switch (col_region) {
     case 0:
-        out = { 1.0f, col_detail, 0.0f };
+        out = {{ 1.0f, col_detail, 0.0f }};
         break;
     case 1:
-        out = { col_detail, 1.0f, 0.0f };
+        out = {{ col_detail, 1.0f, 0.0f }};
         break;
     case 2:
-        out = { 0.0f, 1.0f, col_detail };
+        out = {{ 0.0f, 1.0f, col_detail }};
         break;
     case 3:
-        out = { 0.0f, col_detail, 1.0f };
+        out = {{ 0.0f, col_detail, 1.0f }};
         break;
     case 4:
-        out = { col_detail, 0.0f, 1.0f };
+        out = {{ col_detail, 0.0f, 1.0f }};
         break;
     case 5:
-        out = { 1.0f, 0.0f, col_detail };
+        out = {{ 1.0f, 0.0f, col_detail }};
         break;
     default:
-        out = { 1.0f, 1.0f, 1.0f };
+        out = {{ 1.0f, 1.0f, 1.0f }};
         break;
     }
     return out;
