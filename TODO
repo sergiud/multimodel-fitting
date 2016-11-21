@@ -1,8 +1,7 @@
 currently:
-    - debug windows
+    - change interaction function to x^2
 
 further:
-    - change interaction function to x^2
     - implement kinect fitter (tu munich rgbd freiburg 1)
       intrinsic + distortion with opencv
     - add cmake stuff

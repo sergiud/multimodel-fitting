@@ -71,10 +71,25 @@ double
 problem_lines::getHypothesisInteractionCost( hypothesis_type const & l0,
                                              hypothesis_type const & l1 ){
     double dot = l0.dirx * l1.dirx + l0.diry * l1.diry;
-    if(dot < 0) dot = -dot;
-    if(dot < 0.995 && dot > 0.02)
-        return 1;
-    return 0;
+    double cross = l0.dirx * l1.diry - l0.diry * l1.dirx;
+
+    double dot2 = dot*dot;
+    double cross2 = cross*cross;
+
+    double val = dot2;
+    if (dot2 > cross2) {
+        val = cross2;
+    }
+
+    double scalar = 2500;
+    val *= scalar;
+
+    if (val > 1)
+        val = 1;
+
+    assert(val >= 0 && val <= 1);
+
+    return val;
 }
 
 void
