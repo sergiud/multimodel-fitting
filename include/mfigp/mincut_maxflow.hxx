@@ -25,7 +25,7 @@
 
 #include "ext/block.h"
 #include "ext/graph.h"
-#include "ext/graph.tpp"
+#include "ext/graph.txx"
 
 namespace mfigp {
 
@@ -75,13 +75,13 @@ inline void MinCut_MaxFlow<C>::run(
                                  computation_type > GraphType;
 
     // Create graph
-    GraphType g(2*sample_count, 4*sample_count);
+    GraphType g(int(2*sample_count), int(4*sample_count));
 
     // compute active labels
     std::set<label_type> active_labels(labeling.begin(), labeling.end());
 
     // add all sample nodes
-    g.add_node(sample_count);
+    g.add_node(int(sample_count));
 
     // add smooting costs
     std::vector<computation_type> extra_smoothing_costs(sample_count);
@@ -109,15 +109,15 @@ inline void MinCut_MaxFlow<C>::run(
         }
 
         if(label0 == label1){
-            g.add_edge(sample0, sample1, smoothing_penalty, smoothing_penalty);
+            g.add_edge(GraphType::node_id(sample0), GraphType::node_id(sample1), smoothing_penalty, smoothing_penalty);
             continue;
         }
 
         auto n0 = g.add_node();
 
         g.add_tweights(n0, 0, smoothing_penalty);
-        g.add_edge(sample0, n0, 0, smoothing_penalty);
-        g.add_edge(sample1, n0, 0, smoothing_penalty);
+        g.add_edge(GraphType::node_id(sample0), n0, 0, smoothing_penalty);
+        g.add_edge(GraphType::node_id(sample1), n0, 0, smoothing_penalty);
     }
 
     // set up data cost
@@ -126,9 +126,9 @@ inline void MinCut_MaxFlow<C>::run(
         auto const & currentLabel = labeling[sampleid];
 
         if(currentLabel == alpha_label){
-            g.add_tweights( sampleid, 1, 0 );
+            g.add_tweights( GraphType::node_id(sampleid), 1, 0 );
         } else {
-            g.add_tweights( sampleid,
+            g.add_tweights( GraphType::node_id(sampleid),
                 fitting_penalties[ sampleid*label_stride + alpha_label ],
                 fitting_penalties[ sampleid*label_stride + currentLabel ] +
                     extra_smoothing_costs[sampleid] );
@@ -150,7 +150,7 @@ inline void MinCut_MaxFlow<C>::run(
                 g.add_tweights(n0, c_a, 0);
 
                 for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
-                    g.add_edge(n0, sampleid, c_a, 0);
+                    g.add_edge(n0, GraphType::node_id(sampleid), c_a, 0);
                 }
             }
         }
@@ -177,7 +177,7 @@ inline void MinCut_MaxFlow<C>::run(
 
                 for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
                     if(labeling[sampleid] == beta_label){
-                        g.add_edge(n1, sampleid, 0, c_b);
+                        g.add_edge(n1, GraphType::node_id(sampleid), 0, c_b);
                     }
                 }
             }
@@ -192,7 +192,7 @@ inline void MinCut_MaxFlow<C>::run(
     g.maxflow();
 
     for(sampleid_type i = 0; i < sample_count; i++){
-        if(g.what_segment(i) == GraphType::SOURCE){
+        if(g.what_segment(GraphType::node_id(i)) == GraphType::SOURCE){
             new_labeling[i] = labeling[i];
         } else {
             new_labeling[i] = alpha_label;

@@ -18,6 +18,12 @@ set(multimodelfitting_HEADERS
   "${CMAKE_CURRENT_SOURCE_DIR}/mfigp.hxx"
   "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/alphaexpansionfitter.hxx"
   "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/config.hxx"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/mincut_maxflow.hxx"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/ext/block.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/ext/graph.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/ext/graph.txx"
 
-PARENT_SCOPE)
+)
 
+add_library(mfigp INTERFACE)
+target_sources(mfigp INTERFACE ${multimodelfitting_HEADERS})

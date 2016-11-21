@@ -29,4 +29,4 @@ set(SOURCES
 )
 
 add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
-target_link_libraries(${EXAMPLE} ${OpenCV_LIBRARIES})
+target_link_libraries(${EXAMPLE} ${OpenCV_LIBRARIES} mfigp)

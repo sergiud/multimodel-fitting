@@ -110,7 +110,7 @@ problem_lines::computeNeighbourhood(
     }
 
     // Feed data to Subdiv2D
-    cv::Rect rect(floor(x_min - 0.1f), floor(y_min - 0.1f), ceil(x_max + 0.1f) - floor(x_min - 0.1f), ceil(y_max + 0.1f) - floor(y_min - 0.1f));
+    cv::Rect rect(int(floor(x_min - 0.1f)), int(floor(y_min - 0.1f)), int(ceil(x_max + 0.1f) - floor(x_min - 0.1f)), int(ceil(y_max + 0.1f) - floor(y_min - 0.1f)));
     cv::Subdiv2D subdiv(rect);
     std::vector<int> vertexIDs(samples.size());
     std::map<int, size_t> reverseVertexIDs;
@@ -186,7 +186,7 @@ problem_lines::generateHypotheses(std::vector<point_2d> const & points,
                                                     std::begin(prob_weights));
 
         // pick point2 by random
-        size_t p2 = dist(gen);
+        size_t p2 = size_t(dist(gen));
 
         // generate line
         line_2d line(points[p1],points[p2]);

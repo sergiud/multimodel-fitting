@@ -45,7 +45,9 @@ else()
 endif()
 
 # Set global compiler flags
-add_definitions( "-Wall" )
+if(NOT MSVC)
+    add_definitions( "-Wall" )
+endif()
 
 # Add main include directory
 include_directories("${PROJECT_SOURCE_DIR}/include")
