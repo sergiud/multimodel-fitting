@@ -17,6 +17,7 @@
 
 #include "problem_lines.hxx"
 
+#include <map>
 #include <random>
 #include <iostream>
 #include "drawer_2d.hxx"
