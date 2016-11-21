@@ -1,7 +1,10 @@
 currently:
-    - implement vanishing points algorithm
+    - debug windows
 
 further:
+    - change interaction function to x^2
+    - implement kinect fitter (tu munich rgbd freiburg 1)
+      intrinsic + distortion with opencv
+    - add cmake stuff
     - add ycm
-    - far future: opencl implementation? look at nvidia's paper
-
+    

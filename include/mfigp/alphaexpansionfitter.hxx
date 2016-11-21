@@ -154,7 +154,7 @@ AlphaExpansionFitter<C>::fit(
     do {
         changed = false;
 
-        for(label_type alpha_label = 0; alpha_label < hypothesis_count + 1; alpha_label++)
+        for(label_type alpha_label = 0; alpha_label < hypothesis_count; alpha_label++)
         {
 
             // Do the actual graph cut
