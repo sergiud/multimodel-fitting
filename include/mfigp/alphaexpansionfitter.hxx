@@ -140,10 +140,10 @@ AlphaExpansionFitter<C>::fit(
     }
 
     bool changed;
-    double current_value = compute_value( hypothesis_count,
-                                          sample_count,
-                                          label_stride,
+    double current_value = compute_value( sample_count,
+                                          hypothesis_count,
                                           sample_stride,
+                                          label_stride,
                                           *labeling,
                                           neighbourhood,
                                           smoothing_penalty,
