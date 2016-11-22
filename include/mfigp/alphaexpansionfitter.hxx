@@ -156,7 +156,7 @@ AlphaExpansionFitter<C>::fit(
 
         for(label_type alpha_label = 0; alpha_label < hypothesis_count; alpha_label++)
         {
-            std::cout << "alpha: " << alpha_label << std::endl;
+            //std::cout << "alpha: " << alpha_label << std::endl;
 
             // Do the actual graph cut
             MinCut_MaxFlow<C>::run(

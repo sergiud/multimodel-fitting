@@ -16,6 +16,7 @@
 set(EXAMPLES
     hello_world
     lines
+    kinect
 )
 
 foreach(EXAMPLE ${EXAMPLES})

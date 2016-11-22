@@ -21,7 +21,7 @@
 
 #include "shapes_2d.hxx"
 
-class problem_lines : public mfigp::Config<point_2d, line_2d> {
+class problem_lines : public mfigp::config<point_2d, line_2d> {
 public:
 
     void debug_output(std::vector<label_type> const &, double);

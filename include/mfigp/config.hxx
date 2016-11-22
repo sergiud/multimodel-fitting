@@ -28,7 +28,7 @@ template<class sample_type_,
          typename computation_type_ = double,
          typename label_type_ = int32_t,
          typename sampleid_type_ = size_t>
-class Config {
+class config {
 
     public:
         typedef sample_type_        sample_type;
