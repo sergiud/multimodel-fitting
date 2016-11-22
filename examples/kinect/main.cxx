@@ -20,6 +20,7 @@
 
 #include "data_reader.hxx"
 #include "problem_kinect.hxx"
+#include "drawer_kinect.hxx"
 
 int main(int argc, char *argv[]){
 
@@ -31,32 +32,20 @@ int main(int argc, char *argv[]){
         auto datapoints = data_reader::get();
         auto hypotheses = config.generateHypotheses(datapoints, 1000);
 
-        // Initialization of drawer
-        /*
-        drawer.set_datapoints(datapoints);
-        drawer.set_hypotheses(hypotheses);
-        drawer.draw_all();
-        drawer.sleep(1000);
-
         // Initialize the algorithm classes
-        mfigp::MultiModelFitter<problem_lines> fitter;
+        mfigp::MultiModelFitter<problem_kinect> fitter;
 
         // Print the Neighbourhood connections (TODO: remove)
         {
             auto connections = config.computeNeighbourhood(datapoints);
-            std::array<unsigned char, 3> color = {{255,255,255}};
             for(auto const & connection : connections){
-                drawer.draw_connection(
-                    datapoints[connection[0]],
-                    datapoints[connection[1]],
-                    color
-                );
+                drawer.draw_connection( connection[0], connection[1] );
             }
             drawer.display();
             drawer.sleep(0);//1000);
         }
 
-        // set the input data
+/*        // set the input data
         fitter.set_samples(datapoints);
         fitter.set_hypotheses(hypotheses);
 
@@ -72,8 +61,8 @@ int main(int argc, char *argv[]){
 
         // wait for the user to close the window
         drawer.draw_labeled(labeling);
-        drawer.wait();
         */
+        //drawer.wait();
     }
     catch (std::exception const & e) {
         std::cout << "Exception: " << e.what() << std::endl;

@@ -17,6 +17,9 @@
 
 #include "problem_kinect.hxx"
 #include <iostream>
+#include <cassert>
+
+#include <opencv2/opencv.hpp>
 
 void
 problem_kinect::debug_output( std::vector<label_type> const & labeling,
@@ -24,9 +27,52 @@ problem_kinect::debug_output( std::vector<label_type> const & labeling,
     std::cout << "Value: " << value << std::endl;
 }
 
+extern unsigned char img_depth[];
+extern size_t img_depth_len;
+
 std::vector<std::array<problem_kinect::sampleid_type,2>>
-problem_kinect::computeNeighbourhood( std::vector<point_3d> const & ){
-    return std::vector<std::array<sampleid_type,2>>();
+problem_kinect::computeNeighbourhood( std::vector<point_3d> const & points ){
+
+    std::vector<unsigned char> img_depth_data(img_depth, img_depth + img_depth_len);
+    cv::Mat img = cv::imdecode(cv::Mat(img_depth_data), -CV_LOAD_IMAGE_ANYDEPTH);
+
+    size_t width = img.cols;
+    size_t height = img.rows;
+
+    assert( points.size() == width * height);
+
+    const float threshold_factor = 10;
+
+    std::vector<std::array<sampleid_type,2>> neighbours;
+    for(int v = 0; v < height; v++){
+        for(int u = 0; u < width-1; u++){
+            size_t p0 = v*width + u;
+            size_t p1 = p0 + 1;
+            if(points[p0].z == 0 || points[p1].z == 0)
+                continue;
+            float delta_depth = points[p0].z-points[p1].z;
+            if(delta_depth < 0) delta_depth = -delta_depth;
+            float avg_depth = (points[p0].z+points[p1].z)/2.0f;
+            if(delta_depth * threshold_factor > avg_depth) continue;
+            std::array<sampleid_type,2> conn = {{p0,p1}};
+            neighbours.push_back(std::move(conn));
+        }
+    }
+    for(int v = 0; v < height-1; v++){
+        for(int u = 0; u < width; u++){
+            size_t p0 = v*width + u;
+            size_t p1 = p0 + width;
+            if(points[p0].z == 0 || points[p1].z == 0)
+                continue;
+            float delta_depth = points[p0].z-points[p1].z;
+            if(delta_depth < 0) delta_depth = -delta_depth;
+            float avg_depth = (points[p0].z+points[p1].z)/2.0f;
+            if(delta_depth * threshold_factor > avg_depth) continue;
+            std::array<sampleid_type,2> conn = {{p0,p1}};
+            neighbours.push_back(std::move(conn));
+        }
+    }
+    return neighbours;
 }
 
 double

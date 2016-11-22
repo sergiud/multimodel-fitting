@@ -17,6 +17,7 @@ set(HEADERS
   shapes_3d.hxx
   data_reader.hxx
   problem_kinect.hxx
+  drawer_kinect.hxx
 )
 
 set(SOURCES
@@ -24,6 +25,7 @@ set(SOURCES
   shapes_3d.cxx
   data_reader.cxx
   problem_kinect.cxx
+  drawer_kinect.cxx
 )
 
 add_custom_command(
