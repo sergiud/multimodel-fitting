@@ -109,15 +109,15 @@ inline void MinCut_MaxFlow<C>::run(
         }
 
         if(label0 == label1){
-            g.add_edge(GraphType::node_id(sample0), GraphType::node_id(sample1), smoothing_penalty, smoothing_penalty);
+            g.add_edge(typename GraphType::node_id(sample0), typename GraphType::node_id(sample1), smoothing_penalty, smoothing_penalty);
             continue;
         }
 
         auto n0 = g.add_node();
 
         g.add_tweights(n0, 0, smoothing_penalty);
-        g.add_edge(GraphType::node_id(sample0), n0, 0, smoothing_penalty);
-        g.add_edge(GraphType::node_id(sample1), n0, 0, smoothing_penalty);
+        g.add_edge(typename GraphType::node_id(sample0), n0, 0, smoothing_penalty);
+        g.add_edge(typename GraphType::node_id(sample1), n0, 0, smoothing_penalty);
     }
 
     // set up data cost
@@ -126,9 +126,9 @@ inline void MinCut_MaxFlow<C>::run(
         auto const & currentLabel = labeling[sampleid];
 
         if(currentLabel == alpha_label){
-            g.add_tweights( GraphType::node_id(sampleid), 1, 0 );
+            g.add_tweights(typename GraphType::node_id(sampleid), 1, 0 );
         } else {
-            g.add_tweights( GraphType::node_id(sampleid),
+            g.add_tweights(typename GraphType::node_id(sampleid),
                 fitting_penalties[ sampleid*label_stride + alpha_label ],
                 fitting_penalties[ sampleid*label_stride + currentLabel ] +
                     extra_smoothing_costs[sampleid] );
@@ -150,7 +150,7 @@ inline void MinCut_MaxFlow<C>::run(
                 g.add_tweights(n0, c_a, 0);
 
                 for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
-                    g.add_edge(n0, GraphType::node_id(sampleid), c_a, 0);
+                    g.add_edge(n0, typename GraphType::node_id(sampleid), c_a, 0);
                 }
             }
         }
@@ -177,7 +177,7 @@ inline void MinCut_MaxFlow<C>::run(
 
                 for(sampleid_type sampleid = 0; sampleid < sample_count; sampleid++){
                     if(labeling[sampleid] == beta_label){
-                        g.add_edge(n1, GraphType::node_id(sampleid), 0, c_b);
+                        g.add_edge(n1, typename GraphType::node_id(sampleid), 0, c_b);
                     }
                 }
             }
@@ -192,7 +192,7 @@ inline void MinCut_MaxFlow<C>::run(
     g.maxflow();
 
     for(sampleid_type i = 0; i < sample_count; i++){
-        if(g.what_segment(GraphType::node_id(i)) == GraphType::SOURCE){
+        if(g.what_segment(typename GraphType::node_id(i)) == GraphType::SOURCE){
             new_labeling[i] = labeling[i];
         } else {
             new_labeling[i] = alpha_label;
