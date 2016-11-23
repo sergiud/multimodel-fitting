@@ -29,9 +29,10 @@ private:
     drawer_kinect();
 public:
     drawer_kinect(const char* name);
+    void set_hypothesis_count(size_t);
     void clear();
     void draw_empty();
-    void draw_labeled(std::vector<uint32_t> const & labels);
+    void draw_labeled(std::vector<int32_t> const & labels);
     void draw_connection(size_t id0, size_t id1);
     void display();
     void wait();

@@ -27,7 +27,7 @@ drawer_2d drawer("MultiModelFitting Visualization", 900, 900, 0.0f, 0.0f, 1.0f, 
 drawer_2d::drawer_2d(const char * name, unsigned int width, unsigned int height, float x_min, float y_min, float x_max, float y_max)
     : width(width), height(height),
     x_min(x_min), x_max(x_max), y_min(y_min), y_max(y_max),
-    visu(cv::Mat::zeros(width, height, CV_8UC3)),
+    visu(cv::Mat::zeros(height, width, CV_8UC3)),
     disp(name),
     rnd_gen(2), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
 {

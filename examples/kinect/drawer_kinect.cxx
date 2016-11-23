@@ -34,9 +34,60 @@ drawer_kinect::drawer_kinect(const char * name)
     width=img_background.cols;
     height=img_background.rows;
 
-    visu = cv::Mat::zeros(width*2, height*2, CV_8UC3);
+    visu = cv::Mat::zeros(height*2, width*2, CV_8UC3);
 
     namedWindow( disp, cv::WINDOW_AUTOSIZE );
+}
+
+void
+drawer_kinect::draw_empty(){
+    std::vector<int32_t> labels(width*height);
+    for(size_t i = 0; i < labels.size(); i++){
+        labels[i] = -1;
+    }
+    draw_labeled(labels);
+}
+
+void
+drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
+    std::array<float,3> outlier_col = {{0.5f, 0.5f, 0.5f}};
+    for(size_t y = 0; y < height; y++){
+        for(size_t x = 0; x < width; x++){
+            unsigned char bg = img_background.at<unsigned char>(y,x);
+            float label_col0 = outlier_col[0];
+            float label_col1 = outlier_col[1];
+            float label_col2 = outlier_col[2];
+            int32_t label = labels[y*width + x];
+            if(label >= 0){
+                while(colors.size() < label+1){
+                    colors.push_back(generate_color());
+                }
+                label_col0 = colors[label][0];
+                label_col1 = colors[label][1];
+                label_col2 = colors[label][2];
+            }
+            cv::Vec3b col(
+                int(bg * label_col0),
+                int(bg * label_col1),
+                int(bg * label_col2)
+            );
+            visu.at<cv::Vec3b>(2*y  ,2*x  ) = col;
+            visu.at<cv::Vec3b>(2*y+1,2*x  ) = col;
+            visu.at<cv::Vec3b>(2*y  ,2*x+1) = col;
+            visu.at<cv::Vec3b>(2*y+1,2*x+1) = col;
+        }
+    }
+
+}
+
+
+void drawer_kinect::set_hypothesis_count(size_t count){
+    colors.clear();
+    colors.reserve(count);
+
+    for(size_t i = 0; i < count; i++){
+        colors.push_back(generate_color());
+    }
 }
 
 void drawer_kinect::clear()
