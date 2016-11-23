@@ -50,6 +50,7 @@ drawer_kinect::draw_empty(){
 
 void
 drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
+    drawer.clear();
     std::array<float,3> outlier_col = {{0.5f, 0.5f, 0.5f}};
     for(size_t y = 0; y < height; y++){
         for(size_t x = 0; x < width; x++){
@@ -77,7 +78,7 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
             visu.at<cv::Vec3b>(2*y+1,2*x+1) = col;
         }
     }
-
+    drawer.display();
 }
 
 

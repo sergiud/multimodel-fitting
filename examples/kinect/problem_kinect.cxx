@@ -20,11 +20,17 @@
 #include <cassert>
 
 #include <opencv2/opencv.hpp>
+#include "drawer_kinect.hxx"
 
 void
-problem_kinect::debug_output( std::vector<label_type> const & labeling,
+problem_kinect::debug_output( std::vector<label_type> const & labels,
                               computation_type value ){
     std::cout << "Value: " << value << std::endl;
+    std::vector<label_type> transformed_labels(labels.size());
+    std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
+                   [](label_type x){return x-1;});
+    drawer.draw_labeled(transformed_labels);
+    drawer.sleep(1);
 }
 
 extern unsigned char img_depth[];
@@ -77,19 +83,21 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & points ){
 
 double
 problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
+    if(p.z == 0)
+        return 2;
     return h.dist(p);
 }
 
 double
 problem_kinect::getNoiseLevel(){
     // TODO
-    return 0;
+    return 0.02;
 }
 
 double
 problem_kinect::getNeighbourhoodWeight(){
     // TODO
-    return 0;
+    return 0.1;
 }
 
 double
@@ -123,8 +131,48 @@ problem_kinect::getHypothesisInteractionCost( plane_3d const &,
 }
 
 std::vector<plane_3d>
-problem_kinect::generateHypotheses(std::vector<point_3d> const &, size_t)
+problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
+                                    size_t num_hypotheses)
 {
-    return std::vector<plane_3d>();
+    // initialize random gen
+    std::random_device rd;
+    std::mt19937 gen(5);//rd());
+    auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
+
+    // create hypotheses vector
+    std::vector<plane_3d> hypotheses;
+    hypotheses.reserve(num_hypotheses);
+
+    while(hypotheses.size()<num_hypotheses){
+
+        auto const & p0 = points[rnd_int(gen)];
+        auto const & p1 = points[rnd_int(gen)];
+        auto const & p2 = points[rnd_int(gen)];
+
+        if(p0.z == 0 || p1.z == 0 || p2.z == 0){
+            continue;
+        }
+
+        plane_3d hypothesis(p0,p1,p2);
+
+        size_t num_inliers = 0;
+        for(size_t i = 0; i < points.size(); i++){
+            double val = computeResidual(points[i],hypothesis);
+            if(val< 0) val = -val;
+            if(val < getNoiseLevel()){
+                num_inliers++;
+            }
+        }
+
+        std::cout << "num_inliers: " << num_inliers << std::endl;
+
+        if(num_inliers < 15000)
+            continue;
+
+        hypotheses.push_back(std::move(hypothesis));
+
+    }
+
+    return hypotheses;
 }
 

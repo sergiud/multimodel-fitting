@@ -30,22 +30,26 @@ int main(int argc, char *argv[]){
 
         // Create the datapoints
         auto datapoints = data_reader::get();
-        auto hypotheses = config.generateHypotheses(datapoints, 1000);
+        auto hypotheses = config.generateHypotheses(datapoints, 500);
 
-        // Initialize the algorithm classes
-        mfigp::MultiModelFitter<problem_kinect> fitter;
+        // initialize drawer
+        drawer.set_hypothesis_count(hypotheses.size());
 
         // Print the Neighbourhood connections (TODO: remove)
+        drawer.draw_empty();
         {
             auto connections = config.computeNeighbourhood(datapoints);
             for(auto const & connection : connections){
                 drawer.draw_connection( connection[0], connection[1] );
             }
             drawer.display();
-            drawer.sleep(0);//1000);
+            drawer.sleep(1000);
         }
 
-/*        // set the input data
+        // Initialize the algorithm classes
+        mfigp::MultiModelFitter<problem_kinect> fitter;
+
+        // set the input data
         fitter.set_samples(datapoints);
         fitter.set_hypotheses(hypotheses);
 
@@ -61,8 +65,8 @@ int main(int argc, char *argv[]){
 
         // wait for the user to close the window
         drawer.draw_labeled(labeling);
-        */
-        //drawer.wait();
+
+        drawer.wait();
     }
     catch (std::exception const & e) {
         std::cout << "Exception: " << e.what() << std::endl;
