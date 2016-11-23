@@ -77,7 +77,7 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & points ){
 
 double
 problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
-    return 0;//h.dist(p);
+    return h.dist(p);
 }
 
 double

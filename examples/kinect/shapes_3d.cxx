@@ -18,6 +18,8 @@
 #include "shapes_3d.hxx"
 #include <cmath>
 
+#include <iostream>
+
 point_3d::point_3d(float x, float y, float z) : x(x), y(y), z(z)
 {
 }
@@ -30,3 +32,39 @@ float point_3d::dist(point_3d const & p) const
     return sqrtf(dx * dx + dy * dy + dz * dz);
 }
 
+plane_3d::plane_3d(point_3d const & p0, point_3d const & p1, point_3d const & p2){
+
+    x0 = p0.x;
+    y0 = p0.y;
+    z0 = p0.z;
+
+    float dx0 = p1.x-p0.x;
+    float dy0 = p1.y-p0.y;
+    float dz0 = p1.z-p0.z;
+    float dx1 = p2.x-p0.x;
+    float dy1 = p2.y-p0.y;
+    float dz1 = p2.z-p0.z;
+
+    nx = dy0*dz1-dz0*dy1;
+    ny = dz0*dx1-dx0*dz1;
+    nz = dx0*dy1-dy0*dx1;
+/*
+    std::cout << "(" << dx0 << "," << dy0 << "," << dz0
+            << ")x(" << dx1 << "," << dy1 << "," << dz1
+            << ")=(" << nx << "," << ny << "," << nz << ")" << std::endl;
+*/
+    float abs = sqrtf(nx*nx+ny*ny+nz*nz);
+    nx = nx/abs;
+    ny = ny/abs;
+    nz = nz/abs;
+
+}
+
+float plane_3d::dist(point_3d const & p) const{
+
+    float dx = p.x - x0;
+    float dy = p.y - y0;
+    float dz = p.z - z0;
+    return dx*nx + dy*ny + dz*nz;
+
+}
