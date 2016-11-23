@@ -24,6 +24,22 @@
 extern unsigned char img_depth[];
 extern size_t img_depth_len;
 
+size_t data_reader::getWidth(){
+
+    std::vector<unsigned char> img_depth_data(img_depth, img_depth + img_depth_len);
+    cv::Mat img = cv::imdecode(cv::Mat(img_depth_data), -CV_LOAD_IMAGE_ANYDEPTH);
+    return img.cols;
+
+}
+
+size_t data_reader::getHeight(){
+
+    std::vector<unsigned char> img_depth_data(img_depth, img_depth + img_depth_len);
+    cv::Mat img = cv::imdecode(cv::Mat(img_depth_data), -CV_LOAD_IMAGE_ANYDEPTH);
+    return img.rows;
+
+}
+
 std::vector<point_3d> data_reader::get()
 {
 

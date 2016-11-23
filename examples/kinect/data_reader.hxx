@@ -20,8 +20,12 @@
 #include <vector>
 #include "shapes_3d.hxx"
 
+#include <cstddef>
+
 class data_reader{
     public:
     static std::vector<point_3d> get();
+    static size_t getWidth();
+    static size_t getHeight();
 };
 

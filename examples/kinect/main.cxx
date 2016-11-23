@@ -30,7 +30,9 @@ int main(int argc, char *argv[]){
 
         // Create the datapoints
         auto datapoints = data_reader::get();
-        auto hypotheses = config.generateHypotheses(datapoints, 500);
+        auto hypotheses = config.generateHypotheses( datapoints, 500,
+                                                     data_reader::getWidth(),
+                                                     data_reader::getHeight() );
 
         // initialize drawer
         drawer.set_hypothesis_count(hypotheses.size());

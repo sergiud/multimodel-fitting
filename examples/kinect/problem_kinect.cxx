@@ -132,12 +132,14 @@ problem_kinect::getHypothesisInteractionCost( plane_3d const &,
 
 std::vector<plane_3d>
 problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
-                                    size_t num_hypotheses)
+                                    size_t num_hypotheses, size_t width, size_t height)
 {
     // initialize random gen
     std::random_device rd;
     std::mt19937 gen(5);//rd());
-    auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
+    auto rnd_int_w = std::uniform_int_distribution<int>(10,width-11);
+    auto rnd_int_h = std::uniform_int_distribution<int>(10,height-11);
+    auto rnd_int = std::uniform_int_distribution<int>(-10,10);
 
     // create hypotheses vector
     std::vector<plane_3d> hypotheses;
@@ -145,9 +147,15 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
 
     while(hypotheses.size()<num_hypotheses){
 
-        auto const & p0 = points[rnd_int(gen)];
-        auto const & p1 = points[rnd_int(gen)];
-        auto const & p2 = points[rnd_int(gen)];
+        int h0 = rnd_int_h(gen);
+        int w0 = rnd_int_w(gen);
+        int h1 = rnd_int(gen) + h0;
+        int w1 = rnd_int(gen) + w0;
+        int h2 = rnd_int(gen) + h0;
+        int w2 = rnd_int(gen) + w0;
+        auto const & p0 = points[h0*width + w0];
+        auto const & p1 = points[h1*width + w1];
+        auto const & p2 = points[h2*width + w2];
 
         if(p0.z == 0 || p1.z == 0 || p2.z == 0){
             continue;
@@ -166,7 +174,7 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
 
         std::cout << "num_inliers: " << num_inliers << std::endl;
 
-        if(num_inliers < 15000)
+        if(num_inliers < 10000)
             continue;
 
         hypotheses.push_back(std::move(hypothesis));

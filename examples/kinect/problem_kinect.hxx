@@ -45,7 +45,8 @@ public:
     double getHypothesisInteractionCost( plane_3d const &,
                                          plane_3d const & );
 
-    std::vector<plane_3d> generateHypotheses(std::vector<point_3d> const &, size_t);
+    std::vector<plane_3d> generateHypotheses(std::vector<point_3d> const &,
+                                             size_t, size_t, size_t);
 
 };
 
