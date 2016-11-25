@@ -1,6 +1,3 @@
-currently:
-    - implement kinect fitter (tu munich rgbd freiburg 1)
-      intrinsic + distortion with opencv
 
 further:
     - add cmake stuff

@@ -37,49 +37,64 @@ extern unsigned char img_depth[];
 extern size_t img_depth_len;
 
 std::vector<std::array<problem_kinect::sampleid_type,2>>
-problem_kinect::computeNeighbourhood( std::vector<point_3d> const & points ){
+problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
-    std::vector<unsigned char> img_depth_data(img_depth, img_depth + img_depth_len);
-    cv::Mat img = cv::imdecode(cv::Mat(img_depth_data), -CV_LOAD_IMAGE_ANYDEPTH);
+    float x_max = samples[0].u;
+    float y_max = samples[0].v;
+    float x_min = x_max;
+    float y_min = y_max;
+    for(auto const & sample : samples){
+        if(sample.u > x_max) x_max = sample.u;
+        if(sample.u < x_min) x_min = sample.u;
+        if(sample.v > y_max) y_max = sample.v;
+        if(sample.v < y_min) y_min = sample.v;
+    }
 
-    size_t width = img.cols;
-    size_t height = img.rows;
+    // Feed data to Subdiv2D
+    cv::Rect rect(int(floor(x_min - 0.1f)), int(floor(y_min - 0.1f)), int(ceil(x_max + 0.1f) - floor(x_min - 0.1f)), int(ceil(y_max + 0.1f) - floor(y_min - 0.1f)));
+    cv::Subdiv2D subdiv(rect);
+    std::vector<int> vertexIDs(samples.size());
+    std::map<int, size_t> reverseVertexIDs;
+    for(size_t i = 0; i < samples.size(); i++){
+        auto const & sample = samples[i];
+        vertexIDs[i] = subdiv.insert(cv::Point2f(sample.u, sample.v));
+        reverseVertexIDs[vertexIDs[i]] = i;
+    }
 
-    assert( points.size() == width * height);
-
+    // Threshold for pixels that are too far apart
     const float threshold_factor = 10;
 
-    std::vector<std::array<sampleid_type,2>> neighbours;
-    for(int v = 0; v < height; v++){
-        for(int u = 0; u < width-1; u++){
-            size_t p0 = v*width + u;
-            size_t p1 = p0 + 1;
-            if(points[p0].z == 0 || points[p1].z == 0)
-                continue;
-            float delta_depth = points[p0].z-points[p1].z;
-            if(delta_depth < 0) delta_depth = -delta_depth;
-            float avg_depth = (points[p0].z+points[p1].z)/2.0f;
-            if(delta_depth * threshold_factor > avg_depth) continue;
-            std::array<sampleid_type,2> conn = {{p0,p1}};
-            neighbours.push_back(std::move(conn));
-        }
+    // Retrieve data
+    typedef std::array<sampleid_type,2> conn_type;
+    auto connections = std::vector<conn_type>();
+    for(size_t i = 0; i < samples.size(); i++){
+        auto const & vertexID = vertexIDs[i];
+        int edgeID;
+        subdiv.getVertex(vertexID, &edgeID);
+        int nextEdgeID = edgeID;
+        do{
+            int targetID = subdiv.edgeDst(nextEdgeID);
+            if(targetID > vertexID){
+                conn_type connection = {{
+                    reverseVertexIDs[vertexID],
+                    reverseVertexIDs[targetID]
+                }};
+                // Compute distance
+                auto const & p0 = samples[connection[0]];
+                auto const & p1 = samples[connection[1]];
+                float dist = p0.dist(p1);
+                float avg_depth = (p0.z+p1.z)*0.5f;
+                if(dist * threshold_factor <= avg_depth){
+                    connections.push_back(connection);
+                }
+            }
+            nextEdgeID = subdiv.nextEdge(nextEdgeID);
+        } while(nextEdgeID != edgeID);
     }
-    for(int v = 0; v < height-1; v++){
-        for(int u = 0; u < width; u++){
-            size_t p0 = v*width + u;
-            size_t p1 = p0 + width;
-            if(points[p0].z == 0 || points[p1].z == 0)
-                continue;
-            float delta_depth = points[p0].z-points[p1].z;
-            if(delta_depth < 0) delta_depth = -delta_depth;
-            float avg_depth = (points[p0].z+points[p1].z)/2.0f;
-            if(delta_depth * threshold_factor > avg_depth) continue;
-            std::array<sampleid_type,2> conn = {{p0,p1}};
-            neighbours.push_back(std::move(conn));
-        }
-    }
-    return neighbours;
+
+    return connections;
 }
+
 
 double
 problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
@@ -90,25 +105,22 @@ problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
 
 double
 problem_kinect::getNoiseLevel(){
-    // TODO
-    return 0.02;
+    return 0.05;
 }
 
 double
 problem_kinect::getNeighbourhoodWeight(){
-    // TODO
     return 0.1;
 }
 
 double
 problem_kinect::getHighlevelPriorsWeight(){
-    // TODO
-    return 0;
+    return 20;
 }
 
 size_t
 problem_kinect::getExpectedNumberOfStructures(){
-    return 10;
+    return 4;
 }
 
 size_t
@@ -119,27 +131,50 @@ problem_kinect::getNumberOfParametersPerHypothesis(){
 
 double
 problem_kinect::getHypothesisCost( plane_3d const & ){
-    // TODO
-    return 0;
+    return 1;
 }
 
 double
-problem_kinect::getHypothesisInteractionCost( plane_3d const &,
-                                              plane_3d const & ){
-    // TODO
-    return 0;
+problem_kinect::getHypothesisInteractionCost( plane_3d const & p0,
+                                              plane_3d const & p1 ){
+    double dot = p0.nx * p1.nx + p0.ny * p1.ny + p0.nz * p1.nz;
+
+    double crossx = p0.ny*p1.nz-p0.nz*p1.ny;
+    double crossy = p0.nz*p1.nx-p0.nx*p1.nz;
+    double crossz = p0.nx*p1.ny-p0.ny*p1.nx;
+    double cross2 = crossx*crossx + crossy*crossy + crossz*crossz;
+
+
+    double dot2 = dot*dot;
+
+    double val = dot2;
+    if (dot2 > cross2) {
+        val = cross2;
+    }
+
+    double scalar = 2500;
+    val *= scalar;
+
+    if (val > 1)
+        val = 1;
+
+    assert(val >= 0 && val <= 1);
+
+    return val;
 }
 
 std::vector<plane_3d>
 problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
-                                    size_t num_hypotheses, size_t width, size_t height)
+                                    size_t num_hypotheses )
 {
+
+    const size_t NUM_NEAREST_NEIGHBOURS = 200;
+
     // initialize random gen
-    std::random_device rd;
-    std::mt19937 gen(5);//rd());
-    auto rnd_int_w = std::uniform_int_distribution<int>(10,width-11);
-    auto rnd_int_h = std::uniform_int_distribution<int>(10,height-11);
-    auto rnd_int = std::uniform_int_distribution<int>(-10,10);
+    //std::random_device rd;
+    std::mt19937 gen(3);//rd());
+    auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
+    auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
 
     // create hypotheses vector
     std::vector<plane_3d> hypotheses;
@@ -147,21 +182,38 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
 
     while(hypotheses.size()<num_hypotheses){
 
-        int h0 = rnd_int_h(gen);
-        int w0 = rnd_int_w(gen);
-        int h1 = rnd_int(gen) + h0;
-        int w1 = rnd_int(gen) + w0;
-        int h2 = rnd_int(gen) + h0;
-        int w2 = rnd_int(gen) + w0;
-        auto const & p0 = points[h0*width + w0];
-        auto const & p1 = points[h1*width + w1];
-        auto const & p2 = points[h2*width + w2];
+        auto const & p0 = points[rnd_int(gen)];
 
-        if(p0.z == 0 || p1.z == 0 || p2.z == 0){
+        // Compute nearest neighbours
+        std::multimap<float, const point_3d*> nearest_neighbours;
+        for(auto const & p : points){
+            if (p.equals(p0)) continue;
+            nearest_neighbours.insert(std::pair<float,const point_3d*>(p.dist(p0), &p));
+            while(nearest_neighbours.size() > NUM_NEAREST_NEIGHBOURS)
+                nearest_neighbours.erase(--nearest_neighbours.end());
+        }
+
+        int pos1 = rnd_int_nn(gen);
+        auto it1 = nearest_neighbours.begin();
+        for(int i = 0; i < pos1; i++){
+            it1++;
+        }
+        const point_3d* p1 = it1->second;
+
+        int pos2 = rnd_int_nn(gen);
+        auto it2 = nearest_neighbours.begin();
+        for(int i = 0; i < pos2; i++){
+            it2++;
+        }
+        const point_3d* p2 = it2->second;
+
+
+
+        if(p0.z == 0 || p1->z == 0 || p2->z == 0){
             continue;
         }
 
-        plane_3d hypothesis(p0,p1,p2);
+        plane_3d hypothesis(p0,*p1,*p2);
 
         size_t num_inliers = 0;
         for(size_t i = 0; i < points.size(); i++){
@@ -172,9 +224,7 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
             }
         }
 
-        std::cout << "num_inliers: " << num_inliers << std::endl;
-
-        if(num_inliers < 10000)
+        if(num_inliers < 100)
             continue;
 
         hypotheses.push_back(std::move(hypothesis));

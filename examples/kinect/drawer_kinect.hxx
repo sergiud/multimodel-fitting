@@ -29,6 +29,8 @@ private:
     drawer_kinect();
 public:
     drawer_kinect(const char* name);
+    void set_datapoints(std::vector<point_3d> const &);
+    void set_neighbourhood(std::vector<std::array<size_t, 2>> const & neighbourhood);
     void set_hypothesis_count(size_t);
     void clear();
     void draw_empty();
@@ -39,7 +41,6 @@ public:
     void sleep(int milliseconds);
 private:
     std::vector<std::array<float, 3>> colors;
-    unsigned int width, height;
     cv::Mat img_background;
     cv::Mat visu;
     const char* disp;
@@ -47,9 +48,9 @@ private:
     std::uniform_real_distribution<float> col_hue_detail_gen;
     std::uniform_int_distribution<unsigned int> col_hue_raw_gen;
 private:
+    std::vector<point_3d> datapoints;
+    std::vector<std::array<size_t, 2>> neighbourhood;
     std::array<float, 3> generate_color();
-    size_t getX(size_t id);
-    size_t getY(size_t id);
 
 };
 

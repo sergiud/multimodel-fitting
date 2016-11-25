@@ -22,8 +22,11 @@ public:
     float x;
     float y;
     float z;
-    point_3d(float x, float y, float z);
+    int u;
+    int v;
+    point_3d(float x, float y, float z, int u, int v);
     float dist(point_3d const & p) const;
+    bool equals(point_3d const &p) const;
 };
 
 struct plane_3d {

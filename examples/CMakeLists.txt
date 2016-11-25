@@ -14,7 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 set(EXAMPLES
-    hello_world
+    #hello_world
     lines
     kinect
 )

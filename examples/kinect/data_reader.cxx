@@ -64,7 +64,8 @@ std::vector<point_3d> data_reader::get()
             double Z = val/factor;
             double X = (u - cx) * Z / fx;
             double Y = (v - cy) * Z / fy;
-            points.push_back(point_3d(X,Y,Z));
+            if(u%8 == 0 && v%8 == 0 && Z != 0)
+                points.push_back(point_3d(X,Y,Z,u,v));
         }
     }
 

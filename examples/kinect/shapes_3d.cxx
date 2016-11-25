@@ -20,7 +20,8 @@
 
 #include <iostream>
 
-point_3d::point_3d(float x, float y, float z) : x(x), y(y), z(z)
+point_3d::point_3d(float x, float y, float z, int u, int v)
+    : x(x), y(y), z(z), u(u), v(v)
 {
 }
 
@@ -30,6 +31,12 @@ float point_3d::dist(point_3d const & p) const
     float dy = p.y - y;
     float dz = p.z - z;
     return sqrtf(dx * dx + dy * dy + dz * dz);
+}
+
+bool point_3d::equals(point_3d const &p) const
+{
+    if(p.u == u && p.v == v) return true;
+    return false;
 }
 
 plane_3d::plane_3d(point_3d const & p0, point_3d const & p1, point_3d const & p2){

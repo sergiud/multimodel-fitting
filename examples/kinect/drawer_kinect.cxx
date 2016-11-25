@@ -26,22 +26,23 @@ extern size_t img_rgb_len;
 
 drawer_kinect::drawer_kinect(const char * name)
     : disp(name),
-    rnd_gen(2), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
+    rnd_gen(11), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
 {
     std::vector<unsigned char> img_rgb_data(img_rgb,img_rgb+img_rgb_len);
     img_background = cv::imdecode(cv::Mat(img_rgb_data), CV_LOAD_IMAGE_GRAYSCALE);
 
+    unsigned int width, height;
     width=img_background.cols;
     height=img_background.rows;
 
-    visu = cv::Mat::zeros(height*2, width*2, CV_8UC3);
+    visu = cv::Mat::zeros(height, width, CV_8UC3);
 
     namedWindow( disp, cv::WINDOW_AUTOSIZE );
 }
 
 void
 drawer_kinect::draw_empty(){
-    std::vector<int32_t> labels(width*height);
+    std::vector<int32_t> labels(datapoints.size());
     for(size_t i = 0; i < labels.size(); i++){
         labels[i] = -1;
     }
@@ -50,37 +51,50 @@ drawer_kinect::draw_empty(){
 
 void
 drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
-    drawer.clear();
-    std::array<float,3> outlier_col = {{0.5f, 0.5f, 0.5f}};
-    for(size_t y = 0; y < height; y++){
-        for(size_t x = 0; x < width; x++){
-            unsigned char bg = img_background.at<unsigned char>(y,x);
-            float label_col0 = outlier_col[0];
-            float label_col1 = outlier_col[1];
-            float label_col2 = outlier_col[2];
-            int32_t label = labels[y*width + x];
-            if(label >= 0){
-                while(colors.size() < label+1){
-                    colors.push_back(generate_color());
-                }
-                label_col0 = colors[label][0];
-                label_col1 = colors[label][1];
-                label_col2 = colors[label][2];
-            }
-            cv::Vec3b col(
-                int(bg * label_col0),
-                int(bg * label_col1),
-                int(bg * label_col2)
-            );
-            visu.at<cv::Vec3b>(2*y  ,2*x  ) = col;
-            visu.at<cv::Vec3b>(2*y+1,2*x  ) = col;
-            visu.at<cv::Vec3b>(2*y  ,2*x+1) = col;
-            visu.at<cv::Vec3b>(2*y+1,2*x+1) = col;
+    clear();
+    auto outlier_color = CV_RGB(64,64,64);
+
+    for (size_t i = 0; i < labels.size(); i++) {
+        size_t pos_x = datapoints[i].u;
+        size_t pos_y = datapoints[i].v;
+        if(labels[i] >= 0){
+            auto const & color =  colors[labels[i]];
+            cv::rectangle(visu, cv::Point(pos_x - 1, pos_y - 1),
+                                cv::Point(pos_x + 1, pos_y + 1),
+                                CV_RGB(255*color[0], 255*color[1], 255*color[2]));
+        } else {
+            cv::line(visu, cv::Point(pos_x - 1, pos_y - 1),
+                           cv::Point(pos_x + 1, pos_y + 1),
+                           outlier_color);
+            cv::line(visu, cv::Point(pos_x - 1, pos_y + 1),
+                           cv::Point(pos_x + 1, pos_y - 1),
+                           outlier_color);
         }
     }
-    drawer.display();
+
+    for(auto const & connection : neighbourhood){
+        if(labels[connection[0]] != labels[connection[1]] ||
+           labels[connection[0]] == -1) continue;
+        auto const & color = colors[labels[connection[0]]];
+        auto const & p0 = datapoints[connection[0]];
+        auto const & p1 = datapoints[connection[1]];
+        cv::line(visu, cv::Point(p0.u, p0.v),
+                       cv::Point(p1.u, p1.v),
+                       CV_RGB(255*color[0], 255*color[1], 255*color[2]));
+    }
+
+    display();
 }
 
+void
+drawer_kinect::set_datapoints(std::vector<point_3d> const & datapoints){
+    this->datapoints = datapoints;
+}
+
+void
+drawer_kinect::set_neighbourhood(std::vector<std::array<size_t, 2>> const & neighbourhood){
+    this->neighbourhood = neighbourhood;
+}
 
 void drawer_kinect::set_hypothesis_count(size_t count){
     colors.clear();
@@ -93,31 +107,20 @@ void drawer_kinect::set_hypothesis_count(size_t count){
 
 void drawer_kinect::clear()
 {
+    //img_background.convertTo(visu, CV_8UC3, 0.3f, 0);
     visu.setTo(cv::Scalar(0,0,0));
+    cvtColor(img_background, visu, CV_GRAY2RGB);
 }
-
-size_t drawer_kinect::getX(size_t id)
-{
-    return id%width;
-}
-
-size_t drawer_kinect::getY(size_t id)
-{
-    return id/width;
-}
-
-
 
 void drawer_kinect::draw_connection(size_t id0, size_t id1){
-    unsigned int p0_x = static_cast<unsigned int>(2*getX(id0));
-    unsigned int p0_y = static_cast<unsigned int>(2*getY(id0));
-    unsigned int p1_x = static_cast<unsigned int>(2*getX(id1));
-    unsigned int p1_y = static_cast<unsigned int>(2*getY(id1));
+    unsigned int p0_x = datapoints[id0].u;
+    unsigned int p0_y = datapoints[id0].v;
+    unsigned int p1_x = datapoints[id1].u;
+    unsigned int p1_y = datapoints[id1].v;
 
     cv::line(visu, cv::Point(p0_x, p0_y), cv::Point(p1_x, p1_y),
              CV_RGB(255,255,255));
 }
-
 
 void drawer_kinect::display()
 {
@@ -134,7 +137,6 @@ void drawer_kinect::wait()
     int res = 0;
     while(res != -1 && res != 'q' && res != 27){
         res = cv::waitKey(0);
-        //std::cout << "waitKey(0) : " << res << std::endl;
     }
 }
 

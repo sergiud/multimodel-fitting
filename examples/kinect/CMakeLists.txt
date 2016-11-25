@@ -28,18 +28,21 @@ set(SOURCES
   drawer_kinect.cxx
 )
 
+set(IMAGE_DEPTH cabinet_depth.png)
+set(IMAGE_RGB   cabinet_rgb.png)
+
 add_custom_command(
     OUTPUT img_depth.cxx
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_depth
-            ${CMAKE_CURRENT_LIST_DIR}/data/cabinet_depth.png img_depth.cxx
-    DEPENDS data/cabinet_depth.png embed_resource.py
+            ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_DEPTH} img_depth.cxx
+    DEPENDS data/${IMAGE_DEPTH} embed_resource.py
 )
 
 add_custom_command(
     OUTPUT img_rgb.cxx
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_rgb
-            ${CMAKE_CURRENT_LIST_DIR}/data/cabinet_rgb.png img_rgb.cxx
-    DEPENDS data/cabinet_rgb.png embed_resource.py
+            ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_RGB} img_rgb.cxx
+    DEPENDS data/${IMAGE_RGB} embed_resource.py
 )
 
 add_executable(${EXAMPLE} ${SOURCES} ${HEADERS} img_depth.cxx img_rgb.cxx)

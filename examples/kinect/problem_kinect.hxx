@@ -46,7 +46,7 @@ public:
                                          plane_3d const & );
 
     std::vector<plane_3d> generateHypotheses(std::vector<point_3d> const &,
-                                             size_t, size_t, size_t);
+                                             size_t);
 
 };
 
