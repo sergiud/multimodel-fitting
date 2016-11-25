@@ -140,6 +140,7 @@ AlphaExpansionFitter<C>::fit(
     }
 
     bool changed;
+    bool outlier_check_needed = false;
     double current_value = compute_value( sample_count,
                                           hypothesis_count,
                                           sample_stride,
@@ -154,7 +155,7 @@ AlphaExpansionFitter<C>::fit(
     do {
         changed = false;
 
-        for(label_type alpha_label = 0; alpha_label < hypothesis_count; alpha_label++)
+        for(label_type alpha_label = 1; alpha_label < hypothesis_count; alpha_label++)
         {
             //std::cout << "alpha: " << alpha_label << std::endl;
 
@@ -194,8 +195,54 @@ AlphaExpansionFitter<C>::fit(
                 current_value = new_value;
                 config.debug_output(*labeling, current_value);
                 changed = true;
+                outlier_check_needed = true;
             } else if (new_value > current_value){
                 std::cout << "~~~~WARNING~~~~" << std::endl;
+            }
+
+            // Check for outliers every 20 labels
+            if(outlier_check_needed){
+                outlier_check_needed = false;
+
+                // Do the actual graph cut
+                MinCut_MaxFlow<C>::run(
+                    sample_count,
+                    hypothesis_count,
+                    sample_stride,
+                    label_stride,
+                    0,
+                    *labeling,
+                    *new_labeling,
+                    neighbourhood,
+                    smoothing_penalty,
+                    fitting_penalties,
+                    hypothesis_penalties,
+                    hypothesis_interaction_penalties
+                );
+
+                // Compute new value
+                new_value = compute_value(
+                    sample_count,
+                    hypothesis_count,
+                    sample_stride,
+                    label_stride,
+                    *new_labeling,
+                    neighbourhood,
+                    smoothing_penalty,
+                    fitting_penalties,
+                    hypothesis_penalties,
+                    hypothesis_interaction_penalties
+                );
+
+                // Swap if new optimum found
+                if(new_value < current_value){
+                    std::swap(labeling, new_labeling);
+                    current_value = new_value;
+                    config.debug_output(*labeling, current_value);
+                    changed = true;
+                } else if (new_value > current_value){
+                    std::cout << "~~~~WARNING~~~~" << std::endl;
+                }
             }
         }
 
