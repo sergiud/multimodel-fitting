@@ -39,7 +39,7 @@ for c in data :
         outfile.write(',\n    ')
     elif i>0:
         outfile.write(',')
-    outfile.write(str(ord(chr(c))))
+    outfile.write(str(ord(c)))
     i = i + 1
 
 outfile.write('\n};\n')
