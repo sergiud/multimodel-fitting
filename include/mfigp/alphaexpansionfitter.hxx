@@ -196,8 +196,6 @@ AlphaExpansionFitter<C>::fit(
                 config.debug_output(*labeling, current_value);
                 changed = true;
                 outlier_check_needed = true;
-            } else if (new_value > current_value){
-                std::cout << "~~~~WARNING~~~~" << std::endl;
             }
 
             // Check for outliers every 20 labels
@@ -240,8 +238,6 @@ AlphaExpansionFitter<C>::fit(
                     current_value = new_value;
                     config.debug_output(*labeling, current_value);
                     changed = true;
-                } else if (new_value > current_value){
-                    std::cout << "~~~~WARNING~~~~" << std::endl;
                 }
             }
         }
