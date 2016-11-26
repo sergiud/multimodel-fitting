@@ -59,15 +59,15 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
         size_t pos_y = datapoints[i].v;
         if(labels[i] >= 0){
             auto const & color =  colors[labels[i]];
-            cv::rectangle(visu, cv::Point(pos_x - 1, pos_y - 1),
-                                cv::Point(pos_x + 1, pos_y + 1),
+            cv::rectangle(visu, cv::Point(int(pos_x - 1), int(pos_y - 1)),
+                                cv::Point(int(pos_x + 1), int(pos_y + 1)),
                                 CV_RGB(255*color[0], 255*color[1], 255*color[2]));
         } else {
-            cv::line(visu, cv::Point(pos_x - 1, pos_y - 1),
-                           cv::Point(pos_x + 1, pos_y + 1),
+            cv::line(visu, cv::Point(int(pos_x - 1), int(pos_y - 1)),
+                           cv::Point(int(pos_x + 1), int(pos_y + 1)),
                            outlier_color);
-            cv::line(visu, cv::Point(pos_x - 1, pos_y + 1),
-                           cv::Point(pos_x + 1, pos_y - 1),
+            cv::line(visu, cv::Point(int(pos_x - 1), int(pos_y + 1)),
+                           cv::Point(int(pos_x + 1), int(pos_y - 1)),
                            outlier_color);
         }
     }

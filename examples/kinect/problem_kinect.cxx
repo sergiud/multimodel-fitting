@@ -39,10 +39,10 @@ extern size_t img_depth_len;
 std::vector<std::array<problem_kinect::sampleid_type,2>>
 problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
-    float x_max = samples[0].u;
-    float y_max = samples[0].v;
-    float x_min = x_max;
-    float y_min = y_max;
+    int x_max = samples[0].u;
+    int y_max = samples[0].v;
+    int x_min = x_max;
+    int y_min = y_max;
     for(auto const & sample : samples){
         if(sample.u > x_max) x_max = sample.u;
         if(sample.u < x_min) x_min = sample.u;
@@ -57,7 +57,7 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
     std::map<int, size_t> reverseVertexIDs;
     for(size_t i = 0; i < samples.size(); i++){
         auto const & sample = samples[i];
-        vertexIDs[i] = subdiv.insert(cv::Point2f(sample.u, sample.v));
+        vertexIDs[i] = subdiv.insert(cv::Point2f(float(sample.u), float(sample.v)));
         reverseVertexIDs[vertexIDs[i]] = i;
     }
 
