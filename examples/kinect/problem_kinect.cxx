@@ -110,7 +110,7 @@ problem_kinect::getNoiseLevel(){
 
 double
 problem_kinect::getNeighbourhoodWeight(){
-    return 0.1;
+    return 0.15;
 }
 
 double
@@ -171,8 +171,8 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
     const size_t NUM_NEAREST_NEIGHBOURS = 200;
 
     // initialize random gen
-    //std::random_device rd;
-    std::mt19937 gen(3);//rd());
+    std::random_device rd;
+    std::mt19937 gen(rd());
     auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
     auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
 
