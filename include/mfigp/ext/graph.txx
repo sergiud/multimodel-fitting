@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 #include "graph.h"
 
 namespace mfigp{ namespace ext {
@@ -38,8 +39,8 @@ template <typename captype, typename tcaptype, typename flowtype>
 	if (node_num_max < 16) node_num_max = 16;
 	if (edge_num_max < 16) edge_num_max = 16;
 
-	nodes = (node*) malloc(node_num_max*sizeof(node));
-	arcs = (arc*) malloc(2*edge_num_max*sizeof(arc));
+	nodes = (node*) malloc(size_t(node_num_max)*sizeof(node));
+	arcs = (arc*) malloc(2*size_t(edge_num_max)*sizeof(arc));
 	if (!nodes || !arcs) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 
 	node_last = nodes;
@@ -88,7 +89,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	node_num_max += node_num_max / 2;
 	if (node_num_max < node_num + num) node_num_max = node_num + num;
-	nodes = (node*) realloc(nodes_old, node_num_max*sizeof(node));
+	nodes = (node*) realloc(nodes_old, size_t(node_num_max)*sizeof(node));
 	if (!nodes) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 
 	node_last = nodes + node_num;
@@ -117,7 +118,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 	arc* arcs_old = arcs;
 
 	arc_num_max += arc_num_max / 2; if (arc_num_max & 1) arc_num_max ++;
-	arcs = (arc*) realloc(arcs_old, arc_num_max*sizeof(arc));
+	arcs = (arc*) realloc(arcs_old, size_t(arc_num_max)*sizeof(arc));
 	if (!arcs) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 
 	arc_last = arcs + arc_num;
@@ -306,7 +307,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 		i->is_marked = 0;
 		set_active(i);
 
-		if (i->tr_cap == 0)
+		if (fabs(i->tr_cap) <= 0)
 		{
 			if (i->parent) set_orphan_rear(i);
 			continue;
@@ -406,13 +407,13 @@ template <typename captype, typename tcaptype, typename flowtype>
 		if (a == TERMINAL) break;
 		a -> r_cap += bottleneck;
 		a -> sister -> r_cap -= bottleneck;
-		if (!a->sister->r_cap)
+		if (fabs(a->sister->r_cap)<=0)
 		{
 			set_orphan_front(i); // add i to the beginning of the adoption list
 		}
 	}
 	i -> tr_cap -= bottleneck;
-	if (!i->tr_cap)
+	if (fabs(i->tr_cap)<=0)
 	{
 		set_orphan_front(i); // add i to the beginning of the adoption list
 	}
@@ -423,13 +424,13 @@ template <typename captype, typename tcaptype, typename flowtype>
 		if (a == TERMINAL) break;
 		a -> sister -> r_cap += bottleneck;
 		a -> r_cap -= bottleneck;
-		if (!a->r_cap)
+		if (fabs(a->r_cap)<=0)
 		{
 			set_orphan_front(i); // add i to the beginning of the adoption list
 		}
 	}
 	i -> tr_cap += bottleneck;
-	if (!i->tr_cap)
+	if (fabs(i->tr_cap)<=0)
 	{
 		set_orphan_front(i); // add i to the beginning of the adoption list
 	}
@@ -449,7 +450,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	/* trying to find a new parent */
 	for (a0=i->first; a0; a0=a0->next)
-	if (a0->sister->r_cap)
+	if (fabs(a0->sister->r_cap)>0)
 	{
 		j = a0 -> head;
 		if (!j->is_sink && (a=j->parent))
@@ -509,7 +510,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 			j = a0 -> head;
 			if (!j->is_sink && (a=j->parent))
 			{
-				if (a0->sister->r_cap) set_active(j);
+				if (fabs(a0->sister->r_cap)>0) set_active(j);
 				if (a!=TERMINAL && a!=ORPHAN && a->head==i)
 				{
 					set_orphan_rear(j); // add j to the end of the adoption list
@@ -528,7 +529,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	/* trying to find a new parent */
 	for (a0=i->first; a0; a0=a0->next)
-	if (a0->r_cap)
+	if (fabs(a0->r_cap)>0)
 	{
 		j = a0 -> head;
 		if (j->is_sink && (a=j->parent))
@@ -590,7 +591,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 			j = a0 -> head;
 			if (j->is_sink && (a=j->parent))
 			{
-				if (a0->r_cap) set_active(j);
+				if (fabs(a0->r_cap)>0) set_active(j);
 				if (a!=TERMINAL && a!=ORPHAN && a->head==i)
 				{
 					set_orphan_rear(j); // add j to the end of the adoption list
@@ -641,7 +642,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 		{
 			/* grow source tree */
 			for (a=i->first; a; a=a->next)
-			if (a->r_cap)
+			if (fabs(a->r_cap)>0)
 			{
 				j = a -> head;
 				if (!j->parent)
@@ -668,7 +669,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 		{
 			/* grow sink tree */
 			for (a=i->first; a; a=a->next)
-			if (a->sister->r_cap)
+			if (fabs(a->sister->r_cap)>0)
 			{
 				j = a -> head;
 				if (!j->parent)

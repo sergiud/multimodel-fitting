@@ -28,7 +28,7 @@ size_t data_reader::getWidth(){
 
     std::vector<unsigned char> img_depth_data(img_depth, img_depth + img_depth_len);
     cv::Mat img = cv::imdecode(cv::Mat(img_depth_data), -CV_LOAD_IMAGE_ANYDEPTH);
-    return img.cols;
+    return size_t(img.cols);
 
 }
 
@@ -36,7 +36,7 @@ size_t data_reader::getHeight(){
 
     std::vector<unsigned char> img_depth_data(img_depth, img_depth + img_depth_len);
     cv::Mat img = cv::imdecode(cv::Mat(img_depth_data), -CV_LOAD_IMAGE_ANYDEPTH);
-    return img.rows;
+    return size_t(img.rows);
 
 }
 
@@ -50,7 +50,7 @@ std::vector<point_3d> data_reader::get()
     std::cout << "height: " << img.rows << std::endl;
 
     std::vector<point_3d> points;
-    points.reserve(img.cols * img.rows);
+    points.reserve(size_t(img.cols * img.rows));
 
     const float fx = 535.4f;
     const float fy = 539.2f;
@@ -60,12 +60,12 @@ std::vector<point_3d> data_reader::get()
 
     for(int v = 0; v < img.rows; v++){
         for(int u = 0; u < img.cols; u++){
-            float val = img.at<uint16_t>(v,u);
-            float Z = val/factor;
+            uint16_t val = img.at<uint16_t>(v,u);
+            float Z = float(val)/factor;
             float X = (u - cx) * Z / fx;
             float Y = (v - cy) * Z / fy;
-            if(u%8 == 0 && v%8 == 0 && Z != 0)
-                points.push_back(point_3d(X,Y,Z,u,v));
+            if(u%8 == 0 && v%8 == 0 && val != 0)
+                points.push_back(point_3d(X,Y,Z,u,v,val==0));
         }
     }
 

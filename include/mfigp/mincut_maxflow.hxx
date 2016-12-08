@@ -145,7 +145,7 @@ inline void MinCut_MaxFlow<C>::run(
                 c_a += hypothesis_interaction_penalties[alpha_label*label_stride+label];
             }
 
-            if(c_a != 0){
+            if(fabs(c_a) > 0){
                 auto n0 = g.add_node();
                 g.add_tweights(n0, c_a, 0);
 
@@ -171,7 +171,7 @@ inline void MinCut_MaxFlow<C>::run(
                 c_b += hypothesis_interaction_penalties[beta_label * label_stride + label] * 0.5f;
             }
 
-            if(c_b != 0){
+            if(fabs(c_b) > 0){
                 auto n1 = g.add_node();
                 g.add_tweights(n1, 0, c_b);
 

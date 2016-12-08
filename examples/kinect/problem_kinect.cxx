@@ -102,7 +102,7 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
 double
 problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
-    if(p.z == 0)
+    if(p.is_outlier)
         return 2;
     return h.dist(p);
 }
@@ -213,7 +213,7 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
 
 
 
-        if(p0.z == 0 || p1->z == 0 || p2->z == 0){
+        if( p0.is_outlier || p1->is_outlier || p2->is_outlier ){
             continue;
         }
 

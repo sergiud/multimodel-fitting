@@ -379,7 +379,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	if (node_last + num > node_max) reallocate_nodes(num);
 
-	memset(node_last, 0, num*sizeof(node));
+	memset(node_last, 0, size_t(num)*sizeof(node));
 
 	node_id i = node_num;
 	node_num += num;

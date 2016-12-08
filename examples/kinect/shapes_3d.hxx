@@ -24,7 +24,8 @@ public:
     float z;
     int u;
     int v;
-    point_3d(float x, float y, float z, int u, int v);
+    bool is_outlier;
+    point_3d(float x, float y, float z, int u, int v, bool is_outlier);
     float dist(point_3d const & p) const;
     bool equals(point_3d const &p) const;
 };
