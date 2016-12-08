@@ -62,6 +62,10 @@ private:
     std::vector<hypothesis_type> hypotheses;
 
 private:
+    // Callback functions. This is needed because the
+    // actual implementation is free of templates.
+    sampleid_type get_sample_count() const;
+    label_type get_hypothesis_count() const;
     std::vector<std::array<sampleid_type,2>>
         getNeighbourhood(C& config) const;
     computation_type getResidual( C& config,
@@ -98,10 +102,10 @@ inline void MultiModelFitter<C>::set_hypotheses(
 template<class C>
 inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
 {
-    size_t hypothesis_count = hypotheses.size();
-    size_t sample_count = samples.size();
-    size_t label_stride = hypothesis_count + 1;
-    size_t sample_stride = sample_count;
+    label_type hypothesis_count = get_hypothesis_count();
+    sampleid_type sample_count = get_sample_count();
+    label_type label_stride = hypothesis_count + 1;
+    sampleid_type sample_stride = sample_count;
 
     // compute fitting penalties
     std::vector<computation_type> fitting_penalties(sample_count * label_stride);
@@ -203,6 +207,20 @@ template<class C>
 inline void MultiModelFitter<C>::clear_hypotheses()
 {
     this->hypotheses.clear();
+}
+
+template<class C>
+inline typename C::sampleid_type
+MultiModelFitter<C>::get_sample_count() const
+{
+    return static_cast<sampleid_type>(samples.size());
+}
+
+template<class C>
+inline typename C::label_type
+MultiModelFitter<C>::get_hypothesis_count() const
+{
+    return static_cast<label_type>(hypotheses.size());
 }
 
 template<class C>

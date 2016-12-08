@@ -94,7 +94,7 @@ problem_lines::getHypothesisInteractionCost( hypothesis_type const & l0,
 
 void
 problem_lines::debug_output(
-    std::vector<label_type> const & labels,
+    std::vector<internal_label_type> const & labels,
     double value
 )
 {
@@ -102,7 +102,7 @@ problem_lines::debug_output(
 
     std::vector<label_type> transformed_labels(labels.size());
     std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
-                   [](label_type x){return x-1;});
+                   [](internal_label_type x){return label_type(x)-1;});
 
     drawer.draw_labeled(transformed_labels);
     drawer.sleep(100);

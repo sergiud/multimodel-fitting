@@ -24,7 +24,7 @@
 class problem_lines : public mfigp::config<point_2d, line_2d> {
 public:
 
-    void debug_output(std::vector<label_type> const &, double);
+    void debug_output(std::vector<internal_label_type> const &, double);
 
     // Compute neighbourhood connections between samples.
     // In this case: delaunay triangulation

@@ -58,7 +58,7 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
         int pos_x = datapoints[i].u;
         int pos_y = datapoints[i].v;
         if(labels[i] >= 0){
-            auto const & color =  colors[labels[i]];
+            auto const & color =  colors[size_t(labels[i])];
             cv::rectangle(visu, cv::Point(pos_x - 1, pos_y - 1),
                                 cv::Point(pos_x + 1, pos_y + 1),
                                 CV_RGB(255*color[0], 255*color[1], 255*color[2]));
@@ -75,7 +75,7 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
     for(auto const & connection : neighbourhood){
         if(labels[connection[0]] != labels[connection[1]] ||
            labels[connection[0]] == -1) continue;
-        auto const & color = colors[labels[connection[0]]];
+        auto const & color = colors[size_t(labels[connection[0]])];
         auto const & p0 = datapoints[connection[0]];
         auto const & p1 = datapoints[connection[1]];
         cv::line(visu, cv::Point(p0.u, p0.v),
