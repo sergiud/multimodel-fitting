@@ -69,14 +69,14 @@ private:
     std::vector<std::array<sampleid_type,2>>
         getNeighbourhood(C& config) const;
     computation_type getResidual( C& config,
-                                  sampleid_type sample,
-                                  label_type label) const;
+                                  size_t sample,
+                                  size_t label) const;
     computation_type getNoiseLevel(C& config) const;
     computation_type getNeighbourhoodWeight(C& config) const;
     computation_type getHighlevelConstraintWeight(C& config) const;
-    computation_type getHypothesisCost(C& config, label_type label) const;
-    computation_type getHypothesisInteractionCost( C& config, label_type label1,
-                                                   label_type label2) const;
+    computation_type getHypothesisCost(C& config, size_t label) const;
+    computation_type getHypothesisInteractionCost( C& config, size_t label1,
+                                                   size_t label2 ) const;
 };
 
 template<class C>
@@ -102,10 +102,10 @@ inline void MultiModelFitter<C>::set_hypotheses(
 template<class C>
 inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
 {
-    label_type hypothesis_count = get_hypothesis_count();
-    sampleid_type sample_count = get_sample_count();
-    label_type label_stride = hypothesis_count + 1;
-    sampleid_type sample_stride = sample_count;
+    size_t hypothesis_count = get_hypothesis_count();
+    size_t sample_count = get_sample_count();
+    size_t label_stride = hypothesis_count + 1;
+    size_t sample_stride = sample_count;
 
     // compute fitting penalties
     std::vector<computation_type> fitting_penalties(sample_count * label_stride);
@@ -116,13 +116,14 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
         for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
 
             // Set penalty for outliers
-            fitting_penalties[sample_id * label_stride + 0] = 1;
+            fitting_penalties[size_t(sample_id) * label_stride + 0] = 1;
 
             // Set penalty for inliers
             for(label_type label_id = 0; label_id < hypothesis_count; label_id++){
-                computation_type residual = getResidual(config, sample_id, label_id);
+                computation_type residual = getResidual(config, sample_id,
+                                                                size_t(label_id));
                 computation_type normalized_residual = residual / noise_level;
-                fitting_penalties[sample_id * label_stride + label_id + 1] =
+                fitting_penalties[size_t(sample_id) * label_stride + size_t(label_id) + 1] =
                     normalized_residual * normalized_residual;
             }
 
@@ -145,7 +146,7 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
 
         // set penalty for inlier labels
         for(label_type label_id = 0; label_id < hypothesis_count; label_id++){
-            hypothesis_penalties[label_id+1] = getHypothesisCost(config, label_id)
+            hypothesis_penalties[size_t(label_id+1)] = getHypothesisCost(config, size_t(label_id))
                                              * highlevel_constraint_weight;
         }
 
@@ -156,19 +157,19 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
         label_stride*(hypothesis_count + 1) );
     {
 
-        for(label_type label1 = -1; label1 < hypothesis_count; label1++){
-            for(label_type label2 = -1; label2 < hypothesis_count; label2++){
+        for(label_type label1 = 0; label1 < hypothesis_count+1; label1++){
+            for(label_type label2 = 0; label2 < hypothesis_count+1; label2++){
 
                 computation_type cost = 0;
 
                 // Equal labels or labels and outliers do not cost anything
-                if(label1 >= 0 && label2 >= 0 && label1 != label2){
-                    cost = getHypothesisInteractionCost(config, label1, label2)
+                if(label1 > 0 && label2 > 0 && label1 != label2){
+                    cost = getHypothesisInteractionCost(config, size_t(label1-1), size_t(label2-1))
                            * highlevel_constraint_weight;
                 }
 
                 hypothesis_interaction_penalties[
-                    (label1+1) * label_stride + (label2+1) ] = cost;
+                    size_t(label1) * label_stride + size_t(label2) ] = cost;
 
             }
         }
@@ -228,8 +229,8 @@ MultiModelFitter<C>::getNeighbourhood( C & config ) const
 template<class C>
 inline typename C::computation_type
 MultiModelFitter<C>::getResidual( C & config,
-                                  typename C::sampleid_type sample,
-                                  typename C::label_type label ) const
+                                  size_t sample,
+                                  size_t label ) const
 {
     return config.computeResidual( samples[sample],
                                    hypotheses[label] );
@@ -262,7 +263,7 @@ MultiModelFitter<C>::getHighlevelConstraintWeight( C & config ) const
 
 template<class C>
 inline typename C::computation_type
-MultiModelFitter<C>::getHypothesisCost( C & config, typename C::label_type label) const
+MultiModelFitter<C>::getHypothesisCost( C & config, size_t label) const
 {
     return config.getHypothesisCost( hypotheses[label] );
 }
@@ -270,8 +271,8 @@ MultiModelFitter<C>::getHypothesisCost( C & config, typename C::label_type label
 template<class C>
 inline typename C::computation_type
 MultiModelFitter<C>::getHypothesisInteractionCost( C & config,
-                                                   typename C::label_type label1,
-                                                   typename C::label_type label2) const
+                                                   size_t label1,
+                                                   size_t label2) const
 {
     return config.getHypothesisInteractionCost( hypotheses[label1],
                                                 hypotheses[label2] );

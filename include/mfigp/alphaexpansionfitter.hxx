@@ -41,10 +41,10 @@ class AlphaExpansionFitter {
 
         static std::vector<label_type> fit(
             C & config,
-            sampleid_type sample_count,
-            label_type hypothesis_count,
-            sampleid_type sample_stride,
-            label_type label_stride,
+            size_t sample_count,
+            size_t hypothesis_count,
+            size_t sample_stride,
+            size_t label_stride,
             std::vector< std::array<sampleid_type,2> > const & neighbourhood,
             computation_type smoothing_penalty,
             std::vector<computation_type> const & fitting_penalties,
@@ -54,10 +54,10 @@ class AlphaExpansionFitter {
 
     private:
         static computation_type compute_value(
-            sampleid_type sample_count,
-            internal_label_type hypothesis_count,
-            sampleid_type sample_stride,
-            internal_label_type label_stride,
+            size_t sample_count,
+            size_t hypothesis_count,
+            size_t sample_stride,
+            size_t label_stride,
             std::vector<internal_label_type> const & labeling,
             std::vector<std::array<sampleid_type, 2>> const & neighbourhood,
             computation_type smoothing_penalty,
@@ -71,10 +71,10 @@ class AlphaExpansionFitter {
 template<typename C>
 inline typename C::computation_type
 AlphaExpansionFitter<C>::compute_value(
-    sampleid_type sample_count,
-    internal_label_type hypothesis_count,
-    sampleid_type sample_stride,
-    internal_label_type label_stride,
+    size_t sample_count,
+    size_t hypothesis_count,
+    size_t sample_stride,
+    size_t label_stride,
     std::vector<internal_label_type> const & labeling,
     std::vector< std::array<sampleid_type,2> > const & neighbourhood,
     computation_type smoothing_penalty,
@@ -121,19 +121,16 @@ template<typename C>
 inline std::vector<typename C::label_type>
 AlphaExpansionFitter<C>::fit(
     C & config,
-    sampleid_type sample_count,
-    label_type hypothesis_count_,
-    sampleid_type sample_stride,
-    label_type label_stride_,
+    size_t sample_count,
+    size_t hypothesis_count,
+    size_t sample_stride,
+    size_t label_stride,
     std::vector< std::array<sampleid_type,2> > const & neighbourhood,
     computation_type smoothing_penalty,
     std::vector<computation_type> const & fitting_penalties,
     std::vector<computation_type> const & hypothesis_penalties,
     std::vector<computation_type> const & hypothesis_interaction_penalties )
 {
-    // Conversions
-    internal_label_type hypothesis_count = internal_label_type(hypothesis_count_);
-    internal_label_type label_stride = internal_label_type(label_stride_);
 
     // Create initial labeling
     std::vector<internal_label_type> labeling_array_1(sample_count);
