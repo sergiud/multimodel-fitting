@@ -57,7 +57,7 @@ void drawer_2d::draw_connection(point_2d p0, point_2d p1, std::array<unsigned ch
     unsigned int p1_x = static_cast<unsigned int>(p1_x_f * width);
     unsigned int p1_y = static_cast<unsigned int>(p1_y_f * height);
 
-    cv::line(visu, cv::Point(p0_x, p0_y), cv::Point(p1_x, p1_y),
+    cv::line(visu, cv::Point_<unsigned int>(p0_x, p0_y), cv::Point_<unsigned int>(p1_x, p1_y),
              CV_RGB(color[0], color[1], color[2]));
 }
 

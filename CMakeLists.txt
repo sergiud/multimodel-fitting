@@ -46,7 +46,7 @@ endif()
 
 # Set global compiler flags
 if(NOT MSVC)
-    add_definitions( "-Wall" )
+    add_definitions( "-Wall" ) #-Wpedantic -Wsign-conversion" )
 endif()
 
 # Add main include directory

@@ -51,7 +51,11 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
     }
 
     // Feed data to Subdiv2D
-    cv::Rect rect(int(floor(x_min - 0.1f)), int(floor(y_min - 0.1f)), int(ceil(x_max + 0.1f) - floor(x_min - 0.1f)), int(ceil(y_max + 0.1f) - floor(y_min - 0.1f)));
+    const float epsilon = 0.1f;
+    cv::Rect rect( int(floor(x_min - epsilon)),
+                   int(floor(y_min - epsilon)),
+                   int(ceil(x_max + epsilon) - floor(x_min - epsilon)),
+                   int(ceil(y_max + epsilon) - floor(y_min - epsilon)));
     cv::Subdiv2D subdiv(rect);
     std::vector<int> vertexIDs(samples.size());
     std::map<int, size_t> reverseVertexIDs;
