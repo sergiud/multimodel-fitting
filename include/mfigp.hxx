@@ -21,6 +21,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <type_traits>
 
 #include "mfigp/alphaexpansionfitter.hxx"
 
@@ -39,6 +40,8 @@ public:
     typedef typename C::computation_type   computation_type;
     typedef typename C::label_type         label_type;
     typedef typename C::sampleid_type      sampleid_type;
+    static_assert( std::is_signed<label_type>::value,
+                   "label_type needs to be signed" );
 
 public:
     // Sets the samples
