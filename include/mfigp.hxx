@@ -188,12 +188,7 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
             hypothesis_penalties, hypothesis_interaction_penalties
         );
 
-    // transform the results
-    std::vector<label_type> transformed_labels(labels.size());
-    std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
-                   [](label_type x){return x-1;});
-
-    return transformed_labels;
+    return labels;
 
 }
 

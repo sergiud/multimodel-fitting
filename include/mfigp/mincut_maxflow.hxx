@@ -29,12 +29,11 @@
 
 namespace mfigp {
 
-template<typename C>
+template<typename C, typename label_type>
 class MinCut_MaxFlow {
 
     public:
         typedef typename C::computation_type   computation_type;
-        typedef typename C::label_type          label_type;
         typedef typename C::sampleid_type      sampleid_type;
 
     public:
@@ -55,8 +54,8 @@ class MinCut_MaxFlow {
 
 };
 
-template<typename C>
-inline void MinCut_MaxFlow<C>::run(
+template<typename C, typename label_type>
+inline void MinCut_MaxFlow<C, label_type>::run(
     sampleid_type sample_count,
     label_type hypothesis_count,
     sampleid_type sample_stride,
