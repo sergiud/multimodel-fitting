@@ -22,12 +22,15 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-drawer_2d drawer("MultiModelFitting Visualization", 900, 900, 0.0f, 0.0f, 1.0f, 1.0f);
+drawer_2d& drawer_2d::get_instance(){
+    static drawer_2d drawer("MultiModelFitting Visualization", 900, 900, 0.0f, 0.0f, 1.0f, 1.0f);
+    return drawer;
+}
 
-drawer_2d::drawer_2d(const char * name, unsigned int width, unsigned int height, float x_min, float y_min, float x_max, float y_max)
-    : width(width), height(height),
-    x_min(x_min), x_max(x_max), y_min(y_min), y_max(y_max),
-    visu(cv::Mat::zeros(height, width, CV_8UC3)),
+drawer_2d::drawer_2d(const char * name, unsigned int width_, unsigned int height_, float x_min_, float y_min_, float x_max_, float y_max_)
+    : width(width_), height(height_),
+    x_min(x_min_), x_max(x_max_), y_min(y_min_), y_max(y_max_),
+    visu(cv::Mat::zeros(int(height_), int(width_), CV_8UC3)),
     disp(name),
     rnd_gen(2), col_hue_detail_gen(0.0f,1.0f), col_hue_raw_gen(0,5)
 {
@@ -66,8 +69,8 @@ void drawer_2d::draw_point(point_2d point, std::array<unsigned char, 3> const & 
 {
     float pos_x_f = (point.x - x_min) / (x_max - x_min);
     float pos_y_f = (point.y - y_min) / (y_max - y_min);
-    unsigned int pos_x = static_cast<unsigned int>(pos_x_f * width);
-    unsigned int pos_y = static_cast<unsigned int>(pos_y_f * height);
+    int pos_x = static_cast<int>(pos_x_f * width);
+    int pos_y = static_cast<int>(pos_y_f * height);
 
     cv::rectangle(visu, cv::Point(pos_x - 2, pos_y - 2),
                         cv::Point(pos_x + 2, pos_y + 2),
@@ -78,8 +81,8 @@ void drawer_2d::draw_cross(point_2d point, std::array<unsigned char, 3> const & 
 {
     float pos_x_f = (point.x - x_min) / (x_max - x_min);
     float pos_y_f = (point.y - y_min) / (y_max - y_min);
-    unsigned int pos_x = static_cast<unsigned int>(pos_x_f * width);
-    unsigned int pos_y = static_cast<unsigned int>(pos_y_f * height);
+    int pos_x = static_cast<int>(pos_x_f * width);
+    int pos_y = static_cast<int>(pos_y_f * height);
 
     cv::line(visu, cv::Point(pos_x - 2, pos_y - 2),
                    cv::Point(pos_x + 2, pos_y + 2),
@@ -114,9 +117,9 @@ void drawer_2d::set_datapoints(std::vector<point_2d> const & points)
     this->datapoints = points;
 }
 
-void drawer_2d::set_hypotheses(std::vector<line_2d> const & hypotheses)
+void drawer_2d::set_hypotheses(std::vector<line_2d> const & hypotheses_)
 {
-    this->hypotheses = hypotheses;
+    this->hypotheses = hypotheses_;
 
     colors_dots.clear();
     colors_lines.clear();

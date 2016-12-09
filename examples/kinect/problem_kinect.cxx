@@ -29,6 +29,7 @@ problem_kinect::debug_output( std::vector<internal_label_type> const & labels,
     std::vector<label_type> transformed_labels(labels.size());
     std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
                    [](internal_label_type x){return label_type(x)-1;});
+    drawer_kinect& drawer = drawer_kinect::get_instance();
     drawer.draw_labeled(transformed_labels);
     drawer.sleep(1);
 }

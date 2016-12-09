@@ -31,6 +31,11 @@ set(SOURCES
 set(IMAGE_DEPTH cabinet_depth.png)
 set(IMAGE_RGB   cabinet_rgb.png)
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_definitions( "-Wno-exit-time-destructors" )
+endif()
+
+
 add_custom_command(
     OUTPUT img_depth.cxx
     COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_depth

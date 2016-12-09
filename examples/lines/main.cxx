@@ -22,7 +22,7 @@
 #include "datapoints.hxx"
 #include "problem_lines.hxx"
 
-int main(int argc, char *argv[]){
+int main(){
 
     try {
 
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]){
         auto hypotheses = config.generateHypotheses(datapoints, 1000);
 
         // Initialization of drawer
+        drawer_2d& drawer = drawer_2d::get_instance();
         drawer.set_datapoints(datapoints);
         drawer.set_hypotheses(hypotheses);
         drawer.draw_all();

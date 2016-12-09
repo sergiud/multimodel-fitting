@@ -104,6 +104,7 @@ problem_lines::debug_output(
     std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
                    [](internal_label_type x){return label_type(x)-1;});
 
+    drawer_2d& drawer = drawer_2d::get_instance();
     drawer.draw_labeled(transformed_labels);
     drawer.sleep(100);
 }
@@ -188,11 +189,11 @@ problem_lines::generateHypotheses(std::vector<point_2d> const & points,
 
         // generate propabilities for second point
         std::vector<double> prob_weights(points.size());
-        for(size_t i = 0; i < points.size(); i++){
-            if(i == p1)
-                prob_weights[i] = 0.0;
+        for(size_t j = 0; j < points.size(); j++){
+            if(j == p1)
+                prob_weights[j] = 0.0;
             else
-                prob_weights[i] = points[p1].dist(points[i]);
+                prob_weights[j] = points[p1].dist(points[j]);
         }
 
         // initialize random gen for second point
@@ -208,8 +209,8 @@ problem_lines::generateHypotheses(std::vector<point_2d> const & points,
 
         // count number of inliers for this hypothesis
         size_t num_inliers = 0;
-        for(size_t i = 0; i < points.size(); i++){
-            double val = computeResidual(points[i], line);
+        for(size_t j = 0; j < points.size(); j++){
+            double val = computeResidual(points[j], line);
             if (val < 0) val = -val;
             if(val < getNoiseLevel()){
                 num_inliers++;

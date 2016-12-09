@@ -27,8 +27,9 @@
 class drawer_kinect {
 private:
     drawer_kinect();
-public:
     drawer_kinect(const char* name);
+public:
+    static drawer_kinect& get_instance();
     void set_datapoints(std::vector<point_3d> const &);
     void set_neighbourhood(std::vector<std::array<size_t, 2>> const & neighbourhood);
     void set_hypothesis_count(size_t);
@@ -53,5 +54,3 @@ private:
     std::array<float, 3> generate_color();
 
 };
-
-extern drawer_kinect drawer;
