@@ -130,7 +130,7 @@ public:
 	Block(int size, void (*err_function)(const char *) = NULL) { first = last = NULL; block_size = size; error_function = err_function; }
 
 	/* Destructor. Deallocates all items added so far */
-	~Block() { while (first) { block *next = first -> next; delete[] ((char*)first); first = next; } }
+	~Block() { while (first) { block *next = first -> next; delete[] (reinterpret_cast<char*>(first)); first = next; } }
 
 	/* Allocates 'num' consecutive items; returns pointer
 	   to the first item. 'num' cannot be greater than the
@@ -144,7 +144,7 @@ public:
 			if (last && last->next) last = last -> next;
 			else
 			{
-				block *next = (block *) new char [sizeof(block) + size_t(block_size-1)*sizeof(Type)];
+				block *next = reinterpret_cast<block *>(new char [sizeof(block) + size_t(block_size-1)*sizeof(Type)]);
 				if (!next) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 				if (last) last -> next = next;
 				else first = next;
@@ -260,7 +260,7 @@ public:
 	DBlock(int size, void (*err_function)(const char *) = NULL) { first = NULL; first_free = NULL; block_size = size; error_function = err_function; }
 
 	/* Destructor. Deallocates all items added so far */
-	~DBlock() { while (first) { block *next = first -> next; delete[] ((char*)first); first = next; } }
+	~DBlock() { while (first) { block *next = first -> next; delete[] (reinterpret_cast<char*>(first)); first = next; } }
 
 	/* Allocates one item */
 	Type *New()
@@ -270,7 +270,7 @@ public:
 		if (!first_free)
 		{
 			block *next = first;
-			first = (block *) new char [sizeof(block) + size_t(block_size-1)*sizeof(block_item)];
+			first = reinterpret_cast<block *>(new char [sizeof(block) + size_t(block_size-1)*sizeof(block_item)]);
 			if (!first) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 			first_free = & (first -> data[0] );
 			for (item=first_free; item<first_free+block_size-1; item++)
@@ -281,14 +281,14 @@ public:
 
 		item = first_free;
 		first_free = item -> next_free;
-		return (Type *) item;
+		return reinterpret_cast<Type *>(item);
 	}
 
 	/* Deletes an item allocated previously */
 	void Delete(Type *t)
 	{
-		((block_item *) t) -> next_free = first_free;
-		first_free = (block_item *) t;
+		reinterpret_cast<block_item *>(t) -> next_free = first_free;
+		first_free = reinterpret_cast<block_item *>(t);
 	}
 
 /***********************************************************************/

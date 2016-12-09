@@ -39,8 +39,8 @@ template <typename captype, typename tcaptype, typename flowtype>
 	if (node_num_max < 16) node_num_max = 16;
 	if (edge_num_max < 16) edge_num_max = 16;
 
-	nodes = (node*) malloc(size_t(node_num_max)*sizeof(node));
-	arcs = (arc*) malloc(2*size_t(edge_num_max)*sizeof(arc));
+	nodes = static_cast<node*>(malloc(size_t(node_num_max)*sizeof(node)));
+	arcs = static_cast<arc*>(malloc(2*size_t(edge_num_max)*sizeof(arc)));
 	if (!nodes || !arcs) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 
 	node_last = nodes;
@@ -84,12 +84,12 @@ template <typename captype, typename tcaptype, typename flowtype>
 template <typename captype, typename tcaptype, typename flowtype>
 	void Graph<captype,tcaptype,flowtype>::reallocate_nodes(int num)
 {
-	int node_num_max = (int)(node_max - nodes);
+	int node_num_max = int(node_max - nodes);
 	node* nodes_old = nodes;
 
 	node_num_max += node_num_max / 2;
 	if (node_num_max < node_num + num) node_num_max = node_num + num;
-	nodes = (node*) realloc(nodes_old, size_t(node_num_max)*sizeof(node));
+	nodes = static_cast<node*>(realloc(nodes_old, size_t(node_num_max)*sizeof(node)));
 	if (!nodes) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 
 	node_last = nodes + node_num;
@@ -101,11 +101,11 @@ template <typename captype, typename tcaptype, typename flowtype>
 		arc* a;
 		for (i=nodes; i<node_last; i++)
 		{
-			if (i->next) i->next = (node*) ((char*)i->next + (((char*) nodes) - ((char*) nodes_old)));
+			if (i->next) i->next = reinterpret_cast<node*> (reinterpret_cast<char*>(i->next) + (reinterpret_cast<char*>(nodes) - reinterpret_cast<char*>(nodes_old)));
 		}
 		for (a=arcs; a<arc_last; a++)
 		{
-			a->head = (node*) ((char*)a->head + (((char*) nodes) - ((char*) nodes_old)));
+			a->head = reinterpret_cast<node*> (reinterpret_cast<char*>(a->head) + (reinterpret_cast<char*>(nodes) - reinterpret_cast<char*>(nodes_old)));
 		}
 	}
 }
@@ -113,12 +113,12 @@ template <typename captype, typename tcaptype, typename flowtype>
 template <typename captype, typename tcaptype, typename flowtype>
 	void Graph<captype,tcaptype,flowtype>::reallocate_arcs()
 {
-	int arc_num_max = (int)(arc_max - arcs);
-	int arc_num = (int)(arc_last - arcs);
+	int arc_num_max = int(arc_max - arcs);
+	int arc_num = int(arc_last - arcs);
 	arc* arcs_old = arcs;
 
 	arc_num_max += arc_num_max / 2; if (arc_num_max & 1) arc_num_max ++;
-	arcs = (arc*) realloc(arcs_old, size_t(arc_num_max)*sizeof(arc));
+	arcs = static_cast<arc*>(realloc(arcs_old, size_t(arc_num_max)*sizeof(arc)));
 	if (!arcs) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
 
 	arc_last = arcs + arc_num;
@@ -130,18 +130,18 @@ template <typename captype, typename tcaptype, typename flowtype>
 		arc* a;
 		for (i=nodes; i<node_last; i++)
 		{
-			if (i->first) i->first = (arc*) ((char*)i->first + (((char*) arcs) - ((char*) arcs_old)));
-			if (i->parent && i->parent != ORPHAN && i->parent != TERMINAL) i->parent = (arc*) ((char*)i->parent + (((char*) arcs) - ((char*) arcs_old)));
+			if (i->first) i->first = reinterpret_cast<arc*> (reinterpret_cast<char*>(i->first) + (reinterpret_cast<char*>(arcs) - reinterpret_cast<char*>(arcs_old)));
+			if (i->parent && i->parent != ORPHAN && i->parent != TERMINAL) i->parent = reinterpret_cast<arc*> (reinterpret_cast<char*>(i->parent) + (reinterpret_cast<char*>(arcs) - reinterpret_cast<char*>(arcs_old)));
 		}
 		for (a=arcs; a<arc_last; a++)
 		{
-			if (a->next) a->next = (arc*) ((char*)a->next + (((char*) arcs) - ((char*) arcs_old)));
-			a->sister = (arc*) ((char*)a->sister + (((char*) arcs) - ((char*) arcs_old)));
+			if (a->next) a->next = reinterpret_cast<arc*>(reinterpret_cast<char*>(a->next) + (reinterpret_cast<char*>(arcs) - reinterpret_cast<char*> (arcs_old)));
+			a->sister = reinterpret_cast<arc*>(reinterpret_cast<char*>(a->sister) + (reinterpret_cast<char*>(arcs) - reinterpret_cast<char*>(arcs_old)));
 		}
 	}
 }
 
-static const int INFINITE_D = ((int)(((unsigned)-1)/2));		/* infinite distance to the terminal */
+static const int INFINITE_D = int(unsigned(-1)/2);		/* infinite distance to the terminal */
 
 /***********************************************************************/
 
@@ -237,7 +237,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 	if (changed_list && !i->is_in_changed_list)
 	{
 		node_id* ptr = changed_list->New();
-		*ptr = (node_id)(i - nodes);
+		*ptr = node_id(i - nodes);
 		i->is_in_changed_list = true;
 	}
 }
