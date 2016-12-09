@@ -38,10 +38,8 @@ class MinCut_MaxFlow {
 
     public:
         static void run(
-            sampleid_type sample_count,
-            label_type hypothesis_count,
-            sampleid_type sample_stride,
-            label_type label_stride,
+            size_t sample_count,
+            size_t label_stride,
             label_type alpha_label,
             std::vector<label_type> const & labeling,
             std::vector<label_type> & new_labeling,
@@ -56,10 +54,8 @@ class MinCut_MaxFlow {
 
 template<typename C, typename label_type>
 inline void MinCut_MaxFlow<C, label_type>::run(
-    sampleid_type sample_count,
-    label_type hypothesis_count,
-    sampleid_type sample_stride,
-    label_type label_stride,
+    size_t sample_count,
+    size_t label_stride,
     label_type alpha_label,
     std::vector<label_type> const & labeling,
     std::vector<label_type> & new_labeling,

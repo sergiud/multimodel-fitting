@@ -43,7 +43,6 @@ class AlphaExpansionFitter {
             C & config,
             size_t sample_count,
             size_t hypothesis_count,
-            size_t sample_stride,
             size_t label_stride,
             std::vector< std::array<sampleid_type,2> > const & neighbourhood,
             computation_type smoothing_penalty,
@@ -55,8 +54,6 @@ class AlphaExpansionFitter {
     private:
         static computation_type compute_value(
             size_t sample_count,
-            size_t hypothesis_count,
-            size_t sample_stride,
             size_t label_stride,
             std::vector<internal_label_type> const & labeling,
             std::vector<std::array<sampleid_type, 2>> const & neighbourhood,
@@ -72,8 +69,6 @@ template<typename C>
 inline typename C::computation_type
 AlphaExpansionFitter<C>::compute_value(
     size_t sample_count,
-    size_t hypothesis_count,
-    size_t sample_stride,
     size_t label_stride,
     std::vector<internal_label_type> const & labeling,
     std::vector< std::array<sampleid_type,2> > const & neighbourhood,
@@ -123,7 +118,6 @@ AlphaExpansionFitter<C>::fit(
     C & config,
     size_t sample_count,
     size_t hypothesis_count,
-    size_t sample_stride,
     size_t label_stride,
     std::vector< std::array<sampleid_type,2> > const & neighbourhood,
     computation_type smoothing_penalty,
@@ -145,8 +139,6 @@ AlphaExpansionFitter<C>::fit(
     bool changed;
     bool outlier_check_needed = false;
     double current_value = compute_value( sample_count,
-                                          hypothesis_count,
-                                          sample_stride,
                                           label_stride,
                                           *labeling,
                                           neighbourhood,
@@ -165,8 +157,6 @@ AlphaExpansionFitter<C>::fit(
             // Do the actual graph cut
             MinCut_MaxFlow<C, internal_label_type>::run(
                 sample_count,
-                hypothesis_count,
-                sample_stride,
                 label_stride,
                 alpha_label,
                 *labeling,
@@ -181,8 +171,6 @@ AlphaExpansionFitter<C>::fit(
             // Compute new value
             computation_type new_value = compute_value(
                 sample_count,
-                hypothesis_count,
-                sample_stride,
                 label_stride,
                 *new_labeling,
                 neighbourhood,
@@ -208,8 +196,6 @@ AlphaExpansionFitter<C>::fit(
                 // Do the actual graph cut
                 MinCut_MaxFlow<C, internal_label_type>::run(
                     sample_count,
-                    hypothesis_count,
-                    sample_stride,
                     label_stride,
                     0,
                     *labeling,
@@ -224,8 +210,6 @@ AlphaExpansionFitter<C>::fit(
                 // Compute new value
                 new_value = compute_value(
                     sample_count,
-                    hypothesis_count,
-                    sample_stride,
                     label_stride,
                     *new_labeling,
                     neighbourhood,

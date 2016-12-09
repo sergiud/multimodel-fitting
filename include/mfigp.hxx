@@ -62,10 +62,7 @@ private:
     std::vector<hypothesis_type> hypotheses;
 
 private:
-    // Callback functions. This is needed because the
-    // actual implementation is free of templates.
-    sampleid_type get_sample_count() const;
-    label_type get_hypothesis_count() const;
+    // Interface funcions to config
     std::vector<std::array<sampleid_type,2>>
         getNeighbourhood(C& config) const;
     computation_type getResidual( C& config,
@@ -81,31 +78,30 @@ private:
 
 template<class C>
 inline void MultiModelFitter<C>::set_samples(
-    std::vector<typename C::sample_type> const & samples)
+    std::vector<typename C::sample_type> const & samples_)
 {
     this->samples.clear();
-    this->samples.assign(samples.begin(), samples.end());
+    this->samples.assign(samples_.begin(), samples_.end());
 }
 
 template<class C>
 inline void MultiModelFitter<C>::set_hypotheses(
-    std::vector<typename C::hypothesis_type> const & hypotheses)
+    std::vector<typename C::hypothesis_type> const & hypotheses_)
 {
-    label_type hypothesis_size = static_cast<label_type>(hypotheses.size());
-    if (hypothesis_size != hypotheses.size()) {
+    label_type hypothesis_size = static_cast<label_type>(hypotheses_.size());
+    if (size_t(hypothesis_size) != hypotheses_.size() || hypothesis_size < 0) {
         throw std::runtime_error("Too many hypotheses!");
     }
     this->hypotheses.clear();
-    this->hypotheses.assign(hypotheses.begin(), hypotheses.end());
+    this->hypotheses.assign(hypotheses_.begin(), hypotheses_.end());
 }
 
 template<class C>
 inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
 {
-    size_t hypothesis_count = get_hypothesis_count();
-    size_t sample_count = get_sample_count();
+    size_t hypothesis_count = hypotheses.size();
+    size_t sample_count = samples.size();
     size_t label_stride = hypothesis_count + 1;
-    size_t sample_stride = sample_count;
 
     // compute fitting penalties
     std::vector<computation_type> fitting_penalties(sample_count * label_stride);
@@ -119,7 +115,7 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
             fitting_penalties[size_t(sample_id) * label_stride + 0] = 1;
 
             // Set penalty for inliers
-            for(label_type label_id = 0; label_id < hypothesis_count; label_id++){
+            for(label_type label_id = 0; size_t(label_id) < hypothesis_count; label_id++){
                 computation_type residual = getResidual(config, sample_id,
                                                                 size_t(label_id));
                 computation_type normalized_residual = residual / noise_level;
@@ -145,7 +141,7 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
         hypothesis_penalties[0] = 0;
 
         // set penalty for inlier labels
-        for(label_type label_id = 0; label_id < hypothesis_count; label_id++){
+        for(label_type label_id = 0; size_t(label_id) < hypothesis_count; label_id++){
             hypothesis_penalties[size_t(label_id+1)] = getHypothesisCost(config, size_t(label_id))
                                              * highlevel_constraint_weight;
         }
@@ -157,8 +153,8 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
         label_stride*(hypothesis_count + 1) );
     {
 
-        for(label_type label1 = 0; label1 < hypothesis_count+1; label1++){
-            for(label_type label2 = 0; label2 < hypothesis_count+1; label2++){
+        for(label_type label1 = 0; size_t(label1) < hypothesis_count+1; label1++){
+            for(label_type label2 = 0; size_t(label2) < hypothesis_count+1; label2++){
 
                 computation_type cost = 0;
 
@@ -184,7 +180,7 @@ inline std::vector<typename C::label_type> MultiModelFitter<C>::fit(C& config)
     std::vector<label_type> labels =
         AlphaExpansionFitter<C>::fit(
             config,
-            sample_count, hypothesis_count+1, sample_stride, label_stride,
+            sample_count, hypothesis_count+1, label_stride,
             neighbourhood, smoothing_penalty, fitting_penalties,
             hypothesis_penalties, hypothesis_interaction_penalties
         );
@@ -203,20 +199,6 @@ template<class C>
 inline void MultiModelFitter<C>::clear_hypotheses()
 {
     this->hypotheses.clear();
-}
-
-template<class C>
-inline typename C::sampleid_type
-MultiModelFitter<C>::get_sample_count() const
-{
-    return static_cast<sampleid_type>(samples.size());
-}
-
-template<class C>
-inline typename C::label_type
-MultiModelFitter<C>::get_hypothesis_count() const
-{
-    return static_cast<label_type>(hypotheses.size());
 }
 
 template<class C>
