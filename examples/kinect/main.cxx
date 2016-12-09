@@ -21,6 +21,7 @@
 #include "data_reader.hxx"
 #include "problem_kinect.hxx"
 #include "drawer_kinect.hxx"
+//#include "result_writer.hxx"
 
 int main(){
 
@@ -62,6 +63,10 @@ int main(){
         // wait for the user to close the window
         drawer.draw_labeled(labeling);
 
+        // write result
+        //result_writer::write_stdout(labeling, datapoints);
+
+        // wait for user to close the window
         drawer.wait();
 
     }
