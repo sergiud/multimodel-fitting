@@ -18,6 +18,7 @@ set(HEADERS
   data_reader.hxx
   problem_kinect.hxx
   drawer_kinect.hxx
+  result_writer.hxx
 )
 
 set(SOURCES

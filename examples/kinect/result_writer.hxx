@@ -48,12 +48,10 @@ inline void result_writer::write_stdout( std::vector<label_type> labels,
         else
             label_id = next_label_id++;
 
-        std::cout << "Label: " << label_id << std::endl;
-
         for(size_t i = 0; i < labels.size(); i++){
             if(labels[i] == label){
                 std::cout << points[i].x << "," << points[i].y << ","
-                          << points[i].z << std::endl;
+                          << points[i].z << "," << label_id << std::endl;
             }
         }
 
