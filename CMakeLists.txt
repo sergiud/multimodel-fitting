@@ -26,7 +26,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 
 # Add OpenCV dependency
-find_package(OpenCV REQUIRED)
+find_package(OpenCV REQUIRED core highgui calib3d imgproc)
 include_directories("${OpenCV_INCLUDE_DIRS}")
 
 # Add C++11
