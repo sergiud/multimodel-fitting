@@ -23,12 +23,13 @@
 #include "drawer_kinect.hxx"
 
 void
-problem_kinect::debug_output( std::vector<label_type> const & labels,
+problem_kinect::debug_output( std::vector<internal_label_type> const & labels,
                               computation_type value ){
     std::cout << "Value: " << value << std::endl;
     std::vector<label_type> transformed_labels(labels.size());
     std::transform(labels.begin(), labels.end(), transformed_labels.begin(),
-                   [](label_type x){return x-1;});
+                   [](internal_label_type x){return label_type(x)-1;});
+    drawer_kinect& drawer = drawer_kinect::get_instance();
     drawer.draw_labeled(transformed_labels);
     drawer.sleep(1);
 }
@@ -39,10 +40,10 @@ extern size_t img_depth_len;
 std::vector<std::array<problem_kinect::sampleid_type,2>>
 problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
-    float x_max = samples[0].u;
-    float y_max = samples[0].v;
-    float x_min = x_max;
-    float y_min = y_max;
+    int x_max = samples[0].u;
+    int y_max = samples[0].v;
+    int x_min = x_max;
+    int y_min = y_max;
     for(auto const & sample : samples){
         if(sample.u > x_max) x_max = sample.u;
         if(sample.u < x_min) x_min = sample.u;
@@ -51,13 +52,17 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
     }
 
     // Feed data to Subdiv2D
-    cv::Rect rect(int(floor(x_min - 0.1f)), int(floor(y_min - 0.1f)), int(ceil(x_max + 0.1f) - floor(x_min - 0.1f)), int(ceil(y_max + 0.1f) - floor(y_min - 0.1f)));
+    const float epsilon = 0.1f;
+    cv::Rect rect( int(floor(x_min - epsilon)),
+                   int(floor(y_min - epsilon)),
+                   int(ceil(x_max + epsilon) - floor(x_min - epsilon)),
+                   int(ceil(y_max + epsilon) - floor(y_min - epsilon)));
     cv::Subdiv2D subdiv(rect);
     std::vector<int> vertexIDs(samples.size());
     std::map<int, size_t> reverseVertexIDs;
     for(size_t i = 0; i < samples.size(); i++){
         auto const & sample = samples[i];
-        vertexIDs[i] = subdiv.insert(cv::Point2f(sample.u, sample.v));
+        vertexIDs[i] = subdiv.insert(cv::Point2f(float(sample.u), float(sample.v)));
         reverseVertexIDs[vertexIDs[i]] = i;
     }
 
@@ -98,7 +103,7 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
 double
 problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
-    if(p.z == 0)
+    if(p.is_outlier)
         return 2;
     return h.dist(p);
 }
@@ -110,7 +115,7 @@ problem_kinect::getNoiseLevel(){
 
 double
 problem_kinect::getNeighbourhoodWeight(){
-    return 0.1;
+    return 0.15;
 }
 
 double
@@ -171,8 +176,8 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
     const size_t NUM_NEAREST_NEIGHBOURS = 200;
 
     // initialize random gen
-    //std::random_device rd;
-    std::mt19937 gen(3);//rd());
+    std::random_device rd;
+    std::mt19937 gen(rd());
     auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
     auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
 
@@ -209,7 +214,7 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
 
 
 
-        if(p0.z == 0 || p1->z == 0 || p2->z == 0){
+        if( p0.is_outlier || p1->is_outlier || p2->is_outlier ){
             continue;
         }
 

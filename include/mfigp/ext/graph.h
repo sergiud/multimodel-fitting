@@ -146,8 +146,8 @@ public:
 private:
 	struct node;
 	struct arc;
-    arc* TERMINAL = (arc *) 1;
-    arc* ORPHAN = (arc *) 2;
+    arc* TERMINAL = reinterpret_cast<arc *>(1);
+    arc* ORPHAN = reinterpret_cast<arc *>(2);
 
 public:
 
@@ -183,7 +183,7 @@ public:
 
 	// other functions for reading graph structure
 	int get_node_num() { return node_num; }
-	int get_arc_num() { return (int)(arc_last - arcs); }
+	int get_arc_num() { return int(arc_last - arcs); }
 	void get_arc_ends(arc_id a, node_id& i, node_id& j); // returns i,j to that a = i->j
 
 	///////////////////////////////////////////////////
@@ -379,7 +379,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	if (node_last + num > node_max) reallocate_nodes(num);
 
-	memset(node_last, 0, num*sizeof(node));
+	memset(node_last, 0, size_t(num)*sizeof(node));
 
 	node_id i = node_num;
 	node_num += num;
@@ -444,8 +444,8 @@ template <typename captype, typename tcaptype, typename flowtype>
 	inline void Graph<captype,tcaptype,flowtype>::get_arc_ends(arc* a, node_id& i, node_id& j)
 {
 	assert(a >= arcs && a < arc_last);
-	i = (node_id) (a->sister->head - nodes);
-	j = (node_id) (a->head - nodes);
+	i = node_id(a->sister->head - nodes);
+	j = node_id(a->head - nodes);
 }
 
 template <typename captype, typename tcaptype, typename flowtype>

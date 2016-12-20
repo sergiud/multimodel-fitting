@@ -18,6 +18,7 @@ set(HEADERS
   data_reader.hxx
   problem_kinect.hxx
   drawer_kinect.hxx
+  result_writer.hxx
 )
 
 set(SOURCES
@@ -31,16 +32,21 @@ set(SOURCES
 set(IMAGE_DEPTH cabinet_depth.png)
 set(IMAGE_RGB   cabinet_rgb.png)
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_definitions( "-Wno-exit-time-destructors" )
+endif()
+
+
 add_custom_command(
     OUTPUT img_depth.cxx
-    COMMAND ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_depth
+    COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_depth
             ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_DEPTH} img_depth.cxx
     DEPENDS data/${IMAGE_DEPTH} embed_resource.py
 )
 
 add_custom_command(
     OUTPUT img_rgb.cxx
-    COMMAND ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_rgb
+    COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_rgb
             ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_RGB} img_rgb.cxx
     DEPENDS data/${IMAGE_RGB} embed_resource.py
 )

@@ -23,7 +23,8 @@
 class problem_kinect : public mfigp::config<point_3d, plane_3d>{
 
 public:
-    void debug_output( std::vector<label_type> const &, computation_type );
+
+    void debug_output( std::vector<internal_label_type> const &, computation_type );
 
     std::vector<std::array<sampleid_type,2>>
         computeNeighbourhood( std::vector<point_3d> const & );

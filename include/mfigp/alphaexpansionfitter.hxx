@@ -31,18 +31,19 @@ template<typename C>
 class AlphaExpansionFitter {
 
     public:
-        typedef typename C::computation_type   computation_type;
-        typedef typename C::label_type         label_type;
-        typedef typename C::sampleid_type      sampleid_type;
+        typedef typename C::computation_type    computation_type;
+        typedef typename C::label_type          label_type;
+        typedef typename C::sampleid_type       sampleid_type;
+        typedef typename std::make_unsigned<label_type>::type
+                                                internal_label_type;
 
     public:
 
         static std::vector<label_type> fit(
             C & config,
-            sampleid_type sample_count,
-            label_type hypothesis_count,
-            sampleid_type sample_stride,
-            label_type label_stride,
+            size_t sample_count,
+            size_t hypothesis_count,
+            size_t label_stride,
             std::vector< std::array<sampleid_type,2> > const & neighbourhood,
             computation_type smoothing_penalty,
             std::vector<computation_type> const & fitting_penalties,
@@ -52,11 +53,9 @@ class AlphaExpansionFitter {
 
     private:
         static computation_type compute_value(
-            sampleid_type sample_count,
-            label_type hypothesis_count,
-            sampleid_type sample_stride,
-            label_type label_stride,
-            std::vector<label_type> const & labeling,
+            size_t sample_count,
+            size_t label_stride,
+            std::vector<internal_label_type> const & labeling,
             std::vector<std::array<sampleid_type, 2>> const & neighbourhood,
             computation_type smoothing_penalty,
             std::vector<computation_type> const & fitting_penalties,
@@ -69,11 +68,9 @@ class AlphaExpansionFitter {
 template<typename C>
 inline typename C::computation_type
 AlphaExpansionFitter<C>::compute_value(
-    sampleid_type sample_count,
-    label_type hypothesis_count,
-    sampleid_type sample_stride,
-    label_type label_stride,
-    std::vector<label_type> const & labeling,
+    size_t sample_count,
+    size_t label_stride,
+    std::vector<internal_label_type> const & labeling,
     std::vector< std::array<sampleid_type,2> > const & neighbourhood,
     computation_type smoothing_penalty,
     std::vector<computation_type> const & fitting_penalties,
@@ -84,21 +81,21 @@ AlphaExpansionFitter<C>::compute_value(
 
     // Fitting penalty
     for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
-        label_type label = labeling[sample_id];
+        internal_label_type label = labeling[sample_id];
         result += fitting_penalties[sample_id * label_stride + label];
     }
 
     // Smoothing penalty
     for(auto const & neighbour_pair : neighbourhood){
-        label_type label0 = labeling[neighbour_pair[0]];
-        label_type label1 = labeling[neighbour_pair[1]];
+        internal_label_type label0 = labeling[neighbour_pair[0]];
+        internal_label_type label1 = labeling[neighbour_pair[1]];
         if(label0 != label1)
             result += smoothing_penalty;
     }
 
     // Hypothesis Penalties
-    std::set<label_type> active_labels( labeling.begin(),
-                                        labeling.end() );
+    std::set<internal_label_type> active_labels( labeling.begin(),
+                                                 labeling.end() );
 
     for(auto const & label : active_labels){
         result += hypothesis_penalties[label];
@@ -119,22 +116,22 @@ template<typename C>
 inline std::vector<typename C::label_type>
 AlphaExpansionFitter<C>::fit(
     C & config,
-    sampleid_type sample_count,
-    label_type hypothesis_count,
-    sampleid_type sample_stride,
-    label_type label_stride,
+    size_t sample_count,
+    size_t hypothesis_count,
+    size_t label_stride,
     std::vector< std::array<sampleid_type,2> > const & neighbourhood,
     computation_type smoothing_penalty,
     std::vector<computation_type> const & fitting_penalties,
     std::vector<computation_type> const & hypothesis_penalties,
     std::vector<computation_type> const & hypothesis_interaction_penalties )
 {
-    // Create initial labeling
-    std::vector<label_type> labeling_array_1(sample_count);
-    std::vector<label_type> labeling_array_2(sample_count);
 
-    std::vector<label_type> *labeling = &labeling_array_1;
-    std::vector<label_type> *new_labeling = &labeling_array_2;
+    // Create initial labeling
+    std::vector<internal_label_type> labeling_array_1(sample_count);
+    std::vector<internal_label_type> labeling_array_2(sample_count);
+
+    std::vector<internal_label_type> *labeling = &labeling_array_1;
+    std::vector<internal_label_type> *new_labeling = &labeling_array_2;
     for(sampleid_type i = 0; i < labeling->size(); i++){
         (*labeling)[i] = 0;
     }
@@ -142,8 +139,6 @@ AlphaExpansionFitter<C>::fit(
     bool changed;
     bool outlier_check_needed = false;
     double current_value = compute_value( sample_count,
-                                          hypothesis_count,
-                                          sample_stride,
                                           label_stride,
                                           *labeling,
                                           neighbourhood,
@@ -155,15 +150,13 @@ AlphaExpansionFitter<C>::fit(
     do {
         changed = false;
 
-        for(label_type alpha_label = 1; alpha_label < hypothesis_count; alpha_label++)
+        for(internal_label_type alpha_label = 1; alpha_label < hypothesis_count; alpha_label++)
         {
             //std::cout << "alpha: " << alpha_label << std::endl;
 
             // Do the actual graph cut
-            MinCut_MaxFlow<C>::run(
+            MinCut_MaxFlow<C, internal_label_type>::run(
                 sample_count,
-                hypothesis_count,
-                sample_stride,
                 label_stride,
                 alpha_label,
                 *labeling,
@@ -178,8 +171,6 @@ AlphaExpansionFitter<C>::fit(
             // Compute new value
             computation_type new_value = compute_value(
                 sample_count,
-                hypothesis_count,
-                sample_stride,
                 label_stride,
                 *new_labeling,
                 neighbourhood,
@@ -196,8 +187,6 @@ AlphaExpansionFitter<C>::fit(
                 config.debug_output(*labeling, current_value);
                 changed = true;
                 outlier_check_needed = true;
-            } else if (new_value > current_value){
-                std::cout << "~~~~WARNING~~~~" << std::endl;
             }
 
             // Check for outliers every 20 labels
@@ -205,10 +194,8 @@ AlphaExpansionFitter<C>::fit(
                 outlier_check_needed = false;
 
                 // Do the actual graph cut
-                MinCut_MaxFlow<C>::run(
+                MinCut_MaxFlow<C, internal_label_type>::run(
                     sample_count,
-                    hypothesis_count,
-                    sample_stride,
                     label_stride,
                     0,
                     *labeling,
@@ -223,8 +210,6 @@ AlphaExpansionFitter<C>::fit(
                 // Compute new value
                 new_value = compute_value(
                     sample_count,
-                    hypothesis_count,
-                    sample_stride,
                     label_stride,
                     *new_labeling,
                     neighbourhood,
@@ -240,8 +225,6 @@ AlphaExpansionFitter<C>::fit(
                     current_value = new_value;
                     config.debug_output(*labeling, current_value);
                     changed = true;
-                } else if (new_value > current_value){
-                    std::cout << "~~~~WARNING~~~~" << std::endl;
                 }
             }
         }
@@ -249,11 +232,12 @@ AlphaExpansionFitter<C>::fit(
     } while (changed);
 
     assert(labeling == &labeling_array_1 || labeling == &labeling_array_2);
-    if(labeling == &labeling_array_1){
-        return labeling_array_1;
-    } else {
-        return labeling_array_2;
-    }
+    std::vector<label_type> result_labels(sample_count);
+
+    std::transform(labeling->begin(), labeling->end(), result_labels.begin(),
+                   [](internal_label_type x){return label_type(x)-1;});
+
+    return result_labels;
 }
 
 }//namespace mfigp

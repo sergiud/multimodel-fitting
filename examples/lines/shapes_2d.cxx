@@ -31,8 +31,8 @@ float point_2d::dist(point_2d const & p) const
 
 line_2d::line_2d(point_2d const & p0, point_2d const & p1)
     : x0(p0.x), y0(p0.y),
-    dirx((p1.x - p0.x) / sqrt((p1.x - p0.x)*(p1.x - p0.x) + (p1.y - p0.y)*(p1.y - p0.y))),
-    diry((p1.y - p0.y) / sqrt((p1.x - p0.x)*(p1.x - p0.x) + (p1.y - p0.y)*(p1.y - p0.y)))
+    dirx((p1.x - p0.x) / sqrtf((p1.x - p0.x)*(p1.x - p0.x) + (p1.y - p0.y)*(p1.y - p0.y))),
+    diry((p1.y - p0.y) / sqrtf((p1.x - p0.x)*(p1.x - p0.x) + (p1.y - p0.y)*(p1.y - p0.y)))
 {
 }
 

@@ -27,8 +27,9 @@
 class drawer_2d {
 private:
     drawer_2d();
-public:
     drawer_2d(const char* name, unsigned int width, unsigned int height, float x_min, float y_min, float x_max, float y_max);
+public:
+    static drawer_2d& get_instance();
     void clear();
     void draw_line(line_2d line, std::array<unsigned char,3> const & color);
     void draw_point(point_2d point, std::array<unsigned char, 3> const & color);
@@ -67,7 +68,7 @@ inline void drawer_2d::draw_labeled(std::vector<T> const & labels)
     std::fill(hypothesis_exists.begin(), hypothesis_exists.end(), false);
     for (size_t i = 0; i < labels.size(); i++) {
         if(labels[i] >= 0){
-            hypothesis_exists[labels[i]] = true;
+            hypothesis_exists[size_t(labels[i])] = true;
         }
     }
     for (size_t i = 0; i < hypotheses.size(); i++) {
@@ -78,12 +79,10 @@ inline void drawer_2d::draw_labeled(std::vector<T> const & labels)
     std::array<unsigned char, 3> outlier_color = {{128, 128, 128}};
     for (size_t i = 0; i < labels.size(); i++) {
         if(labels[i] >= 0){
-            draw_point(datapoints[i], colors_dots[labels[i]]);
+            draw_point(datapoints[i], colors_dots[size_t(labels[i])]);
         } else {
             draw_cross(datapoints[i], outlier_color);
         }
     }
     display();
 }
-
-extern drawer_2d drawer;

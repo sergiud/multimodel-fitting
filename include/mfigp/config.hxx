@@ -36,6 +36,8 @@ class config {
         typedef computation_type_   computation_type;
         typedef label_type_         label_type;
         typedef sampleid_type_      sampleid_type;
+        typedef typename std::make_unsigned<label_type>::type
+                                    internal_label_type;
 
     public:
 
@@ -47,7 +49,7 @@ class config {
         // 1 - label 0
         // 2 - label 1
         virtual void
-            debug_output( std::vector<label_type> const &, computation_type ) = 0;
+            debug_output( std::vector<internal_label_type> const &, computation_type ) = 0;
 
         // Compute neighbourhood connections between samples.
         // For example: delaunay triangulation

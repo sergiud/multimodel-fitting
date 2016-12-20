@@ -19,7 +19,11 @@
 #include <iostream>
 #include <random>
 
-drawer_kinect drawer("Kinect Fitting Visualization");
+drawer_kinect&
+drawer_kinect::get_instance(){
+    static drawer_kinect drawer("Kinect Fitting Visualization");
+    return drawer;
+}
 
 extern unsigned char img_rgb[];
 extern size_t img_rgb_len;
@@ -31,7 +35,7 @@ drawer_kinect::drawer_kinect(const char * name)
     std::vector<unsigned char> img_rgb_data(img_rgb,img_rgb+img_rgb_len);
     img_background = cv::imdecode(cv::Mat(img_rgb_data), CV_LOAD_IMAGE_GRAYSCALE);
 
-    unsigned int width, height;
+    int width, height;
     width=img_background.cols;
     height=img_background.rows;
 
@@ -55,10 +59,10 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
     auto outlier_color = CV_RGB(64,64,64);
 
     for (size_t i = 0; i < labels.size(); i++) {
-        size_t pos_x = datapoints[i].u;
-        size_t pos_y = datapoints[i].v;
+        int pos_x = datapoints[i].u;
+        int pos_y = datapoints[i].v;
         if(labels[i] >= 0){
-            auto const & color =  colors[labels[i]];
+            auto const & color =  colors[size_t(labels[i])];
             cv::rectangle(visu, cv::Point(pos_x - 1, pos_y - 1),
                                 cv::Point(pos_x + 1, pos_y + 1),
                                 CV_RGB(255*color[0], 255*color[1], 255*color[2]));
@@ -75,7 +79,7 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
     for(auto const & connection : neighbourhood){
         if(labels[connection[0]] != labels[connection[1]] ||
            labels[connection[0]] == -1) continue;
-        auto const & color = colors[labels[connection[0]]];
+        auto const & color = colors[size_t(labels[connection[0]])];
         auto const & p0 = datapoints[connection[0]];
         auto const & p1 = datapoints[connection[1]];
         cv::line(visu, cv::Point(p0.u, p0.v),
@@ -87,13 +91,13 @@ drawer_kinect::draw_labeled(std::vector<int32_t> const & labels){
 }
 
 void
-drawer_kinect::set_datapoints(std::vector<point_3d> const & datapoints){
-    this->datapoints = datapoints;
+drawer_kinect::set_datapoints(std::vector<point_3d> const & datapoints_){
+    this->datapoints = datapoints_;
 }
 
 void
-drawer_kinect::set_neighbourhood(std::vector<std::array<size_t, 2>> const & neighbourhood){
-    this->neighbourhood = neighbourhood;
+drawer_kinect::set_neighbourhood(std::vector<std::array<size_t, 2>> const & neighbourhood_){
+    this->neighbourhood = neighbourhood_;
 }
 
 void drawer_kinect::set_hypothesis_count(size_t count){
@@ -113,12 +117,12 @@ void drawer_kinect::clear()
 }
 
 void drawer_kinect::draw_connection(size_t id0, size_t id1){
-    unsigned int p0_x = datapoints[id0].u;
-    unsigned int p0_y = datapoints[id0].v;
-    unsigned int p1_x = datapoints[id1].u;
-    unsigned int p1_y = datapoints[id1].v;
+    int p0_x = datapoints[id0].u;
+    int p0_y = datapoints[id0].v;
+    int p1_x = datapoints[id1].u;
+    int p1_y = datapoints[id1].v;
 
-    cv::line(visu, cv::Point(p0_x, p0_y), cv::Point(p1_x, p1_y),
+    cv::line(visu, cv::Point_<int>(p0_x, p0_y), cv::Point_<int>(p1_x, p1_y),
              CV_RGB(255,255,255));
 }
 

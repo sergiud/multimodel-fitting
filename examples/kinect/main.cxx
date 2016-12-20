@@ -21,8 +21,9 @@
 #include "data_reader.hxx"
 #include "problem_kinect.hxx"
 #include "drawer_kinect.hxx"
+//#include "result_writer.hxx"
 
-int main(int argc, char *argv[]){
+int main(){
 
     try {
 
@@ -30,9 +31,10 @@ int main(int argc, char *argv[]){
 
         // Create the datapoints
         auto datapoints = data_reader::get();
-        auto hypotheses = config.generateHypotheses( datapoints, 500 );
+        auto hypotheses = config.generateHypotheses( datapoints, 1000 );
 
         // initialize drawer
+        drawer_kinect& drawer = drawer_kinect::get_instance();
         drawer.set_datapoints(datapoints);
         drawer.set_hypothesis_count(hypotheses.size());
         drawer.set_neighbourhood(config.computeNeighbourhood(datapoints));
@@ -61,6 +63,10 @@ int main(int argc, char *argv[]){
         // wait for the user to close the window
         drawer.draw_labeled(labeling);
 
+        // write result
+        //result_writer::write_stdout(labeling, datapoints);
+
+        // wait for user to close the window
         drawer.wait();
 
     }

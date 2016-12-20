@@ -46,7 +46,12 @@ endif()
 
 # Set global compiler flags
 if(NOT MSVC)
-    add_definitions( "-Wall" )
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        add_definitions( "-Weverything -Wno-padded -Wno-non-virtual-dtor
+                          -Wno-c++98-compat -Wno-cast-align" )
+    else()
+        add_definitions( "-Wall" ) # -Wpedantic -Wsign-conversion" )
+    endif()
 endif()
 
 # Add main include directory

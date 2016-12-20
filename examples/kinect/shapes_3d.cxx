@@ -20,8 +20,8 @@
 
 #include <iostream>
 
-point_3d::point_3d(float x, float y, float z, int u, int v)
-    : x(x), y(y), z(z), u(u), v(v)
+point_3d::point_3d( float x_, float y_, float z_, int u_, int v_, bool is_outlier_ )
+    : x(x_), y(y_), z(z_), u(u_), v(v_), is_outlier(is_outlier_)
 {
 }
 

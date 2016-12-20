@@ -20,7 +20,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Converts any file to a C resource file.')
 parser.add_argument('name', nargs=1, help='the name of the resource')
 parser.add_argument('infile', nargs=1, type=argparse.FileType('rb'), help='the input file')
-parser.add_argument('outfile', nargs=1, type=argparse.FileType('wb'), help='the output file name')
+parser.add_argument('outfile', nargs=1, type=argparse.FileType('w'), help='the output file name')
 
 args = parser.parse_args()
 
@@ -31,7 +31,9 @@ name = args.name[0]
 
 outfile = args.outfile[0]
 outfile.write('#include <cstddef>\n')
-outfile.write('unsigned char ' + name + '[] = {\n    ')
+
+outfile.write('extern const unsigned char ' + name + '[];')
+outfile.write('const unsigned char ' + name + '[] = {\n    ')
 
 i = 0
 for c in data :
@@ -43,5 +45,6 @@ for c in data :
     i = i + 1
 
 outfile.write('\n};\n')
-outfile.write('size_t ' + name + '_len = ' + str(len(data)) + ';\n')
+outfile.write('extern const size_t ' + name + '_len;\n')
+outfile.write('const size_t ' + name + '_len = ' + str(len(data)) + ';\n')
 
