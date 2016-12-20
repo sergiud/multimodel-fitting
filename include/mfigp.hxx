@@ -64,7 +64,12 @@ public:
     void set_hypotheses(std::vector<hypothesis_type> const & hypotheses);
     /**
      * \brief Executes the fitting algorithm
+     *
      * \param config An instance of the config class.
+     *
+     * \return A vector of labels, one for every sample. <BR>
+     *         The corresponding hypothesis is hypotheses[label] if label >= 0,
+     *         or outlier if label == -1.
      */
     std::vector<label_type> fit(C& config);
     /**

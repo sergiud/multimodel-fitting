@@ -34,3 +34,6 @@ set(DOCUMENTED_FILES ${DOCUMENTED_FILES}
 
 add_library(mfigp INTERFACE)
 target_sources(mfigp INTERFACE ${multimodelfitting_HEADERS})
+
+install( DIRECTORY mfigp DESTINATION include )
+install( FILES mfigp.hxx DESTINATION include )
