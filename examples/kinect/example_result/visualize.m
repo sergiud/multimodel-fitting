@@ -1,29 +1,22 @@
-img = imread('cabinet_depth.png');
+fil = fopen('output.txt','r');
+data=fscanf(fil,'%f,%f,%f,%f', [4 Inf]); 
+data=data';
+fclose(fil);
+
+points=[data(:,1), data(:,3), -data(:,2)];
+labels=data(:,4);
+
+colors = zeros(size(data,1), 3);
+colors(labels == 1,1) = 1;
+colors(labels == 2,2) = 1;
+colors(labels == 3,3) = 1;
+colors(labels == 4,1) = 1;
+colors(labels == 4,2) = 1;
+
+
 
 figure(1);
-imshow(img);
-colormap jet;
-
-fx=535.4;
-fy=539.2;
-cx=320.1;
-cy=247.6;
-
-factor=5000.0;
-
-points = zeros(3,sum(size(img)));
-for v = 1:size(img, 1)
-  for u = 1:size(img,2)
-    Z = double(img(v,u)) / factor;
-    X = (u - cx) * Z / fx;
-    Y = (v - cy) * Z / fy;
-    points(:,v*size(img,2) + u) = [X Y Z];
-  end;
-end;
-
-points2 = [points(1,:)',points(3,:)',-points(2,:)'];
-figure(2);
-pcshow(points2);
+pcshow(points, colors, 'Markersize', 50);
 xlabel('X');
 ylabel('Y');
 zlabel('Z');

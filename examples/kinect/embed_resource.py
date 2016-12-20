@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 # Copyright (C) 2016  Martin Stumpf
 #
@@ -18,33 +18,30 @@
 import argparse
 
 parser = argparse.ArgumentParser(description='Converts any file to a C resource file.')
-parser.add_argument('name', nargs=1, help='the name of the resource')
-parser.add_argument('infile', nargs=1, type=argparse.FileType('rb'), help='the input file')
-parser.add_argument('outfile', nargs=1, type=argparse.FileType('w'), help='the output file name')
+parser.add_argument('name', help='the name of the resource')
+parser.add_argument('infile', type=argparse.FileType('rb'), help='the input file')
+parser.add_argument('outfile', type=argparse.FileType('w'), help='the output file name')
 
 args = parser.parse_args()
 
-data = args.infile[0].read()
-args.infile[0].close()
+data = args.infile.read()
+args.infile.close()
 
-name = args.name[0]
+name = args.name
 
-outfile = args.outfile[0]
+outfile = args.outfile
 outfile.write('#include <cstddef>\n')
 
-outfile.write('extern const unsigned char ' + name + '[];')
 outfile.write('const unsigned char ' + name + '[] = {\n    ')
 
 i = 0
-for c in data :
+for c in data:
     if i%8==0 and i>0:
         outfile.write(',\n    ')
     elif i>0:
         outfile.write(',')
-    outfile.write(str(ord(c)))
+    outfile.write(str(c))
     i = i + 1
 
 outfile.write('\n};\n')
-outfile.write('extern const size_t ' + name + '_len;\n')
 outfile.write('const size_t ' + name + '_len = ' + str(len(data)) + ';\n')
-

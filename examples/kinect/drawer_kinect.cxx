@@ -19,14 +19,13 @@
 #include <iostream>
 #include <random>
 
+#include "img_rgb.hxx"
+
 drawer_kinect&
 drawer_kinect::get_instance(){
     static drawer_kinect drawer("Kinect Fitting Visualization");
     return drawer;
 }
-
-extern unsigned char img_rgb[];
-extern size_t img_rgb_len;
 
 drawer_kinect::drawer_kinect(const char * name)
     : disp(name),
