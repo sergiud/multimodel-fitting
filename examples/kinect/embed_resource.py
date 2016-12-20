@@ -24,24 +24,29 @@ parser.add_argument('outfile', type=argparse.FileType('w'), help='the output fil
 
 args = parser.parse_args()
 
-data = args.infile.read()
-args.infile.close()
 
 name = args.name
-
+infile = args.infile
 outfile = args.outfile
-outfile.write('#include <cstddef>\n')
 
-outfile.write('const unsigned char ' + name + '[] = {\n    ')
+try:
+    data = bytearray()
+    data.extend(infile.read())
 
-i = 0
-for c in data:
-    if i%8==0 and i>0:
-        outfile.write(',\n    ')
-    elif i>0:
-        outfile.write(',')
-    outfile.write(str(c))
-    i = i + 1
+    outfile.write('#include <cstddef>\n')
+    outfile.write('const unsigned char ' + name + '[] = {\n    ')
 
-outfile.write('\n};\n')
-outfile.write('const size_t ' + name + '_len = ' + str(len(data)) + ';\n')
+    i = 0
+    for c in data :
+        if i%8==0 and i>0:
+            outfile.write(',\n    ')
+        elif i>0:
+            outfile.write(',')
+        outfile.write(str(c))
+        i = i + 1
+
+    outfile.write('\n};\n')
+    outfile.write('const size_t ' + name + '_len = ' + str(len(data)) + ';\n')
+finally:
+    outfile.close()
+    infile.close()
