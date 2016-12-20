@@ -2,6 +2,6 @@ PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
 PROJECT_NUMBER         = @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
 INPUT                  = @DOCUMENTED_FILES_STR@
 FILE_PATTERNS          = *.hxx *.cxx *.txx
-EXTENSION_MAPPING      = .hxx=C++ .cxx=C++ .txx=C++
+EXTENSION_MAPPING      = hxx=C++ cxx=C++ txx=C++
 RECURSIVE              = YES
 GENERATE_LATEX         = NO

@@ -20,7 +20,7 @@
 #include <mfigp/config.hxx>
 #include "shapes_3d.hxx"
 
-class problem_kinect : public mfigp::config<point_3d, plane_3d>{
+class problem_kinect : public mfigp::Config<point_3d, plane_3d>{
 
 public:
 

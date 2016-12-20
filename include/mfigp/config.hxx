@@ -24,7 +24,7 @@
 namespace mfigp {
 
 /**
- * \brief Config class template
+ * \brief Configuration class template
  *
  * This class is meant to be derived by the config classes for the
  * MultiModelFitter class.
@@ -48,7 +48,7 @@ template<class sample_type_,
          typename computation_type_ = double,
          typename label_type_ = int32_t,
          typename sampleid_type_ = size_t>
-class config {
+class Config {
 
     public:
         /** \brief Type of the samples. */

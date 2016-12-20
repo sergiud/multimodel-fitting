@@ -27,32 +27,57 @@
 
 namespace mfigp {
 
-/*
- * Template parameters:
- * - C: the config class
+/**
+ * \brief The MultiModelFitting algorithm.
+ * \tparam C Configuration Class.
+ *           Needs to implement \ref mfigp::Config.
  */
 template<class C>
-class MultiModelFitter {
+class MultiModelFitter{
 
 public:
+    /** Type of the samples. */
     typedef typename C::sample_type        sample_type;
+    /** Type of the hypothesis. */
     typedef typename C::hypothesis_type    hypothesis_type;
+    /** Precision type of the internal computation, mostly double. */
     typedef typename C::computation_type   computation_type;
+    /** Type of the lables. Needs to be signed. */
     typedef typename C::label_type         label_type;
+    /** ID-Type of the samples. Mostly size_t. */
     typedef typename C::sampleid_type      sampleid_type;
+    /** \cond */
     static_assert( std::is_signed<label_type>::value,
                    "label_type needs to be signed" );
+    /** \endcond */
 
-public:
-    // Sets the samples
-    void set_samples(std::vector<sample_type> const & points);
-    // Sets the hypotheses
+
+    /**
+     * \brief Sets the samples.
+     * \param samples The samples.
+     */
+    void set_samples(std::vector<sample_type> const & samples);
+    /**
+     * \brief Sets the hypotheses.
+     * \param hypotheses The hypotheses.
+     */
     void set_hypotheses(std::vector<hypothesis_type> const & hypotheses);
-    // Runs the algorithm
+    /**
+     * \brief Executes the fitting algorithm
+     * \param config An instance of the config class.
+     */
     std::vector<label_type> fit(C& config);
-    // Removes the samples, frees memory
+    /**
+     * \brief Removes the previously set samples.
+     *
+     * Frees the internal memory needed to store the samples.
+     */
     void clear_samples();
-    // Removes the hypotheses, frees memory
+    /**
+     * \brief Removes the previously set hypotheses.
+     *
+     * Frees the internal memory needed to store the hypotheses.
+     */
     void clear_hypotheses();
 
 private:
