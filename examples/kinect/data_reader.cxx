@@ -16,13 +16,11 @@
  */
 
 #include "data_reader.hxx"
+#include "img_depth.hxx"
 
 #include <opencv2/opencv.hpp>
 
 #include <vector>
-
-extern unsigned char img_depth[];
-extern size_t img_depth_len;
 
 size_t data_reader::getWidth(){
 

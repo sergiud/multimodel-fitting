@@ -38,20 +38,19 @@ endif()
 
 
 add_custom_command(
-    OUTPUT img_depth.cxx
+    OUTPUT img_depth.hxx
     COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_depth
-            ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_DEPTH} img_depth.cxx
+            ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_DEPTH} img_depth.hxx
     DEPENDS data/${IMAGE_DEPTH} embed_resource.py
 )
 
 add_custom_command(
-    OUTPUT img_rgb.cxx
+    OUTPUT img_rgb.hxx
     COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_rgb
-            ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_RGB} img_rgb.cxx
+            ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_RGB} img_rgb.hxx
     DEPENDS data/${IMAGE_RGB} embed_resource.py
 )
 
-add_executable(${EXAMPLE} ${SOURCES} ${HEADERS} img_depth.cxx img_rgb.cxx)
+add_executable(${EXAMPLE} ${SOURCES} ${HEADERS} img_depth.hxx img_rgb.hxx)
 target_link_libraries(${EXAMPLE} ${OpenCV_LIBRARIES} mfigp)
-
-
+target_include_directories (${EXAMPLE} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
