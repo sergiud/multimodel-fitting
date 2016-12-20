@@ -1,7 +1,2 @@
-- install
-- add doxygen
-
-further:
-    - add cmake stuff
-    - add ycm
-    
+- add cmake Find*.cmake stuff
+- add ycm
