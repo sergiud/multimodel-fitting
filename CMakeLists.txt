@@ -15,10 +15,11 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-project(multimodel_fitting)
+project(mfigp)
 
-set(multimodel_fitting_VERSION_MAJOR 0)
-set(multimodel_fitting_VERSION_MINOR 1)
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 0)
+set(VERSION_PATCH 0)
 
 # Set output directories
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
@@ -59,4 +60,30 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 
 add_subdirectory(include)
 add_subdirectory(examples)
+
+# Add Doxygen if available
+find_package(Doxygen)
+option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
+if(BUILD_DOCUMENTATION)
+    if(NOT DOXYGEN_FOUND)
+        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+    endif()
+
+    set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+    string (REPLACE ";" " " DOCUMENTED_FILES_STR "${DOCUMENTED_FILES}")
+
+    configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+
+    add_custom_target(doc
+        COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
+
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc)
+endif()
+
 

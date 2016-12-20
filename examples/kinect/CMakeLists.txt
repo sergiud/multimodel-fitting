@@ -42,6 +42,7 @@ add_custom_command(
     COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_depth
             ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_DEPTH} img_depth.cxx
     DEPENDS data/${IMAGE_DEPTH} embed_resource.py
+    VERBATIM
 )
 
 add_custom_command(
@@ -49,6 +50,7 @@ add_custom_command(
     COMMAND python ${CMAKE_CURRENT_LIST_DIR}/embed_resource.py img_rgb
             ${CMAKE_CURRENT_LIST_DIR}/data/${IMAGE_RGB} img_rgb.cxx
     DEPENDS data/${IMAGE_RGB} embed_resource.py
+    VERBATIM
 )
 
 add_executable(${EXAMPLE} ${SOURCES} ${HEADERS} img_depth.cxx img_rgb.cxx)

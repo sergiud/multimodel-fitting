@@ -1,6 +1,5 @@
+- install
 - add doxygen
-- add compile time unsigned check for label id template
-- -Weverything
 
 further:
     - add cmake stuff

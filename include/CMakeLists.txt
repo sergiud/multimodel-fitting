@@ -25,5 +25,12 @@ set(multimodelfitting_HEADERS
 
 )
 
+set(DOCUMENTED_FILES ${DOCUMENTED_FILES}
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp.hxx"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mfigp/config.hxx"
+  PARENT_SCOPE
+)
+
+
 add_library(mfigp INTERFACE)
 target_sources(mfigp INTERFACE ${multimodelfitting_HEADERS})
