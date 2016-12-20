@@ -269,8 +269,8 @@ MultiModelFitter<C>::getHighlevelConstraintWeight( C & config ) const
     using std::log;
     return config.getHighlevelPriorsWeight() *
            config.getNumberOfParametersPerHypothesis() *
-           log(computation_type(samples.size())) *
-           (1.0f / config.getExpectedNumberOfStructures());
+           std::log(computation_type(samples.size())) *
+           computation_type(1.0f / config.getExpectedNumberOfStructures());
 }
 
 template<class C>

@@ -53,10 +53,10 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
     // Feed data to Subdiv2D
     const float epsilon = 0.1f;
-    cv::Rect rect( int(floor(x_min - epsilon)),
-                   int(floor(y_min - epsilon)),
-                   int(ceil(x_max + epsilon) - floor(x_min - epsilon)),
-                   int(ceil(y_max + epsilon) - floor(y_min - epsilon)));
+    cv::Rect rect( int(std::floor(x_min - epsilon)),
+                   int(std::floor(y_min - epsilon)),
+                   int(std::ceil(x_max + epsilon) - std::floor(x_min - epsilon)),
+                   int(std::ceil(y_max + epsilon) - std::floor(y_min - epsilon)));
     cv::Subdiv2D subdiv(rect);
     std::vector<int> vertexIDs(samples.size());
     std::map<int, size_t> reverseVertexIDs;
@@ -105,7 +105,7 @@ double
 problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
     if(p.is_outlier)
         return 2;
-    return h.dist(p);
+    return double(h.dist(p));
 }
 
 double
@@ -142,11 +142,11 @@ problem_kinect::getHypothesisCost( plane_3d const & ){
 double
 problem_kinect::getHypothesisInteractionCost( plane_3d const & p0,
                                               plane_3d const & p1 ){
-    double dot = p0.nx * p1.nx + p0.ny * p1.ny + p0.nz * p1.nz;
+    double dot = double(p0.nx * p1.nx + p0.ny * p1.ny + p0.nz * p1.nz);
 
-    double crossx = p0.ny*p1.nz-p0.nz*p1.ny;
-    double crossy = p0.nz*p1.nx-p0.nx*p1.nz;
-    double crossz = p0.nx*p1.ny-p0.ny*p1.nx;
+    double crossx = double(p0.ny*p1.nz-p0.nz*p1.ny);
+    double crossy = double(p0.nz*p1.nx-p0.nx*p1.nz);
+    double crossz = double(p0.nx*p1.ny-p0.ny*p1.nx);
     double cross2 = crossx*crossx + crossy*crossy + crossz*crossz;
 
 

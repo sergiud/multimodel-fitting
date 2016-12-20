@@ -163,7 +163,7 @@ inline void MinCut_MaxFlow<C, label_type>::run(
                 if(label == beta_label || label == alpha_label){
                     continue;
                 }
-                c_b += hypothesis_interaction_penalties[beta_label * label_stride + label] * 0.5f;
+                c_b += hypothesis_interaction_penalties[beta_label * label_stride + label] * computation_type(0.5f);
             }
 
             if(fabs(c_b) > 0){

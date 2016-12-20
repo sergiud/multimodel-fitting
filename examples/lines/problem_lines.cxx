@@ -59,7 +59,7 @@ double
 problem_lines::computeResidual(
     sample_type const & point, hypothesis_type const & line
 ) {
-    return line.dist(point);
+    return double(line.dist(point));
 }
 
 double
@@ -70,8 +70,8 @@ problem_lines::getHypothesisCost(hypothesis_type const &){
 double
 problem_lines::getHypothesisInteractionCost( hypothesis_type const & l0,
                                              hypothesis_type const & l1 ){
-    double dot = l0.dirx * l1.dirx + l0.diry * l1.diry;
-    double cross = l0.dirx * l1.diry - l0.diry * l1.dirx;
+    double dot = double(l0.dirx * l1.dirx + l0.diry * l1.diry);
+    double cross = double(l0.dirx * l1.diry - l0.diry * l1.dirx);
 
     double dot2 = dot*dot;
     double cross2 = cross*cross;
@@ -126,7 +126,9 @@ problem_lines::computeNeighbourhood(
     }
 
     // Feed data to Subdiv2D
-    cv::Rect rect(int(floor(x_min - 0.1f)), int(floor(y_min - 0.1f)), int(ceil(x_max + 0.1f) - floor(x_min - 0.1f)), int(ceil(y_max + 0.1f) - floor(y_min - 0.1f)));
+    cv::Rect rect(int(std::floor(x_min - 0.1f)), int(std::floor(y_min - 0.1f)),
+                  int(std::ceil(x_max + 0.1f) - std::floor(x_min - 0.1f)),
+                  int(std::ceil(y_max + 0.1f) - std::floor(y_min - 0.1f)));
     cv::Subdiv2D subdiv(rect);
     std::vector<int> vertexIDs(samples.size());
     std::map<int, size_t> reverseVertexIDs;
@@ -193,7 +195,7 @@ problem_lines::generateHypotheses(std::vector<point_2d> const & points,
             if(j == p1)
                 prob_weights[j] = 0.0;
             else
-                prob_weights[j] = points[p1].dist(points[j]);
+                prob_weights[j] = double(points[p1].dist(points[j]));
         }
 
         // initialize random gen for second point
