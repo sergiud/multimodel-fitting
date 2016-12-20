@@ -1,6 +1,7 @@
 PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
 PROJECT_NUMBER         = @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
 INPUT                  = @DOCUMENTED_FILES_STR@
+OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/docs
 FILE_PATTERNS          = *.hxx *.cxx *.txx
 EXTENSION_MAPPING      = hxx=C++ cxx=C++ txx=C++
 RECURSIVE              = YES

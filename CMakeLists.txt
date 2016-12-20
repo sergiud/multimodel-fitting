@@ -60,19 +60,25 @@ if(BUILD_DOCUMENTATION)
     endif()
 
     set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
-    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
 
     string (REPLACE ";" " " DOCUMENTED_FILES_STR "${DOCUMENTED_FILES}")
 
     configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
-    add_custom_target(doc ALL
+    add_custom_command(
+        OUTPUT docs/doxygen.stamp
+        DEPENDS ${doxyfile}
         COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND cmake -E touch docs/doxygen.stamp
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM)
+    add_custom_target(
+        docs ALL
+        DEPENDS docs/doxygen.stamp
+    )
 
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs/html DESTINATION share/doc)
 endif()
 
 
