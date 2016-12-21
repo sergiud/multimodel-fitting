@@ -50,6 +50,9 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 add_subdirectory(include)
 add_subdirectory(examples)
 
+enable_testing()
+add_subdirectory(tests)
+
 # Add Doxygen if available
 find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})

@@ -13,13 +13,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-set(EXAMPLES
-    #hello_world
-    lines
-    kinect
+set(HEADERS
+  ../../examples/lines/shapes_2d.hxx
+  ../../examples/lines/drawer_2d.hxx
+  ../../examples/lines/datapoints.hxx
+  ../../examples/lines/problem_lines.hxx
+  correct_result.hxx
 )
 
-foreach(EXAMPLE ${EXAMPLES})
-  set(EXAMPLE_NAME example_${EXAMPLE})
-  add_subdirectory(${EXAMPLE})
-endforeach(EXAMPLE)
+set(SOURCES
+  main.cxx
+  ../../examples/lines/shapes_2d.cxx
+  ../../examples/lines/drawer_2d.cxx
+  ../../examples/lines/datapoints.cxx
+  problem_lines.cxx
+)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_definitions( "-Wno-exit-time-destructors" )
+endif()
+
+add_executable(${TEST_NAME} ${SOURCES} ${HEADERS})
+target_link_libraries(${TEST_NAME} ${OpenCV_LIBRARIES} mfigp)
+add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})

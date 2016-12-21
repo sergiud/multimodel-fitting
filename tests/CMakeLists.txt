@@ -13,13 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-set(EXAMPLES
-    #hello_world
+set(TESTS
     lines
     kinect
 )
 
-foreach(EXAMPLE ${EXAMPLES})
-  set(EXAMPLE_NAME example_${EXAMPLE})
-  add_subdirectory(${EXAMPLE})
-endforeach(EXAMPLE)
+foreach(TEST_DIR ${TESTS})
+  set(TEST_NAME test_${TEST_DIR})
+  add_subdirectory(${TEST_DIR})
+endforeach(TEST_DIR)

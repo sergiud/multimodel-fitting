@@ -21,5 +21,5 @@ set(SOURCES
     main.cxx
 )
 
-add_executable(${EXAMPLE} ${SOURCES} ${HEADERS})
-target_link_libraries(${EXAMPLE} ${OpenCV_LIBRARIES} mfigp)
+add_executable(${EXAMPLE_NAME} ${SOURCES} ${HEADERS})
+target_link_libraries(${EXAMPLE_NAME} ${OpenCV_LIBRARIES} mfigp)
