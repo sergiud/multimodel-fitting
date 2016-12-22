@@ -16,8 +16,9 @@
  */
 
 #include "../../examples/kinect/problem_kinect.hxx"
-#include <iostream>
 #include <cassert>
+#include <iostream>
+#include <random>
 
 #include <opencv2/opencv.hpp>
 
