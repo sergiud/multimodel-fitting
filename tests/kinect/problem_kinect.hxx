@@ -226,7 +226,7 @@ problem_kinect<computation_type_>::generateHypotheses( std::vector<point_3d> con
     const size_t NUM_NEAREST_NEIGHBOURS = 200;
 
     // initialize random gen
-    std::mt19937 gen(8);
+    std::mt19937 gen(12);
     auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
     auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
 

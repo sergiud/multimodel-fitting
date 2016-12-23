@@ -76,7 +76,7 @@ int main_templated(){
                 }
             }
             std::string label_string = std::to_string(label);
-            for(int j = 0; j + label_string.length() < 3; j++){
+            for(size_t j = 0; j + label_string.length() < 3; j++){
                 std::cout << " ";
             }
             std::cout << label_string;
