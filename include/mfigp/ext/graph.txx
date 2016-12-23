@@ -36,6 +36,17 @@ template <typename captype, typename tcaptype, typename flowtype>
 	  nodeptr_block(NULL),
 	  error_function(err_function)
 {
+    // Compute epsilon
+    epsilon = captype(0);
+    if(std::numeric_limits<captype>::is_integer == false){
+        epsilon = std::numeric_limits<captype>::epsilon();
+    }
+    tepsilon = tcaptype(0);
+    if(std::numeric_limits<tcaptype>::is_integer == false){
+        tepsilon = std::numeric_limits<tcaptype>::epsilon();
+    }
+    
+
 	if (node_num_max < 16) node_num_max = 16;
 	if (edge_num_max < 16) edge_num_max = 16;
 
@@ -307,7 +318,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 		i->is_marked = 0;
 		set_active(i);
 
-		if (std::abs(i->tr_cap) <= 0)
+		if (std::abs(i->tr_cap) <= tepsilon)
 		{
 			if (i->parent) set_orphan_rear(i);
 			continue;
@@ -407,13 +418,13 @@ template <typename captype, typename tcaptype, typename flowtype>
 		if (a == TERMINAL) break;
 		a -> r_cap += bottleneck;
 		a -> sister -> r_cap -= bottleneck;
-		if (std::abs(a->sister->r_cap)<=0)
+		if (std::abs(a->sister->r_cap)<=epsilon)
 		{
 			set_orphan_front(i); // add i to the beginning of the adoption list
 		}
 	}
 	i -> tr_cap -= bottleneck;
-	if (std::abs(i->tr_cap)<=0)
+	if (std::abs(i->tr_cap)<=tepsilon)
 	{
 		set_orphan_front(i); // add i to the beginning of the adoption list
 	}
@@ -424,13 +435,13 @@ template <typename captype, typename tcaptype, typename flowtype>
 		if (a == TERMINAL) break;
 		a -> sister -> r_cap += bottleneck;
 		a -> r_cap -= bottleneck;
-		if (std::abs(a->r_cap)<=0)
+		if (std::abs(a->r_cap)<=epsilon)
 		{
 			set_orphan_front(i); // add i to the beginning of the adoption list
 		}
 	}
 	i -> tr_cap += bottleneck;
-	if (std::abs(i->tr_cap)<=0)
+	if (std::abs(i->tr_cap)<=tepsilon)
 	{
 		set_orphan_front(i); // add i to the beginning of the adoption list
 	}
@@ -450,7 +461,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	/* trying to find a new parent */
 	for (a0=i->first; a0; a0=a0->next)
-	if (std::abs(a0->sister->r_cap)>0)
+	if (std::abs(a0->sister->r_cap)>epsilon)
 	{
 		j = a0 -> head;
 		if (!j->is_sink && (a=j->parent))
@@ -510,7 +521,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 			j = a0 -> head;
 			if (!j->is_sink && (a=j->parent))
 			{
-				if (std::abs(a0->sister->r_cap)>0) set_active(j);
+				if (std::abs(a0->sister->r_cap)>epsilon) set_active(j);
 				if (a!=TERMINAL && a!=ORPHAN && a->head==i)
 				{
 					set_orphan_rear(j); // add j to the end of the adoption list
@@ -529,7 +540,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 
 	/* trying to find a new parent */
 	for (a0=i->first; a0; a0=a0->next)
-	if (std::abs(a0->r_cap)>0)
+	if (std::abs(a0->r_cap)>epsilon)
 	{
 		j = a0 -> head;
 		if (j->is_sink && (a=j->parent))
@@ -591,7 +602,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 			j = a0 -> head;
 			if (j->is_sink && (a=j->parent))
 			{
-				if (std::abs(a0->r_cap)>0) set_active(j);
+				if (std::abs(a0->r_cap)>epsilon) set_active(j);
 				if (a!=TERMINAL && a!=ORPHAN && a->head==i)
 				{
 					set_orphan_rear(j); // add j to the end of the adoption list
@@ -642,7 +653,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 		{
 			/* grow source tree */
 			for (a=i->first; a; a=a->next)
-			if (std::abs(a->r_cap)>0)
+			if (std::abs(a->r_cap)>epsilon)
 			{
 				j = a -> head;
 				if (!j->parent)
@@ -669,7 +680,7 @@ template <typename captype, typename tcaptype, typename flowtype>
 		{
 			/* grow sink tree */
 			for (a=i->first; a; a=a->next)
-			if (std::abs(a->sister->r_cap)>0)
+			if (std::abs(a->sister->r_cap)>epsilon)
 			{
 				j = a -> head;
 				if (!j->parent)

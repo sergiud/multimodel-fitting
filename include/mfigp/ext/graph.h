@@ -76,6 +76,11 @@ namespace maxflow {
 // Current instantiations are in instances.inc
 template <typename captype, typename tcaptype, typename flowtype> class Graph
 {
+private:
+    // Epsilons, important for numeric stability
+    captype epsilon;
+    tcaptype tepsilon;
+
 public:
 	typedef enum
 	{

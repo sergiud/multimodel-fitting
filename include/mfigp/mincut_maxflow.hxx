@@ -69,6 +69,12 @@ inline void MinCut_MaxFlow<C, label_type>::run(
                                  computation_type,
                                  computation_type > GraphType;
 
+    // Compute epsilon
+    computation_type epsilon = computation_type(0);
+    if(std::numeric_limits<computation_type>::is_integer == false){
+        epsilon = std::numeric_limits<computation_type>::epsilon();
+    }
+
     // Create graph
     GraphType g(int(2*sample_count), int(4*sample_count));
 
@@ -140,7 +146,7 @@ inline void MinCut_MaxFlow<C, label_type>::run(
                 c_a += hypothesis_interaction_penalties[alpha_label*label_stride+label];
             }
 
-            if(std::abs(c_a) > 0){
+            if(std::abs(c_a) > epsilon){
                 auto n0 = g.add_node();
                 g.add_tweights(n0, c_a, 0);
 
@@ -166,7 +172,7 @@ inline void MinCut_MaxFlow<C, label_type>::run(
                 c_b += hypothesis_interaction_penalties[beta_label * label_stride + label] * computation_type(0.5f);
             }
 
-            if(std::abs(c_b) > 0){
+            if(std::abs(c_b) > epsilon){
                 auto n1 = g.add_node();
                 g.add_tweights(n1, 0, c_b);
 
