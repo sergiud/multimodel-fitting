@@ -183,6 +183,12 @@ AlphaExpansionFitter<C>::fit(
 
             // Swap if new optimum found
             if(new_value < current_value){
+                std::cout << "alpha: " << alpha_label << std::endl;
+                for(size_t i = 0; i < sample_count; i++){
+                    if(labeling->at(i) != new_labeling->at(i)){
+                        std::cout << i << ": " << labeling->at(i) << " -> " << new_labeling->at(i) << std::endl;
+                    }
+                }
                 std::swap(labeling, new_labeling);
                 current_value = new_value;
                 config.debug_output(*labeling, current_value);
@@ -222,6 +228,12 @@ AlphaExpansionFitter<C>::fit(
 
                 // Swap if new optimum found
                 if(new_value < current_value){
+                    std::cout << "alpha: " << 0 << std::endl;
+                    for(size_t i = 0; i < sample_count; i++){
+                        if(labeling->at(i) != new_labeling->at(i)){
+                            std::cout << i << ": " << labeling->at(i) << " -> " << new_labeling->at(i) << std::endl;
+                        }
+                    }
                     std::swap(labeling, new_labeling);
                     current_value = new_value;
                     config.debug_output(*labeling, current_value);
