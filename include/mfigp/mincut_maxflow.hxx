@@ -135,12 +135,12 @@ inline void MinCut_MaxFlow<C, label_type>::run(
     {
         // Penalty for switch to alpha label
         if(active_labels.count(alpha_label) == 0){
-            double c_a = hypothesis_penalties[alpha_label];
+            computation_type c_a = hypothesis_penalties[alpha_label];
             for(auto const & label : active_labels){
                 c_a += hypothesis_interaction_penalties[alpha_label*label_stride+label];
             }
 
-            if(fabs(c_a) > 0){
+            if(std::abs(c_a) > 0){
                 auto n0 = g.add_node();
                 g.add_tweights(n0, c_a, 0);
 
@@ -154,7 +154,7 @@ inline void MinCut_MaxFlow<C, label_type>::run(
         for(auto const & beta_label : active_labels){
             if(beta_label == alpha_label) continue;
 
-            double c_b = hypothesis_penalties[beta_label]
+            computation_type c_b = hypothesis_penalties[beta_label]
                 + hypothesis_interaction_penalties[ beta_label*label_stride +
                                                     alpha_label ];
 
@@ -166,7 +166,7 @@ inline void MinCut_MaxFlow<C, label_type>::run(
                 c_b += hypothesis_interaction_penalties[beta_label * label_stride + label] * computation_type(0.5f);
             }
 
-            if(fabs(c_b) > 0){
+            if(std::abs(c_b) > 0){
                 auto n1 = g.add_node();
                 g.add_tweights(n1, 0, c_b);
 

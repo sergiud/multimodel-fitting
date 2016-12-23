@@ -77,7 +77,7 @@ AlphaExpansionFitter<C>::compute_value(
     std::vector<computation_type> const & hypothesis_penalties,
     std::vector<computation_type> const & hypothesis_interaction_penalties )
 {
-    double result = 0.0;
+    computation_type result = 0.0;
 
     // Fitting penalty
     for(sampleid_type sample_id = 0; sample_id < sample_count; sample_id++){
@@ -138,7 +138,8 @@ AlphaExpansionFitter<C>::fit(
 
     bool changed;
     bool outlier_check_needed = false;
-    double current_value = compute_value( sample_count,
+    computation_type current_value = compute_value(
+                                          sample_count,
                                           label_stride,
                                           *labeling,
                                           neighbourhood,
