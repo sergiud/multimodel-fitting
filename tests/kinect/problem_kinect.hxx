@@ -15,15 +15,61 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../examples/kinect/problem_kinect.hxx"
+#pragma once
+
+#include <mfigp/config.hxx>
+#include "../../examples/kinect/shapes_3d.hxx"
+
+template<typename computation_type_>
+class problem_kinect : public mfigp::Config<point_3d, plane_3d, computation_type_>{
+
+public:
+
+    typedef mfigp::Config<point_3d, plane_3d, computation_type_> parent_class;
+    typedef typename parent_class::sample_type           sample_type;
+    typedef typename parent_class::hypothesis_type       hypothesis_type;
+    typedef typename parent_class::computation_type      computation_type;
+    typedef typename parent_class::label_type            label_type;
+    typedef typename parent_class::sampleid_type         sampleid_type;
+    typedef typename parent_class::internal_label_type   internal_label_type;
+
+
+    void debug_output( std::vector<internal_label_type> const &, computation_type );
+
+    std::vector<std::array<sampleid_type,2>>
+        computeNeighbourhood( std::vector<point_3d> const & );
+
+    computation_type computeResidual( point_3d const &, plane_3d const & );
+
+    computation_type getNoiseLevel();
+
+    computation_type getNeighbourhoodWeight();
+
+    computation_type getHighlevelPriorsWeight();
+
+    size_t getExpectedNumberOfStructures();
+
+    size_t getNumberOfParametersPerHypothesis();
+
+    computation_type getHypothesisCost( plane_3d const & );
+
+    computation_type getHypothesisInteractionCost( plane_3d const &,
+                                         plane_3d const & );
+
+    std::vector<plane_3d> generateHypotheses(std::vector<point_3d> const &,
+                                             size_t);
+
+};
+
 #include <cassert>
 #include <iostream>
 #include <random>
 
 #include <opencv2/opencv.hpp>
 
+template<typename computation_type_>
 void
-problem_kinect::debug_output( std::vector<internal_label_type> const &,
+problem_kinect<computation_type_>::debug_output( std::vector<internal_label_type> const &,
                               computation_type value ){
     std::cout << "Value: " << value << std::endl;
 }
@@ -31,8 +77,9 @@ problem_kinect::debug_output( std::vector<internal_label_type> const &,
 extern unsigned char img_depth[];
 extern size_t img_depth_len;
 
-std::vector<std::array<problem_kinect::sampleid_type,2>>
-problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
+template<typename computation_type_>
+std::vector<std::array<typename problem_kinect<computation_type_>::sampleid_type,2>>
+problem_kinect<computation_type_>::computeNeighbourhood( std::vector<point_3d> const & samples ){
 
     int x_max = samples[0].u;
     int y_max = samples[0].v;
@@ -95,63 +142,71 @@ problem_kinect::computeNeighbourhood( std::vector<point_3d> const & samples ){
 }
 
 
-double
-problem_kinect::computeResidual( point_3d const & p, plane_3d const & h ){
+template<typename computation_type_>
+typename problem_kinect<computation_type_>::computation_type
+problem_kinect<computation_type_>::computeResidual( point_3d const & p, plane_3d const & h ){
     if(p.is_outlier)
-        return 2;
-    return double(h.dist(p));
+        return computation_type(2);
+    return computation_type(h.dist(p));
 }
 
-double
-problem_kinect::getNoiseLevel(){
-    return 0.05;
+template<typename computation_type_>
+typename problem_kinect<computation_type_>::computation_type
+problem_kinect<computation_type_>::getNoiseLevel(){
+    return computation_type(0.05);
 }
 
-double
-problem_kinect::getNeighbourhoodWeight(){
-    return 0.15;
+template<typename computation_type_>
+typename problem_kinect<computation_type_>::computation_type
+problem_kinect<computation_type_>::getNeighbourhoodWeight(){
+    return computation_type(0.15);
 }
 
-double
-problem_kinect::getHighlevelPriorsWeight(){
-    return 20;
+template<typename computation_type_>
+typename problem_kinect<computation_type_>::computation_type
+problem_kinect<computation_type_>::getHighlevelPriorsWeight(){
+    return computation_type(20);
 }
 
+template<typename computation_type_>
 size_t
-problem_kinect::getExpectedNumberOfStructures(){
+problem_kinect<computation_type_>::getExpectedNumberOfStructures(){
     return 4;
 }
 
+template<typename computation_type_>
 size_t
-problem_kinect::getNumberOfParametersPerHypothesis(){
+problem_kinect<computation_type_>::getNumberOfParametersPerHypothesis(){
     // A 3d plane can be identified by 3 parameters
     return 3;
 }
 
-double
-problem_kinect::getHypothesisCost( plane_3d const & ){
-    return 1;
+template<typename computation_type_>
+typename problem_kinect<computation_type_>::computation_type
+problem_kinect<computation_type_>::getHypothesisCost( plane_3d const & ){
+    return computation_type(1);
 }
 
-double
-problem_kinect::getHypothesisInteractionCost( plane_3d const & p0,
+template<typename computation_type_>
+typename problem_kinect<computation_type_>::computation_type
+problem_kinect<computation_type_>::getHypothesisInteractionCost( plane_3d const & p0,
                                               plane_3d const & p1 ){
-    double dot = double(p0.nx * p1.nx + p0.ny * p1.ny + p0.nz * p1.nz);
+    computation_type dot = computation_type(p0.nx * p1.nx + p0.ny * p1.ny + p0.nz * p1.nz);
 
-    double crossx = double(p0.ny*p1.nz-p0.nz*p1.ny);
-    double crossy = double(p0.nz*p1.nx-p0.nx*p1.nz);
-    double crossz = double(p0.nx*p1.ny-p0.ny*p1.nx);
-    double cross2 = crossx*crossx + crossy*crossy + crossz*crossz;
+    computation_type crossx = computation_type(p0.ny*p1.nz-p0.nz*p1.ny);
+    computation_type crossy = computation_type(p0.nz*p1.nx-p0.nx*p1.nz);
+    computation_type crossz = computation_type(p0.nx*p1.ny-p0.ny*p1.nx);
+    computation_type cross2 = crossx*crossx + crossy*crossy + crossz*crossz;
 
 
-    double dot2 = dot*dot;
+    computation_type dot2 = dot*dot;
 
-    double val = dot2;
+    computation_type val = dot2;
     if (dot2 > cross2) {
         val = cross2;
     }
 
-    double scalar = 2500;
+    computation_type scalar = 2500;
     val *= scalar;
 
     if (val > 1)
@@ -162,8 +217,9 @@ problem_kinect::getHypothesisInteractionCost( plane_3d const & p0,
     return val;
 }
 
+template<typename computation_type_>
 std::vector<plane_3d>
-problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
+problem_kinect<computation_type_>::generateHypotheses( std::vector<point_3d> const & points,
                                     size_t num_hypotheses )
 {
 
@@ -215,7 +271,7 @@ problem_kinect::generateHypotheses( std::vector<point_3d> const & points,
 
         size_t num_inliers = 0;
         for(size_t i = 0; i < points.size(); i++){
-            double val = computeResidual(points[i],hypothesis);
+            computation_type val = computeResidual(points[i],hypothesis);
             if(val< 0) val = -val;
             if(val < getNoiseLevel()){
                 num_inliers++;

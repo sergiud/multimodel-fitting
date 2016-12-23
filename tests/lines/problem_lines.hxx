@@ -77,8 +77,6 @@ public:
 };
 
 
-#include "problem_lines.hxx"
-
 #include <map>
 #include <random>
 #include <iostream>

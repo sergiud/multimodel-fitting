@@ -16,18 +16,14 @@
 set(HEADERS
   ../../examples/kinect/shapes_3d.hxx
   ../../examples/kinect/data_reader.hxx
-  ../../examples/kinect/problem_kinect.hxx
-  ../../examples/kinect/drawer_kinect.hxx
-  ../../examples/kinect/result_writer.hxx
+  problem_kinect.hxx
   correct_result.hxx
+  main_templated.hxx
 )
 
 set(SOURCES
-  main.cxx
   ../../examples/kinect/shapes_3d.cxx
   data_reader.cxx
-  problem_kinect.cxx
-  ../../examples/kinect/drawer_kinect.cxx
 )
 
 set(IMAGE_DEPTH cabinet_depth.png)
@@ -54,7 +50,12 @@ add_custom_command(
     VERBATIM
 )
 
-add_executable(${TEST_NAME} ${SOURCES} ${HEADERS} img_depth.hxx img_rgb.hxx)
-target_link_libraries(${TEST_NAME} ${OpenCV_LIBRARIES} mfigp)
-target_include_directories (${TEST_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+add_executable(${TEST_NAME}_double ${SOURCES} ${HEADERS} main_double.cxx img_depth.hxx img_rgb.hxx)
+target_link_libraries(${TEST_NAME}_double ${OpenCV_LIBRARIES} mfigp)
+target_include_directories (${TEST_NAME}_double PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME ${TEST_NAME}_double COMMAND ${TEST_NAME}_double)
+
+add_executable(${TEST_NAME}_float ${SOURCES} ${HEADERS} main_float.cxx img_depth.hxx img_rgb.hxx)
+target_link_libraries(${TEST_NAME}_float ${OpenCV_LIBRARIES} mfigp)
+target_include_directories (${TEST_NAME}_float PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME ${TEST_NAME}_float COMMAND ${TEST_NAME}_float)

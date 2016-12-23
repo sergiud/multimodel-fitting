@@ -19,22 +19,25 @@
 #include <mfigp.hxx>
 
 #include "../../examples/kinect/data_reader.hxx"
-#include "../../examples/kinect/problem_kinect.hxx"
+#include "problem_kinect.hxx"
 
 #include "correct_result.hxx"
 
-int main(){
+template<typename precision>
+int main_templated(){
 
     try {
 
-        problem_kinect config;
+        typedef problem_kinect<precision> problem_type;
+
+        problem_type config;
 
         // Create the datapoints
         auto datapoints = data_reader::get();
         auto hypotheses = config.generateHypotheses( datapoints, 1000 );
 
         // Initialize the algorithm classes
-        mfigp::MultiModelFitter<problem_kinect> fitter;
+        mfigp::MultiModelFitter<problem_type> fitter;
 
         // set the input data
         fitter.set_samples(datapoints);
