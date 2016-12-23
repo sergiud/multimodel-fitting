@@ -15,24 +15,25 @@
 
 set(HEADERS
   ../../examples/lines/shapes_2d.hxx
-  ../../examples/lines/drawer_2d.hxx
   ../../examples/lines/datapoints.hxx
-  ../../examples/lines/problem_lines.hxx
+  problem_lines.hxx
   correct_result.hxx
+  main_templated.hxx
 )
 
 set(SOURCES
-  main.cxx
   ../../examples/lines/shapes_2d.cxx
-  ../../examples/lines/drawer_2d.cxx
   ../../examples/lines/datapoints.cxx
-  problem_lines.cxx
 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     add_definitions( "-Wno-exit-time-destructors" )
 endif()
 
-add_executable(${TEST_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${TEST_NAME} ${OpenCV_LIBRARIES} mfigp)
-add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+add_executable(${TEST_NAME}_double ${SOURCES} ${HEADERS} main_double.cxx)
+target_link_libraries(${TEST_NAME}_double ${OpenCV_LIBRARIES} mfigp)
+add_test(NAME ${TEST_NAME}_double COMMAND ${TEST_NAME}_double)
+
+add_executable(${TEST_NAME}_float ${SOURCES} ${HEADERS} main_float.cxx)
+target_link_libraries(${TEST_NAME}_float ${OpenCV_LIBRARIES} mfigp)
+add_test(NAME ${TEST_NAME}_float COMMAND ${TEST_NAME}_float)

@@ -19,22 +19,25 @@
 #include <mfigp.hxx>
 
 #include "../../examples/lines/datapoints.hxx"
-#include "../../examples/lines/problem_lines.hxx"
+#include "problem_lines.hxx"
 
 #include "correct_result.hxx"
 
-int main(){
+template<typename precision>
+int main_templated(){
 
     try {
 
-        problem_lines config;
+        typedef problem_lines<precision> problem_type;
+
+        problem_type config;
 
         // Create the datapoints
         auto datapoints = dataPoints::get();
         auto hypotheses = config.generateHypotheses(datapoints, 1000);
 
         // Initialize the algorithm classes
-        mfigp::MultiModelFitter<problem_lines> fitter;
+        mfigp::MultiModelFitter<problem_type> fitter;
 
         // set the input data
         fitter.set_samples(datapoints);
