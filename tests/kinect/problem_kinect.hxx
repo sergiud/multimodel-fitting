@@ -19,6 +19,7 @@
 
 #include <mfigp/config.hxx>
 #include "../../examples/kinect/shapes_3d.hxx"
+#include "hypotheses.hxx"
 
 template<typename computation_type_>
 class problem_kinect : public mfigp::Config<point_3d, plane_3d, computation_type_>{
@@ -223,16 +224,58 @@ problem_kinect<computation_type_>::generateHypotheses( std::vector<point_3d> con
                                     size_t num_hypotheses )
 {
 
+    // create hypotheses vector
+    std::vector<plane_3d> hypotheses;
+    hypotheses.reserve(num_hypotheses);
+
+    for(size_t i = 0; i < num_hypotheses; i++){
+
+        size_t hypothesis_input_id = 6*i;
+
+        size_t id = 0;
+        while(id < points.size()){
+            if(hypotheses_input[hypothesis_input_id] == points[id].u &&
+               hypotheses_input[hypothesis_input_id+1] == points[id].v){
+                break;
+            }
+            id++;
+        }
+
+        auto const & p0 = points[id];
+
+        id = 0;
+        while(id < points.size()){
+            if(hypotheses_input[hypothesis_input_id+2] == points[id].u &&
+               hypotheses_input[hypothesis_input_id+3] == points[id].v){
+                break;
+            }
+            id++;
+        }
+
+        auto const & p1 = points[id];
+
+        id = 0;
+        while(id < points.size()){
+            if(hypotheses_input[hypothesis_input_id+4] == points[id].u &&
+               hypotheses_input[hypothesis_input_id+5] == points[id].v){
+                break;
+            }
+            id++;
+        }
+
+        auto const & p2 = points[id];
+
+        plane_3d hypothesis(p0,p1,p2);
+        hypotheses.push_back(std::move(hypothesis));
+    }
+
+/*
     const size_t NUM_NEAREST_NEIGHBOURS = 200;
 
     // initialize random gen
     std::mt19937 gen(12);
     auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
     auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
-
-    // create hypotheses vector
-    std::vector<plane_3d> hypotheses;
-    hypotheses.reserve(num_hypotheses);
 
     while(hypotheses.size()<num_hypotheses){
 
@@ -281,10 +324,13 @@ problem_kinect<computation_type_>::generateHypotheses( std::vector<point_3d> con
         if(num_inliers < 100)
             continue;
 
+        std::cout << "    " << p0.u << "," << p0.v << "," << p1->u << "," << p1->v
+                  << "," << p2->u << "," << p2->v << "," << std::endl;
+
         hypotheses.push_back(std::move(hypothesis));
 
     }
-
+*/
     return hypotheses;
 }
 
