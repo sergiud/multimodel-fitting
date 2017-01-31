@@ -269,68 +269,6 @@ problem_kinect<computation_type_>::generateHypotheses( std::vector<point_3d> con
         hypotheses.push_back(std::move(hypothesis));
     }
 
-/*
-    const size_t NUM_NEAREST_NEIGHBOURS = 200;
-
-    // initialize random gen
-    std::mt19937 gen(12);
-    auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
-    auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
-
-    while(hypotheses.size()<num_hypotheses){
-
-        auto const & p0 = points[rnd_int(gen)];
-
-        // Compute nearest neighbours
-        std::multimap<float, const point_3d*> nearest_neighbours;
-        for(auto const & p : points){
-            if (p.equals(p0)) continue;
-            nearest_neighbours.insert(std::pair<float,const point_3d*>(p.dist(p0), &p));
-            while(nearest_neighbours.size() > NUM_NEAREST_NEIGHBOURS)
-                nearest_neighbours.erase(--nearest_neighbours.end());
-        }
-
-        int pos1 = rnd_int_nn(gen);
-        auto it1 = nearest_neighbours.begin();
-        for(int i = 0; i < pos1; i++){
-            it1++;
-        }
-        const point_3d* p1 = it1->second;
-
-        int pos2 = rnd_int_nn(gen);
-        auto it2 = nearest_neighbours.begin();
-        for(int i = 0; i < pos2; i++){
-            it2++;
-        }
-        const point_3d* p2 = it2->second;
-
-
-
-        if( p0.is_outlier || p1->is_outlier || p2->is_outlier ){
-            continue;
-        }
-
-        plane_3d hypothesis(p0,*p1,*p2);
-
-        size_t num_inliers = 0;
-        for(size_t i = 0; i < points.size(); i++){
-            computation_type val = computeResidual(points[i],hypothesis);
-            if(val< 0) val = -val;
-            if(val < getNoiseLevel()){
-                num_inliers++;
-            }
-        }
-
-        if(num_inliers < 100)
-            continue;
-
-        std::cout << "    " << p0.u << "," << p0.v << "," << p1->u << "," << p1->v
-                  << "," << p2->u << "," << p2->v << "," << std::endl;
-
-        hypotheses.push_back(std::move(hypothesis));
-
-    }
-*/
     return hypotheses;
 }
 
