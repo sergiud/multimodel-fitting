@@ -19,6 +19,7 @@
 
 #include <mfigp/config.hxx>
 #include "../../examples/kinect/shapes_3d.hxx"
+#include "hypotheses.hxx"
 
 template<typename computation_type_>
 class problem_kinect : public mfigp::Config<point_3d, plane_3d, computation_type_>{
@@ -223,66 +224,49 @@ problem_kinect<computation_type_>::generateHypotheses( std::vector<point_3d> con
                                     size_t num_hypotheses )
 {
 
-    const size_t NUM_NEAREST_NEIGHBOURS = 200;
-
-    // initialize random gen
-    std::mt19937 gen(12);
-    auto rnd_int = std::uniform_int_distribution<size_t>(0,points.size()-1);
-    auto rnd_int_nn = std::uniform_int_distribution<int>(0, NUM_NEAREST_NEIGHBOURS-1);
-
     // create hypotheses vector
     std::vector<plane_3d> hypotheses;
     hypotheses.reserve(num_hypotheses);
 
-    while(hypotheses.size()<num_hypotheses){
+    for(size_t i = 0; i < num_hypotheses; i++){
 
-        auto const & p0 = points[rnd_int(gen)];
+        size_t hypothesis_input_id = 6*i;
 
-        // Compute nearest neighbours
-        std::multimap<float, const point_3d*> nearest_neighbours;
-        for(auto const & p : points){
-            if (p.equals(p0)) continue;
-            nearest_neighbours.insert(std::pair<float,const point_3d*>(p.dist(p0), &p));
-            while(nearest_neighbours.size() > NUM_NEAREST_NEIGHBOURS)
-                nearest_neighbours.erase(--nearest_neighbours.end());
-        }
-
-        int pos1 = rnd_int_nn(gen);
-        auto it1 = nearest_neighbours.begin();
-        for(int i = 0; i < pos1; i++){
-            it1++;
-        }
-        const point_3d* p1 = it1->second;
-
-        int pos2 = rnd_int_nn(gen);
-        auto it2 = nearest_neighbours.begin();
-        for(int i = 0; i < pos2; i++){
-            it2++;
-        }
-        const point_3d* p2 = it2->second;
-
-
-
-        if( p0.is_outlier || p1->is_outlier || p2->is_outlier ){
-            continue;
-        }
-
-        plane_3d hypothesis(p0,*p1,*p2);
-
-        size_t num_inliers = 0;
-        for(size_t i = 0; i < points.size(); i++){
-            computation_type val = computeResidual(points[i],hypothesis);
-            if(val< 0) val = -val;
-            if(val < getNoiseLevel()){
-                num_inliers++;
+        size_t id = 0;
+        while(id < points.size()){
+            if(hypotheses_input[hypothesis_input_id] == points[id].u &&
+               hypotheses_input[hypothesis_input_id+1] == points[id].v){
+                break;
             }
+            id++;
         }
 
-        if(num_inliers < 100)
-            continue;
+        auto const & p0 = points[id];
 
+        id = 0;
+        while(id < points.size()){
+            if(hypotheses_input[hypothesis_input_id+2] == points[id].u &&
+               hypotheses_input[hypothesis_input_id+3] == points[id].v){
+                break;
+            }
+            id++;
+        }
+
+        auto const & p1 = points[id];
+
+        id = 0;
+        while(id < points.size()){
+            if(hypotheses_input[hypothesis_input_id+4] == points[id].u &&
+               hypotheses_input[hypothesis_input_id+5] == points[id].v){
+                break;
+            }
+            id++;
+        }
+
+        auto const & p2 = points[id];
+
+        plane_3d hypothesis(p0,p1,p2);
         hypotheses.push_back(std::move(hypothesis));
-
     }
 
     return hypotheses;
